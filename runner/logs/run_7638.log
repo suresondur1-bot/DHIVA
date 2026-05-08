@@ -1,0 +1,457 @@
+[11:33:42] [INFO] >> [async_runner] Starting run #7638 — Type: ui, Browser: chrome
+[11:33:44] [INFO] [pool] Acquiring browser context from shared pool...
+[11:33:45] [INFO] Project variables loaded: Consumption, Direct_transfer, Ehr_MRN, PR_Reg, Password, Receipt_Number, Login_URL, UserID, Issue_Number, Indent_Number
+[11:33:45] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[11:33:51] [PASS] [OK] navigate completed
+[11:33:51] [INFO] >> Step 2: Typing '337800' into: [ #username ]
+[11:33:51] [PASS] [OK] type completed
+[11:33:51] [INFO] >> Step 3: Typing 'admin' into: [ #password ]
+[11:33:52] [PASS] [OK] type completed
+[11:33:52] [INFO] >> Step 4: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[11:33:52] [PASS] [OK] click completed
+[11:33:52] [INFO] >> Step 5: Waiting 1000ms
+[11:33:53] [PASS] [OK] wait completed
+[11:33:53] [INFO] >> Step 6: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[11:33:53] [PASS] [OK] assert_url completed
+[11:33:53] [INFO] >> Step 7: Pressing key '.' on: [ body ]
+[11:33:53] [PASS] [OK] press completed
+[11:33:53] [INFO] >> Step 8: Typing 'purchase requisition' into: [ get_by_role("textbox", name="Search") ]
+[11:33:54] [PASS] [OK] type completed
+[11:33:54] [INFO] >> Step 9: Clicking: [ get_by_role("link", name="Purchase Requisition Purchase") ]
+[11:33:54] [PASS] [OK] click completed
+[11:33:57] [INFO] >> Step 10: Waiting for element: [ get_by_role("button", name="Create New") ]
+[11:33:58] [PASS] [OK] wait_for_selector completed
+[11:33:58] [INFO] >> Step 11: Clicking: [ button:has-text("Create New") ]
+[11:34:00] [INFO] >> Step 12: Search & Select: type 'IP Pharmacy-Raipur' -> pick 'IP Pharmacy-Raipur' in [ #storeInput ]
+[11:34:00] [INFO] [search_select] typing='IP Pharmacy-Raipur' picking='IP Pharmacy-Raipur'
+[11:34:02] [PASS] [OK] Search & Select: selected 'IP Pharmacy-Raipur'
+[11:34:02] [PASS] [OK] search_select completed
+[11:34:02] [INFO] >> Step 13: Clicking: [ #btnNext ]
+[11:34:03] [PASS] [OK] click completed
+[11:34:03] [INFO] >> Step 14: Waiting for element: [ #itemInput ]
+[11:34:03] [PASS] [OK] wait_for_selector completed
+[11:34:03] [INFO] [DATA TABLE] 3 row(s), columns: ['itemCode', 'itemName', 'Qty']
+[11:34:03] [INFO] [DATA TABLE] Row 1/3: itemCode=M-N-PH-M963-A037, itemName=GLOD WHEEL Plates-GOLD-100MG-SAMSUNG, Qty=7
+[11:34:03] [INFO] >> Step 1: Search & Select: type '{{itemCode}}' -> pick 'GLOD WHEEL Plates-GOLD-100MG-SAMSUNG' in [ #itemInput ]
+[11:34:03] [INFO] [search_select] typing='M-N-PH-M963-A037' picking='GLOD WHEEL Plates-GOLD-100MG-SAMSUNG'
+[11:34:05] [PASS] [OK] Search & Select: selected 'GLOD WHEEL Plates-GOLD-100MG-SAMSUNG'
+[11:34:05] [PASS] [OK] search_select completed
+[11:34:06] [INFO] >> Step 2: Typing '7' into: [ body > jhi-main > div > section > div.app-content > jhi-purchase-requisition-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-header > table > tbody > tr > td:nth-child(8) > div > input ]
+[11:34:06] [PASS] [OK] type completed
+[11:34:06] [INFO] >> Step 3: Clicking: [ td .athma-icon-button ]
+[11:34:06] [PASS] [OK] click completed
+[11:34:06] [INFO] [DATA TABLE] Row 2/3: itemCode=M-N-SG-M963-A036, itemName=CALCIUM-CAPSULES-100MG-DOLOPAR, Qty=5
+[11:34:06] [INFO] >> Step 1: Search & Select: type '{{itemCode}}' -> pick 'CALCIUM-CAPSULES-100MG-DOLOPAR' in [ #itemInput ]
+[11:34:06] [INFO] [search_select] typing='M-N-SG-M963-A036' picking='CALCIUM-CAPSULES-100MG-DOLOPAR'
+[11:34:09] [PASS] [OK] Search & Select: selected 'CALCIUM-CAPSULES-100MG-DOLOPAR'
+[11:34:09] [PASS] [OK] search_select completed
+[11:34:09] [INFO] >> Step 2: Typing '5' into: [ body > jhi-main > div > section > div.app-content > jhi-purchase-requisition-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-header > table > tbody > tr > td:nth-child(8) > div > input ]
+[11:34:09] [PASS] [OK] type completed
+[11:34:09] [INFO] >> Step 3: Clicking: [ td .athma-icon-button ]
+[11:34:09] [PASS] [OK] click completed
+[11:34:09] [INFO] [DATA TABLE] Row 3/3: itemCode=M-N-PH-M963-A035, itemName=CALCIUM-VITAMIN D-500MG+250IU-, Qty=6
+[11:34:09] [INFO] >> Step 1: Search & Select: type '{{itemCode}}' -> pick 'CALCIUM-VITAMIN D-500MG+250IU-' in [ #itemInput ]
+[11:34:09] [INFO] [search_select] typing='M-N-PH-M963-A035' picking='CALCIUM-VITAMIN D-500MG+250IU-'
+[11:34:12] [PASS] [OK] Search & Select: selected 'CALCIUM-VITAMIN D-500MG+250IU-'
+[11:34:12] [PASS] [OK] search_select completed
+[11:34:12] [INFO] >> Step 2: Typing '6' into: [ body > jhi-main > div > section > div.app-content > jhi-purchase-requisition-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-header > table > tbody > tr > td:nth-child(8) > div > input ]
+[11:34:12] [PASS] [OK] type completed
+[11:34:12] [INFO] >> Step 3: Clicking: [ td .athma-icon-button ]
+[11:34:12] [PASS] [OK] click completed
+[11:34:12] [INFO] >> Step 20: Clicking: [ [jhitranslate="entity.action.save"] ]
+[11:34:13] [PASS] [OK] click completed
+[11:34:13] [INFO] >> Step 21: Waiting for element: [ (//div[contains(@class,"toast")]//ngb-alert)[1]//pre ]
+[11:34:13] [PASS] [OK] wait_for_selector completed
+[11:34:13] [INFO] >> Step 22: store_text -- (//div[contains(@class,"toast")]//ngb-alert)[1]//pre
+[11:34:13] [PASS] [OK] Stored 'DRAFT-8468 saved successfully' → {{Purchase_PR}}
+[11:34:13] [PASS] [OK] str_split: 'DRAFT-8468' → {{Purchase_PR}}
+[11:34:13] [INFO] >> Step 24: Clicking: [ #inputDebounce ]
+[11:34:18] [PASS] [OK] click completed
+[11:34:18] [INFO] >> Step 25: press_sequentially -- #inputDebounce
+[11:34:20] [INFO] [press_sequentially] filled and waited for debounce: 'DRAFT-8468'
+[11:34:20] [PASS] [OK] press_sequentially completed
+[11:34:20] [INFO] >> Step 26: Clicking: [ get_by_text("DRAFT-8468") ]
+[11:34:20] [PASS] [OK] click completed
+[11:34:20] [INFO] >> Step 27: Clicking: [ get_by_role("button", name="Open") ]
+[11:34:21] [PASS] [OK] click completed
+[11:34:21] [INFO] >> Step 28: Clicking: [ get_by_role("button", name="Send for Approval") ]
+[11:34:22] [PASS] [OK] click completed
+[11:34:22] [INFO] >> Step 29: Waiting for element: [ get_by_role("button", name="Claim") ]
+[11:34:23] [PASS] [OK] wait_for_selector completed
+[11:34:23] [INFO] >> Step 30: Waiting 1000ms
+[11:34:24] [PASS] [OK] wait completed
+[11:34:24] [INFO] >> Step 31: store_text -- body > jhi-main > div > section > div.app-content > jhi-purchase-requisition-dialog > div > div > div.athma-detail-form-panel > div  > div.preview-form-header > h5 > span
+[11:34:24] [PASS] [OK] Stored 'PR175426001815' → {{Purchase_PR}}
+[11:34:24] [INFO] >> Step 32: Clicking: [ get_by_role("button", name="Claim") ]
+[11:34:24] [PASS] [OK] click completed
+[11:34:24] [INFO] >> Step 33: Clicking: [ get_by_role("button", name="Approve") ]
+[11:34:26] [PASS] [OK] click completed
+[11:34:26] [INFO] >> Step 34: Clicking: [ div.sidebar-logo-container ]
+[11:34:27] [PASS] [OK] click completed
+[11:34:27] [INFO] >> Step 35: Waiting 2000ms
+[11:34:29] [PASS] [OK] wait completed
+[11:34:29] [INFO] >> Step 36: Waiting for URL to contain: 'https://sqa.narayanahealth.org/home-page'
+[11:34:29] [PASS] [OK] wait_for_url completed
+[11:34:29] [INFO] >> Step 37: Pressing key '.' on: [ body ]
+[11:34:29] [PASS] [OK] press completed
+[11:34:29] [INFO] >> Step 38: Typing 'Purchase Order' into: [ get_by_role("textbox", name="Search") ]
+[11:34:29] [PASS] [OK] type completed
+[11:34:29] [INFO] >> Step 39: Clicking: [ (//div[contains(@class,"menu-search-list")]//a[contains(@class,"menu-search-anchor")])[1] ]
+[11:34:30] [PASS] [OK] click completed
+[11:34:30] [INFO] >> Step 40: Clicking: [ #inputDebounce ]
+[11:34:32] [PASS] [OK] click completed
+[11:34:32] [INFO] >> Step 41: press_sequentially -- #inputDebounce
+[11:34:34] [INFO] [press_sequentially] filled and waited for debounce: 'PR175426001815'
+[11:34:34] [PASS] [OK] press_sequentially completed
+[11:34:35] [INFO] >> Step 42: Clicking: [ get_by_text("PR175426001815") ]
+[11:34:35] [PASS] [OK] click completed
+[11:34:35] [INFO] >> Step 43: Clicking: [ button.athma-icon-button.action-icon ]
+[11:34:36] [PASS] [OK] click completed
+[11:34:36] [INFO] >> Step 44: Clicking: [ get_by_text("Create PO") ]
+[11:34:36] [PASS] [OK] click completed
+[11:34:36] [INFO] >> Step 45: Waiting for element: [ (//div[contains(@class,"toast")]//ngb-alert)[1]//pre ]
+[11:34:36] [PASS] [OK] wait_for_selector completed
+[11:34:36] [INFO] >> Step 46: store_text -- (//div[contains(@class,"toast")]//ngb-alert)[1]//pre
+[11:34:36] [PASS] [OK] Stored 'Purchase Order Created Successfully' → {{Purchase_Order}}
+[11:34:37] [INFO] >> Step 47: db_extract_multi -- 
+[11:34:37] [INFO]   db_extract: {{Purchase_PO}} = 'PO175426000944'
+[11:34:37] [PASS] [OK] db_extract_multi: 1 var(s) stored
+[11:34:37] [INFO] >> Step 48: Clicking: [ #jhi-purchase-order-main>athma-page-header>div section>div.row>div>h2:nth-child(2) ]
+[11:34:45] [PASS] [OK] click completed
+[11:34:46] [INFO] >> Step 49: Waiting 1000ms
+[11:34:47] [PASS] [OK] wait completed
+[11:34:47] [INFO] >> Step 50: Search & Select: type 'PO' -> pick 'PO' in [ #docType ]
+[11:34:47] [INFO] [search_select] typing='PO' picking='PO'
+[11:34:49] [PASS] [OK] Search & Select: selected 'PO'
+[11:34:49] [PASS] [OK] search_select completed
+[11:34:49] [INFO] >> Step 51: Typing 'PO175426000944' into: [ input[name="docNo"] ]
+[11:34:50] [PASS] [OK] type completed
+[11:34:50] [INFO] >> Step 52: Clicking: [ button.athma-btn.athma-btn-priamry-outline ]
+[11:34:50] [PASS] [OK] click completed
+[11:34:50] [INFO] >> Step 53: Clicking: [ #account-more ]
+[11:34:51] [PASS] [OK] click completed
+[11:34:51] [INFO] >> Step 54: Waiting 1000ms
+[11:34:52] [PASS] [OK] wait completed
+[11:34:52] [INFO] >> Step 55: Clicking: [ #logout ]
+[11:34:52] [PASS] [OK] click completed
+[11:34:52] [INFO] >> Step 56: Waiting for element: [ #username ]
+[11:34:54] [PASS] [OK] wait_for_selector completed
+[11:34:54] [INFO] >> Step 57: Typing '334472' into: [ #username ]
+[11:34:54] [PASS] [OK] type completed
+[11:34:54] [INFO] >> Step 58: Typing 'admin' into: [ #password ]
+[11:34:54] [PASS] [OK] type completed
+[11:34:54] [INFO] >> Step 59: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[11:34:54] [PASS] [OK] click completed
+[11:34:54] [INFO] >> Step 60: Waiting 1000ms
+[11:34:55] [PASS] [OK] wait completed
+[11:34:55] [INFO] >> Step 61: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[11:34:55] [PASS] [OK] assert_url completed
+[11:34:55] [INFO] >> Step 62: Pressing key '.' on: [ body ]
+[11:34:56] [PASS] [OK] press completed
+[11:34:56] [INFO] >> Step 63: Typing 'Sales Order' into: [ get_by_role("textbox", name="Search") ]
+[11:34:56] [PASS] [OK] type completed
+[11:34:56] [INFO] >> Step 64: Clicking: [ get_by_role("link", name="Sales Order Sale") ]
+[11:34:56] [PASS] [OK] click completed
+[11:34:56] [INFO] >> Step 65: Waiting 2000ms
+[11:34:58] [PASS] [OK] wait completed
+[11:34:59] [INFO] >> Step 66: Waiting for element: [ get_by_role("button", name="Create New") ]
+[11:34:59] [PASS] [OK] wait_for_selector completed
+[11:34:59] [INFO] >> Step 67: Search & Select: type 'PO' -> pick 'PO' in [ #docType ]
+[11:34:59] [INFO] [search_select] typing='PO' picking='PO'
+[11:35:01] [PASS] [OK] Search & Select: selected 'PO'
+[11:35:01] [PASS] [OK] search_select completed
+[11:35:01] [INFO] >> Step 68: press_sequentially -- input[name="docNo"]
+[11:35:02] [INFO] [press_sequentially] filled and waited for debounce: 'PO175426000944'
+[11:35:02] [PASS] [OK] press_sequentially completed
+[11:35:02] [INFO] >> Step 69: Clicking: [ .col-3 .athma-btn-priamry-outline ]
+[11:35:03] [PASS] [OK] click completed
+[11:35:03] [INFO] >> Step 70: Waiting 1000ms
+[11:35:04] [PASS] [OK] wait completed
+[11:35:04] [INFO] >> Step 71: store_text -- //div[contains(@class,"si-detail-table")]//table//tr[1]//td[2]
+[11:35:04] [PASS] [OK] Stored 'SO202326000288' → {{saleorder_number}}
+[11:35:04] [INFO] >> Step 72: Waiting 1000ms
+[11:35:05] [PASS] [OK] wait completed
+[11:35:05] [INFO] >> Step 73: Pressing key '.' on: [ body ]
+[11:35:05] [PASS] [OK] press completed
+[11:35:06] [INFO] >> Step 74: Typing 'Shipment' into: [ get_by_role("textbox", name="Search") ]
+[11:35:06] [PASS] [OK] type completed
+[11:35:06] [INFO] >> Step 75: Waiting 1000ms
+[11:35:07] [PASS] [OK] wait completed
+[11:35:07] [INFO] >> Step 76: Clicking: [ (//div[contains(@class,"menu-search-list")]//a[contains(@class,"menu-search-anchor")])[2] ]
+[11:35:07] [PASS] [OK] click completed
+[11:35:07] [INFO] >> Step 77: Waiting for URL to contain: 'https://sqa.narayanahealth.org/phrweb/shipment'
+[11:35:07] [PASS] [OK] wait_for_url completed
+[11:35:07] [INFO] >> Step 78: Clicking: [ get_by_role("button", name="Create New") ]
+[11:35:08] [PASS] [OK] click completed
+[11:35:08] [INFO] >> Step 79: Waiting for element: [ #storeInput ]
+[11:35:08] [PASS] [OK] wait_for_selector completed
+[11:35:08] [INFO] >> Step 80: press_sequentially -- #docNo
+[11:35:10] [INFO] [press_sequentially] filled and waited for debounce: 'SO202326000288'
+[11:35:10] [PASS] [OK] press_sequentially completed
+[11:35:10] [INFO] >> Step 81: Search & Select: type 'Central Warehouse' -> pick 'Central Warehouse' in [ #storeInput ]
+[11:35:10] [INFO] [search_select] typing='Central Warehouse' picking='Central Warehouse'
+[11:35:12] [PASS] [OK] Search & Select: selected 'Central Warehouse'
+[11:35:12] [PASS] [OK] search_select completed
+[11:35:12] [INFO] >> Step 82: Clicking: [ .modal-actions .athma-btn-priamry ]
+[11:35:13] [PASS] [OK] click completed
+[11:35:13] [INFO] >> Step 83: Waiting 2000ms
+[11:35:15] [PASS] [OK] wait completed
+[11:35:15] [INFO] [DATA TABLE] 3 row(s), columns: ['saleName', 'saleBatch', 'saleQty']
+[11:35:15] [INFO] [DATA TABLE] Row 1/3: saleName=CALCIUM-CAPSULES-100MG-DOLOPAR, saleBatch=STAT0920, saleQty=5
+[11:35:15] [INFO] >> Step 1: table_action -- body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-body.ps.position-relative > table
+[11:35:17] [PASS] [OK] table_action completed
+[11:35:17] [INFO] >> Step 2: table_action -- body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-body.ps.position-relative > table
+[11:35:22] [PASS] [OK] table_action completed
+[11:35:22] [INFO] [DATA TABLE] Row 2/3: saleName=CALCIUM-VITAMIN D-500MG+250IU-, saleBatch=VITM8970, saleQty=6
+[11:35:22] [INFO] >> Step 1: table_action -- body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-body.ps.position-relative > table
+[11:35:23] [PASS] [OK] table_action completed
+[11:35:24] [INFO] >> Step 2: table_action -- body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-body.ps.position-relative > table
+[11:35:29] [PASS] [OK] table_action completed
+[11:35:29] [INFO] [DATA TABLE] Row 3/3: saleName=GLOD WHEEL Plates-GOLD-100MG-SAMSUNG, saleBatch=PLAN45567, saleQty=7
+[11:35:29] [INFO] >> Step 1: table_action -- body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-body.ps.position-relative > table
+[11:35:31] [PASS] [OK] table_action completed
+[11:35:31] [INFO] >> Step 2: table_action -- body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-body.ps.position-relative > table
+[11:35:36] [PASS] [OK] table_action completed
+[11:35:36] [INFO] >> Step 88: focus -- #shipmentMode
+[11:35:36] [PASS] [OK] focus completed
+[11:35:36] [INFO] >> Step 89: Search & Select: type 'Expedited' -> pick 'Expedited' in [ #shipmentMode ]
+[11:35:36] [INFO] [search_select] typing='Expedited' picking='Expedited'
+[11:35:38] [PASS] [OK] Search & Select: selected 'Expedited'
+[11:35:38] [PASS] [OK] search_select completed
+[11:35:38] [INFO] >> Step 90: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > jhi-shipment-footer > div > div.col-8.d-flex.justify-content-end.p-0 > button:nth-child(3) ]
+[11:35:39] [PASS] [OK] click completed
+[11:35:39] [INFO] >> Step 91: Waiting 2000ms
+[11:35:41] [PASS] [OK] wait completed
+[11:35:41] [INFO] >> Step 92: Waiting for element: [ get_by_role("button", name="Claim") ]
+[11:35:41] [PASS] [OK] wait_for_selector completed
+[11:35:41] [INFO] >> Step 93: Waiting 6000ms
+[11:35:47] [PASS] [OK] wait completed
+[11:35:47] [INFO] >> Step 94: store_text -- div.athma-detail-form-panel>div>div.preview-form-header>h5>span
+[11:35:47] [PASS] [OK] Stored 'SP202326000177' → {{Shipment_number}}
+[11:35:47] [INFO] >> Step 95: Clicking: [ get_by_role("button", name="Claim") ]
+[11:35:47] [PASS] [OK] click completed
+[11:35:47] [INFO] >> Step 96: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > jhi-shipment-footer > div > div.col-8.d-flex.justify-content-end.p-0 > button ]
+[11:35:48] [PASS] [OK] wait_for_selector completed
+[11:35:48] [INFO] >> Step 97: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-shipment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > jhi-shipment-footer > div > div.col-8.d-flex.justify-content-end.p-0 > button ]
+[11:35:48] [PASS] [OK] click completed
+[11:35:48] [INFO] >> Step 98: Waiting for element: [ (//div[contains(@class,"toast")]//ngb-alert)[1]//pre ]
+[11:35:48] [PASS] [OK] wait_for_selector completed
+[11:35:48] [INFO] >> Step 99: store_text -- (//div[contains(@class,"toast")]//ngb-alert)[1]//pre
+[11:35:48] [PASS] [OK] Stored 'Shipment document claimed successfully.' → {{Shipment_Message}}
+[11:35:48] [INFO] >> Step 100: Clicking: [ #account-more ]
+[11:35:49] [PASS] [OK] click completed
+[11:35:49] [INFO] >> Step 101: Waiting 1000ms
+[11:35:50] [PASS] [OK] wait completed
+[11:35:50] [INFO] >> Step 102: Clicking: [ #logout ]
+[11:35:51] [PASS] [OK] click completed
+[11:35:51] [INFO] >> Step 103: Waiting for element: [ #username ]
+[11:35:52] [PASS] [OK] wait_for_selector completed
+[11:35:52] [INFO] >> Step 104: Typing '337800' into: [ #username ]
+[11:35:53] [PASS] [OK] type completed
+[11:35:53] [INFO] >> Step 105: Typing 'admin' into: [ #password ]
+[11:35:53] [PASS] [OK] type completed
+[11:35:53] [INFO] >> Step 106: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[11:35:53] [PASS] [OK] click completed
+[11:35:53] [INFO] >> Step 107: Waiting 1000ms
+[11:35:54] [PASS] [OK] wait completed
+[11:35:54] [INFO] >> Step 108: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[11:35:54] [PASS] [OK] assert_url completed
+[11:35:54] [INFO] >> Step 109: Pressing key '.' on: [ body ]
+[11:35:54] [PASS] [OK] press completed
+[11:35:54] [INFO] >> Step 110: Typing 'GRN' into: [ get_by_role("textbox", name="Search") ]
+[11:35:54] [PASS] [OK] type completed
+[11:35:54] [INFO] >> Step 111: Waiting 1000ms
+[11:35:55] [PASS] [OK] wait completed
+[11:35:55] [INFO] >> Step 112: Clicking: [ (//div[contains(@class,"menu-search-list")]//a[contains(@class,"menu-search-anchor")])[2] ]
+[11:35:56] [PASS] [OK] click completed
+[11:35:56] [INFO] >> Step 113: Waiting 2000ms
+[11:35:58] [PASS] [OK] wait completed
+[11:35:58] [INFO] >> Step 114: Waiting for element: [ get_by_role("button", name="Create New") ]
+[11:35:58] [PASS] [OK] wait_for_selector completed
+[11:35:58] [INFO] >> Step 115: Search & Select: type 'Shipment No' -> pick 'Shipment No' in [ #docType ]
+[11:35:58] [INFO] [search_select] typing='Shipment No' picking='Shipment No'
+[11:36:01] [PASS] [OK] Search & Select: selected 'Shipment No'
+[11:36:01] [PASS] [OK] search_select completed
+[11:36:01] [INFO] >> Step 116: press_sequentially -- div.grn-order-filter>div:nth-child(2)>div>input
+[11:36:02] [INFO] [press_sequentially] filled and waited for debounce: 'SP202326000177'
+[11:36:02] [PASS] [OK] press_sequentially completed
+[11:36:02] [INFO] >> Step 117: Clicking: [ .col-3 .athma-btn-priamry-outline ]
+[11:36:02] [PASS] [OK] click completed
+[11:36:02] [INFO] >> Step 118: Clicking: [ get_by_text("SP202326000177") ]
+[11:36:03] [PASS] [OK] click completed
+[11:36:03] [INFO] >> Step 119: Clicking: [ get_by_role("button", name="Open") ]
+[11:36:03] [PASS] [OK] click completed
+[11:36:03] [INFO] >> Step 120: store_text -- body > jhi-main > div > section > div.app-content > jhi-goods-receipt-note-dialog > div > div > div.athma-detail-form-panel > div > div.preview-form-header > h5 > span
+[11:36:04] [PASS] [OK] Stored 'GRN175426000876' → {{GRN_NO}}
+[11:36:04] [INFO] >> Step 121: Clicking: [ get_by_role("button", name="Claim") ]
+[11:36:04] [PASS] [OK] click completed
+[11:36:05] [INFO] >> Step 122: Waiting for element: [ get_by_role("button", name="Approve") ]
+[11:36:05] [PASS] [OK] wait_for_selector completed
+[11:36:05] [INFO] >> Step 123: Clicking: [ get_by_role("button", name="Approve") ]
+[11:36:05] [PASS] [OK] click completed
+[11:36:05] [INFO] >> Step 124: Waiting 2000ms
+[11:36:07] [PASS] [OK] wait completed
+[11:36:07] [INFO] >> Step 125: Search & Select: type 'GRN' -> pick 'GRN' in [ #docType ]
+[11:36:07] [INFO] [search_select] typing='GRN' picking='GRN'
+[11:36:10] [PASS] [OK] Search & Select: selected 'GRN'
+[11:36:10] [PASS] [OK] search_select completed
+[11:36:10] [INFO] >> Step 126: Typing 'GRN175426000876' into: [ input[name="docNo"] ]
+[11:36:10] [PASS] [OK] type completed
+[11:36:10] [INFO] >> Step 127: Clicking: [ .col-3 .athma-btn-priamry-outline ]
+[11:36:11] [PASS] [OK] click completed
+[11:36:11] [INFO] >> Step 128: Asserting [ body > jhi-main > div > section > div.app-content > jhi-goods-receipt-note > div.row > div > div.si-detail-table > div > table > tbody > tr > td:nth-child(12) > status-display > div > span ] contains: 'Processed'
+[11:36:11] [PASS] [OK] assert_text completed
+[11:36:11] [INFO] >> Step 129: Clicking: [ div.sidebar-logo-container ]
+[11:36:11] [PASS] [OK] click completed
+[11:36:11] [INFO] >> Step 130: Waiting for URL to contain: 'https://sqa.narayanahealth.org/home-page'
+[11:36:12] [PASS] [OK] wait_for_url completed
+[11:36:12] [INFO] >> Step 131: Navigating to URL: https://sqa.narayanahealth.org/phrweb/account-payable-invoice
+[11:36:18] [PASS] [OK] navigate completed
+[11:36:18] [INFO] [SKIP] Step 132 (press) is disabled — skipping
+[11:36:18] [INFO] [SKIP] Step 133 (type) is disabled — skipping
+[11:36:18] [INFO] [SKIP] Step 134 (wait) is disabled — skipping
+[11:36:18] [INFO] [SKIP] Step 135 (click) is disabled — skipping
+[11:36:18] [INFO] >> Step 136: Waiting for URL to contain: 'https://sqa.narayanahealth.org/phrweb/account-payable-invoice'
+[11:36:18] [PASS] [OK] wait_for_url completed
+[11:36:18] [INFO] >> Step 137: Search & Select: type 'GRN' -> pick 'GRN' in [ #docType ]
+[11:36:18] [INFO] [search_select] typing='GRN' picking='GRN'
+[11:36:20] [PASS] [OK] Search & Select: selected 'GRN'
+[11:36:20] [PASS] [OK] search_select completed
+[11:36:20] [INFO] >> Step 138: press_sequentially -- #docNo
+[11:36:21] [INFO] [press_sequentially] filled and waited for debounce: 'GRN175426000876'
+[11:36:21] [PASS] [OK] press_sequentially completed
+[11:36:21] [INFO] >> Step 139: Clicking: [ athma-page-header > div > jhi-multi-tab > section > div.mb-3.mt-2 > div > div > div > div:nth-child(8) > button.athma-btn.athma-btn-priamry-outline.athma-btn-height-sm ]
+[11:36:22] [PASS] [OK] click completed
+[11:36:22] [INFO] >> Step 140: Clicking: [ jhi-multi-tab>section>div.align-items-center>div>ul>li:nth-child(2)>a ]
+[11:36:22] [PASS] [OK] click completed
+[11:36:22] [INFO] >> Step 141: store_text -- div.ap-invoice-list >div> perfect-scrollbar> div>div>div>table.fixed-header-table-body>tbody>tr>td:nth-child(2)
+[11:36:23] [PASS] [OK] Stored 'AP175426000768' → {{apInvoice_number}}
+[11:36:23] [INFO] >> Step 142: Clicking: [ #account-more ]
+[11:36:23] [PASS] [OK] click completed
+[11:36:23] [INFO] >> Step 143: Waiting 1000ms
+[11:36:24] [PASS] [OK] wait completed
+[11:36:24] [INFO] >> Step 144: Clicking: [ #logout ]
+[11:36:25] [PASS] [OK] click completed
+[11:36:25] [INFO] >> Step 145: Waiting for element: [ #username ]
+[11:36:26] [PASS] [OK] wait_for_selector completed
+[11:36:26] [INFO] >> Step 146: Typing '334472' into: [ #username ]
+[11:36:26] [PASS] [OK] type completed
+[11:36:26] [INFO] >> Step 147: Typing 'admin' into: [ #password ]
+[11:36:26] [PASS] [OK] type completed
+[11:36:26] [INFO] >> Step 148: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[11:36:26] [PASS] [OK] click completed
+[11:36:26] [INFO] >> Step 149: Waiting 1000ms
+[11:36:27] [PASS] [OK] wait completed
+[11:36:27] [INFO] >> Step 150: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[11:36:27] [PASS] [OK] assert_url completed
+[11:36:27] [INFO] >> Step 151: Pressing key '.' on: [ body ]
+[11:36:27] [PASS] [OK] press completed
+[11:36:27] [INFO] >> Step 152: Typing 'Sales Invoice' into: [ get_by_role("textbox", name="Search") ]
+[11:36:28] [PASS] [OK] type completed
+[11:36:28] [INFO] >> Step 153: Clicking: [ get_by_role("link", name="Sales Invoice Sale") ]
+[11:36:28] [PASS] [OK] click completed
+[11:36:28] [INFO] >> Step 154: Waiting for URL to contain: 'https://sqa.narayanahealth.org/phrweb/sales-invoice'
+[11:36:29] [PASS] [OK] wait_for_url completed
+[11:36:29] [INFO] >> Step 155: Search & Select: type 'Shipment No' -> pick 'Shipment No' in [ #docType ]
+[11:36:29] [INFO] [search_select] typing='Shipment No' picking='Shipment No'
+[11:36:33] [PASS] [OK] Search & Select: selected 'Shipment No'
+[11:36:33] [PASS] [OK] search_select completed
+[11:36:33] [INFO] >> Step 156: Typing 'SP202326000177' into: [ jhi-sales-invoice-main > athma-page-header > div > jhi-multi-tab > section > div.mb-3.mt-2 > div > div > div:nth-child(2) > input ]
+[11:36:33] [PASS] [OK] type completed
+[11:36:33] [INFO] >> Step 157: Clicking: [ jhi-sales-invoice-main > athma-page-header > div > jhi-multi-tab > section > div > div > div > div.col-2.d-flex.mb-2 > button.athma-btn.athma-btn-priamry-outline.athma-btn-height-sm ]
+[11:36:34] [PASS] [OK] click completed
+[11:36:34] [INFO] >> Step 158: Clicking: [ #account-more ]
+[11:36:34] [PASS] [OK] click completed
+[11:36:34] [INFO] >> Step 159: Waiting 1000ms
+[11:36:35] [PASS] [OK] wait completed
+[11:36:35] [INFO] >> Step 160: Clicking: [ #logout ]
+[11:36:36] [PASS] [OK] click completed
+[11:36:36] [INFO] >> Step 161: Waiting for element: [ #username ]
+[11:36:37] [PASS] [OK] wait_for_selector completed
+[11:36:37] [INFO] >> Step 162: Typing '337800' into: [ #username ]
+[11:36:37] [PASS] [OK] type completed
+[11:36:37] [INFO] >> Step 163: Typing 'admin' into: [ #password ]
+[11:36:37] [PASS] [OK] type completed
+[11:36:37] [INFO] >> Step 164: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[11:36:37] [PASS] [OK] click completed
+[11:36:37] [INFO] >> Step 165: Waiting 1000ms
+[11:36:38] [PASS] [OK] wait completed
+[11:36:38] [INFO] >> Step 166: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[11:36:38] [PASS] [OK] assert_url completed
+[11:36:38] [INFO] >> Step 167: Pressing key '.' on: [ body ]
+[11:36:39] [PASS] [OK] press completed
+[11:36:39] [INFO] >> Step 168: Typing 'Return To Vendor' into: [ get_by_role("textbox", name="Search") ]
+[11:36:39] [PASS] [OK] type completed
+[11:36:39] [INFO] >> Step 169: Clicking: [ get_by_role("link", name="Return To Vendor Purchase") ]
+[11:36:39] [PASS] [OK] click completed
+[11:36:39] [INFO] >> Step 170: Waiting for URL to contain: 'https://sqa.narayanahealth.org/phrweb/return-to-vendor'
+[11:36:40] [PASS] [OK] wait_for_url completed
+[11:36:40] [INFO] >> Step 171: Clicking: [ get_by_role("button", name="Create New") ]
+[11:36:42] [PASS] [OK] click completed
+[11:36:43] [INFO] >> Step 172: Waiting for element: [ #grn ]
+[11:36:43] [PASS] [OK] wait_for_selector completed
+[11:36:43] [INFO] [SKIP] Step 173 (select) is disabled — skipping
+[11:36:43] [INFO] >> Step 174: Search & Select: type '{{GRN_NO}}' -> pick 'GRN175426000876' in [ #grn > div > div > div.ng-input > input[type=text] ]
+[11:36:43] [INFO] [search_select] typing='GRN175426000876' picking='GRN175426000876'
+[11:36:46] [PASS] [OK] Search & Select: selected 'GRN175426000876'
+[11:36:46] [PASS] [OK] search_select completed
+[11:36:46] [INFO] >> Step 175: Waiting 1000ms
+[11:36:47] [PASS] [OK] wait completed
+[11:36:47] [INFO] >> Step 176: Clicking: [ #btnNext ]
+[11:36:48] [PASS] [OK] click completed
+[11:36:48] [INFO] >> Step 177: Waiting 2000ms
+[11:36:50] [PASS] [OK] wait completed
+[11:36:50] [INFO] [DATA TABLE] 3 row(s), columns: ['itemName', 'check']
+[11:36:50] [INFO] [DATA TABLE] Row 1/3: itemName=CALCIUM-CAPSULES-100MG-DOLOPAR, check=yes
+[11:36:50] [INFO] [IF] 'yes' contains 'yes' => True
+[11:36:50] [INFO] >> Step 1: table_action -- jhi-return-to-vendor-dialog table.table.athma-table
+[11:36:50] [PASS] [OK] table_action completed
+[11:36:50] [INFO] [SKIP] Step 4 (click) is disabled — skipping
+[11:36:50] [INFO] [DATA TABLE] Row 2/3: itemName=GLOD WHEEL Plates-GOLD-100MG-SAMSUNG, check=no
+[11:36:50] [INFO] [IF] 'no' contains 'yes' => False
+[11:36:50] [INFO] [SKIP] Step 4 (click) is disabled — skipping
+[11:36:50] [INFO] [DATA TABLE] Row 3/3: itemName=CALCIUM-VITAMIN D-500MG+250IU-, check=yes
+[11:36:50] [INFO] [IF] 'yes' contains 'yes' => True
+[11:36:50] [INFO] >> Step 1: table_action -- jhi-return-to-vendor-dialog table.table.athma-table
+[11:36:50] [PASS] [OK] table_action completed
+[11:36:50] [INFO] [SKIP] Step 4 (click) is disabled — skipping
+[11:36:50] [INFO] >> Step 184: Clicking: [ get_by_role("button", name="Proceed") ]
+[11:36:51] [PASS] [OK] click completed
+[11:36:51] [INFO] [DATA TABLE] 2 row(s), columns: ['itemName', 'qty', 'reason']
+[11:36:51] [INFO] [DATA TABLE] Row 1/2: itemName=CALCIUM-CAPSULES-100MG-DOLOPAR, qty=2, reason=Item is damaged
+[11:36:51] [INFO] [IF] 'yes' contains 'yes' => True
+[11:36:51] [INFO] >> Step 1: table_action -- jhi-return-to-vendor-dialog table.table.athma-table
+[11:36:56] [PASS] [OK] table_action completed
+[11:36:56] [INFO] >> Step 2: table_action -- jhi-return-to-vendor-dialog table.table.athma-table
+[11:37:03] [PASS] [OK] table_action completed
+[11:37:03] [INFO] [DATA TABLE] Row 2/2: itemName=CALCIUM-VITAMIN D-500MG+250IU-, qty=3, reason=Item is damaged
+[11:37:03] [INFO] [IF] 'yes' contains 'yes' => True
+[11:37:03] [INFO] >> Step 1: table_action -- jhi-return-to-vendor-dialog table.table.athma-table
+[11:37:08] [PASS] [OK] table_action completed
+[11:37:08] [INFO] >> Step 2: table_action -- jhi-return-to-vendor-dialog table.table.athma-table
+[11:37:14] [PASS] [OK] table_action completed
+[11:37:14] [INFO] >> Step 191: Clicking: [ get_by_role("button", name="Send for Approval") ]
+[11:37:15] [PASS] [OK] click completed
+[11:37:15] [INFO] >> Step 192: Waiting for element: [ get_by_role("button", name="Claim") ]
+[11:37:16] [PASS] [OK] wait_for_selector completed
+[11:37:16] [INFO] >> Step 193: Waiting 7000ms
+[11:37:23] [PASS] [OK] wait completed
+[11:37:23] [INFO] >> Step 194: store_text -- jhi-return-to-vendor-dialog>div.stock-indent-new>div>div.athma-detail-form-panel>div>div.preview-form-header>h5>span
+[11:37:23] [PASS] [OK] Stored 'RTV175426000078' → {{RTV_NO}}
+[11:37:23] [INFO] >> Step 195: Clicking: [ get_by_role("button", name="Claim") ]
+[11:37:23] [PASS] [OK] click completed
+[11:37:23] [INFO] >> Step 196: Waiting for element: [ get_by_role("button", name="Approve") ]
+[11:37:24] [PASS] [OK] wait_for_selector completed
+[11:37:24] [INFO] >> Step 197: Clicking: [ get_by_role("button", name="Approve") ]
+[11:37:24] [PASS] [OK] click completed
+[11:37:24] [INFO] >> Step 198: Search & Select: type 'RTV' -> pick 'RTV' in [ #docType ]
+[11:37:24] [INFO] [search_select] typing='RTV' picking='RTV'
+[11:37:27] [PASS] [OK] Search & Select: selected 'RTV'
+[11:37:27] [PASS] [OK] search_select completed
+[11:37:27] [INFO] >> Step 199: Typing 'RTV175426000078' into: [ #docNo ]
+[11:37:27] [PASS] [OK] type completed
+[11:37:27] [INFO] >> Step 200: Clicking: [ jhi-return-to-vendor div.d-flex:nth-child(2) button:nth-child(1) ]
+[11:37:28] [PASS] [OK] click completed
+[11:37:28] [INFO] >> Step 201: Waiting 2000ms
+[11:37:30] [PASS] [OK] wait completed
+[11:37:30] [INFO] [OK] PASSED -- 196/204 steps in 226325ms

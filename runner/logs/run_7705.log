@@ -1,0 +1,192 @@
+[17:42:35] [INFO] >> [async_runner] Starting run #7705 — Type: ui, Browser: chrome
+[17:42:37] [INFO] [pool] Acquiring browser context from shared pool...
+[17:42:38] [INFO] Test variables: firstName=Anita, midName=Rahul, lastName=Athma, age=14
+[17:42:38] [INFO] [SKIP] Step 1 (navigate) is disabled — skipping
+[17:42:38] [INFO] >> Step 2: Navigating to URL: https://sqa.narayanahealth.org/
+[17:42:49] [PASS] [OK] navigate completed
+[17:42:49] [INFO] >> Step 3: Clicking: [ #username ]
+[17:42:49] [PASS] [OK] click completed
+[17:42:49] [INFO] >> Step 4: Typing '337800' into: [ #username ]
+[17:42:50] [PASS] [OK] type completed
+[17:42:50] [INFO] >> Step 5: Clicking: [ #password ]
+[17:42:50] [PASS] [OK] click completed
+[17:42:50] [INFO] >> Step 6: Typing 'admin' into: [ #password ]
+[17:42:50] [PASS] [OK] type completed
+[17:42:50] [INFO] >> Step 7: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[17:42:51] [PASS] [OK] click completed
+[17:42:51] [INFO] >> Step 8: Waiting 1000ms
+[17:42:52] [PASS] [OK] wait completed
+[17:42:53] [INFO] >> Step 9: store_url -- Homepage
+[17:42:53] [PASS] [OK] Stored 'https://sqa.narayanahealth.org/home-page' → {{Homepage}}
+[17:42:53] [INFO] >> Step 10: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[17:42:53] [PASS] [OK] assert_url completed
+[17:42:53] [INFO] >> Step 11: Pressing key '.' on: [ body ]
+[17:42:53] [PASS] [OK] press completed
+[17:42:53] [INFO] >> Step 12: Typing 'patient registration' into: [ get_by_role("textbox", name="Search") ]
+[17:42:53] [PASS] [OK] type completed
+[17:42:53] [INFO] >> Step 13: Clicking: [ get_by_role("link", name="Patient Registration Ambulatory") ]
+[17:42:54] [PASS] [OK] click completed
+[17:42:54] [INFO] >> Step 14: Clicking: [ .si-container .athma-btn ]
+[17:42:54] [INFO]    Create New Button
+[17:43:02] [PASS] [OK] click completed
+[17:43:03] [INFO] >> Step 15: Asserting URL contains: 'https://sqa.narayanahealth.org/ambweb/patient-registration'
+[17:43:03] [PASS] [OK] assert_url completed
+[17:43:03] [INFO] >> Step 16: Waiting 2000ms
+[17:43:05] [PASS] [OK] wait completed
+[17:43:08] [INFO] >> Step 17: Selecting '142' in: [ .w-10 .athma-form-control-height-sm ]
+[17:43:08] [PASS] [OK] select completed
+[17:43:08] [INFO] >> Step 18: Waiting 2000ms
+[17:43:10] [PASS] [OK] wait completed
+[17:43:10] [INFO] >> Step 19: Search & Select: type 'Sunil Gouniyal' -> pick 'Dr. Sunil Gouniyal' in [ .select-consultant ng-select.ng-select-ellipsis.athma-highlight-focus ]
+[17:43:10] [INFO] [search_select] typing='Sunil Gouniyal' picking='Dr. Sunil Gouniyal'
+[17:43:14] [PASS] [OK] Search & Select: selected 'Dr. Sunil Gouniyal'
+[17:43:14] [PASS] [OK] search_select completed
+[17:43:14] [INFO] >> Step 20: Waiting for element: [ //div[contains(@class,'modal-content')] ]
+[17:43:14] [PASS] [OK] wait_for_selector completed
+[17:43:14] [INFO] >> Step 21: Clicking: [ (//div[contains(@class,'modal-content')]//span[@class="slot-time-container available selected-slot"])[1] ]
+[17:44:27] [INFO]   [RETRY] Step failed with: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("xpath=(//div[contains(@c -- trying AI heal...
+[17:44:27] [INFO]   [AI Heal] Step 21 failed -- asking AI to find element...
+[17:44:34] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[17:44:34] [INFO]   [AI Heal] Trying [1] get_by_text("No slots for this search criteria...") (high) -- The modal shows this exact message indicating no available slots exist
+[17:44:35] [PASS]   [AI Heal] SUCCESS -- healed with: get_by_text("No slots for this search criteria...")
+[17:44:36] [INFO] >> Step 22: Clicking: [ #submitBtn ]
+[17:44:36] [PASS] [OK] click completed
+[17:44:37] [INFO] >> Step 23: Search & Select: type 'Mr' -> pick 'Mr.' in [ .col-1 ng-select.ng-select-ellipsis.athma-highlight-focus ]
+[17:44:37] [INFO] [search_select] typing='Mr' picking='Mr.'
+[17:45:07] [INFO]   [RETRY] Step failed with: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator(".col-1 ng-select.ng-sele -- trying AI heal...
+[17:45:07] [INFO]   [AI Heal] Step 23 failed -- asking AI to find element...
+[17:45:12] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[17:45:12] [INFO]   [AI Heal] Trying [1] get_by_role("combobox", name="Dr. Sunil Go...") (high) -- The ng-select component showing 'Dr. Sunil Go...' is a combobox input field
+[17:45:17] [INFO]   [AI Heal] [1] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_role
+[17:45:17] [INFO]   [AI Heal] Trying [2] [data-testid="consultant-select"] (medium) -- Likely data-testid for the consultant dropdown in slot time dialog
+[17:45:22] [INFO]   [AI Heal] [2] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("[d
+[17:45:22] [INFO]   [AI Heal] Trying [3] .ng-select-ellipsis (medium) -- Direct class selector matching the ng-select component with ellipsis class
+[17:45:23] [INFO]   [AI Heal] [3] failed: Locator.wait_for: Error: strict mode violation: locator(".ng-select-ellipsis") r
+[17:45:23] [INFO]   [AI Heal] Trying [4] get_by_placeholder("Select") (low) -- The consultant field may have a placeholder text
+[17:45:23] [INFO]   [AI Heal] [4] failed: Locator.wait_for: Error: strict mode violation: get_by_placeholder("Select") res
+[17:45:23] [INFO]   [AI Heal] Trying [5] .col-1 (low) -- Parent column class containing the ng-select element
+[17:45:24] [INFO]   [AI Heal] [5] failed: Locator.wait_for: Error: strict mode violation: locator(".col-1") resolved to 6 
+[17:45:24] [INFO]   [AI Heal] All suggestions failed -- step cannot be auto-healed
+[17:45:24] [FAIL] Locator.click: Timeout 30000ms exceeded.
+[17:45:24] [FAIL] Call log:
+[17:45:24] [FAIL]   - waiting for locator(".col-1 ng-select.ng-select-ellipsis.athma-highlight-focus")
+[17:45:24] [FAIL]     - locator resolved to <ng-select role="listbox" bindlabel="display" bindvalue="display" name="patientPrefix" _ngcontent-fmf-c796="" ng-reflect-is-disabled="false" ng-reflect-bind-label="display" ng-reflect-bind-value="display" ng-reflect-name="patientPrefix" ng-reflect-placeholder="Select" ng-reflect-typeahead="[object Object]" ng-reflect-items="[object Object],[object Object" class="ng-select-ellipsis athma-highlight-focus ng-select ng-select-single ng-select-searchable ng-select-clearable ng-select-typeahead ng-untouched ng…>…</ng-select>
+[17:45:24] [FAIL]   - attempting click action
+[17:45:24] [FAIL]     2 × waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]       - element is visible, enabled and stable
+[17:45:24] [FAIL]       - scrolling into view if needed
+[17:45:24] [FAIL]       - done scrolling
+[17:45:24] [FAIL]       - <div class="ng-select-container ng-has-value">…</div> from <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> subtree intercepts pointer events
+[17:45:24] [FAIL]     - retrying click action
+[17:45:24] [FAIL]     - waiting 20ms
+[17:45:24] [FAIL]     - waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]     - element is visible, enabled and stable
+[17:45:24] [FAIL]     - scrolling into view if needed
+[17:45:24] [FAIL]     - done scrolling
+[17:45:24] [FAIL]     - <div class="ng-select-container ng-has-value">…</div> from <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> subtree intercepts pointer events
+[17:45:24] [FAIL]   2 × retrying click action
+[17:45:24] [FAIL]       - waiting 100ms
+[17:45:24] [FAIL]       - waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]       - element is visible, enabled and stable
+[17:45:24] [FAIL]       - scrolling into view if needed
+[17:45:24] [FAIL]       - done scrolling
+[17:45:24] [FAIL]       - <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> intercepts pointer events
+[17:45:24] [FAIL]   13 × retrying click action
+[17:45:24] [FAIL]        - waiting 500ms
+[17:45:24] [FAIL]        - waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]        - element is visible, enabled and stable
+[17:45:24] [FAIL]        - scrolling into view if needed
+[17:45:24] [FAIL]        - done scrolling
+[17:45:24] [FAIL]        - <div class="ng-select-container ng-has-value">…</div> from <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> subtree intercepts pointer events
+[17:45:24] [FAIL]      - retrying click action
+[17:45:24] [FAIL]        - waiting 500ms
+[17:45:24] [FAIL]        - waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]        - element is visible, enabled and stable
+[17:45:24] [FAIL]        - scrolling into view if needed
+[17:45:24] [FAIL]        - done scrolling
+[17:45:24] [FAIL]        - <div class="ng-select-container ng-has-value">…</div> from <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> subtree intercepts pointer events
+[17:45:24] [FAIL]      - retrying click action
+[17:45:24] [FAIL]        - waiting 500ms
+[17:45:24] [FAIL]        - waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]        - element is visible, enabled and stable
+[17:45:24] [FAIL]        - scrolling into view if needed
+[17:45:24] [FAIL]        - done scrolling
+[17:45:24] [FAIL]        - <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> intercepts pointer events
+[17:45:24] [FAIL]      - retrying click action
+[17:45:24] [FAIL]        - waiting 500ms
+[17:45:24] [FAIL]        - waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]        - element is visible, enabled and stable
+[17:45:24] [FAIL]        - scrolling into view if needed
+[17:45:24] [FAIL]        - done scrolling
+[17:45:24] [FAIL]        - <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> intercepts pointer events
+[17:45:24] [FAIL]   2 × retrying click action
+[17:45:24] [FAIL]       - waiting 500ms
+[17:45:24] [FAIL]       - waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]       - element is visible, enabled and stable
+[17:45:24] [FAIL]       - scrolling into view if needed
+[17:45:24] [FAIL]       - done scrolling
+[17:45:24] [FAIL]       - <div class="ng-select-container ng-has-value">…</div> from <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> subtree intercepts pointer events
+[17:45:24] [FAIL]   - retrying click action
+[17:45:24] [FAIL]     - waiting 500ms
+[17:45:24] [FAIL]     - waiting for element to be visible, enabled and stable
+[17:45:24] [FAIL]     - element is visible, enabled and stable
+[17:45:24] [FAIL]     - scrolling into view if needed
+[17:45:24] [FAIL]     - done scrolling
+[17:45:24] [FAIL]     - <ngb-modal-window role="dialog" tabindex="-1" aria-modal="true" class="athma-modal-dialog d-block fade lg modal primary show vertical-middle-modal">…</ngb-modal-window> intercepts pointer events
+[17:45:24] [FAIL]   - retrying click action
+[17:45:24] [FAIL]     - waiting 500ms
+[17:45:24] [INFO] [FAIL] FAILED -- 21/23 steps in 166954ms
+[17:52:08] [INFO] >> [async_runner] Starting run #7705 — Type: ui, Browser: chrome
+[17:52:10] [INFO] [pool] Acquiring browser context from shared pool...
+[17:52:11] [INFO] Test variables: firstName=Sakshi, midName=Aditya, lastName=Athma, age=17
+[17:52:11] [INFO] [SKIP] Step 1 (navigate) is disabled — skipping
+[17:52:11] [INFO] >> Step 2: Navigating to URL: https://sqa.narayanahealth.org/
+[17:52:20] [PASS] [OK] navigate completed
+[17:52:21] [INFO] >> Step 3: Clicking: [ #username ]
+[17:52:21] [PASS] [OK] click completed
+[17:52:21] [INFO] >> Step 4: Typing '337800' into: [ #username ]
+[17:52:21] [PASS] [OK] type completed
+[17:52:21] [INFO] >> Step 5: Clicking: [ #password ]
+[17:52:22] [PASS] [OK] click completed
+[17:52:22] [INFO] >> Step 6: Typing 'admin' into: [ #password ]
+[17:52:22] [PASS] [OK] type completed
+[17:52:22] [INFO] >> Step 7: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[17:52:22] [PASS] [OK] click completed
+[17:52:22] [INFO] >> Step 8: Waiting 1000ms
+[17:52:23] [PASS] [OK] wait completed
+[17:52:24] [INFO] >> Step 9: store_url -- Homepage
+[17:52:24] [PASS] [OK] Stored 'https://sqa.narayanahealth.org/home-page' → {{Homepage}}
+[17:52:24] [INFO] >> Step 10: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[17:52:24] [PASS] [OK] assert_url completed
+[17:52:24] [INFO] >> Step 11: Pressing key '.' on: [ body ]
+[17:52:24] [PASS] [OK] press completed
+[17:52:24] [INFO] >> Step 12: Typing 'patient registration' into: [ get_by_role("textbox", name="Search") ]
+[17:52:24] [PASS] [OK] type completed
+[17:52:24] [INFO] >> Step 13: Clicking: [ get_by_role("link", name="Patient Registration Ambulatory") ]
+[17:52:25] [PASS] [OK] click completed
+[17:52:25] [INFO] >> Step 14: Clicking: [ .si-container .athma-btn ]
+[17:52:25] [INFO]    Create New Button
+[17:52:33] [PASS] [OK] click completed
+[17:52:33] [INFO] >> Step 15: Asserting URL contains: 'https://sqa.narayanahealth.org/ambweb/patient-registration'
+[17:52:33] [PASS] [OK] assert_url completed
+[17:52:33] [INFO] >> Step 16: Waiting 2000ms
+[17:52:36] [PASS] [OK] wait completed
+[17:52:36] [INFO] >> Step 17: Selecting '142' in: [ .w-10 .athma-form-control-height-sm ]
+[17:52:39] [PASS] [OK] select completed
+[17:52:39] [INFO] >> Step 18: Waiting 2000ms
+[17:52:41] [PASS] [OK] wait completed
+[17:52:41] [INFO] >> Step 19: Search & Select: type 'Sunil Gouniyal' -> pick 'Dr. Sunil Gouniyal' in [ .select-consultant ng-select.ng-select-ellipsis.athma-highlight-focus ]
+[17:52:41] [INFO] [search_select] typing='Sunil Gouniyal' picking='Dr. Sunil Gouniyal'
+[17:52:46] [PASS] [OK] Search & Select: selected 'Dr. Sunil Gouniyal'
+[17:52:46] [PASS] [OK] search_select completed
+[17:52:46] [INFO] >> Step 20: Waiting for element: [ //div[contains(@class,'modal-content')] ]
+[17:52:46] [PASS] [OK] wait_for_selector completed
+[17:52:46] [INFO] >> Step 21: Clicking: [ (//div[contains(@class,'modal-content')]//span[@class="slot-time-container available selected-slot"])[1] ]

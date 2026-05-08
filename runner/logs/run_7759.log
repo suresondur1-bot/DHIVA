@@ -1,0 +1,184 @@
+[11:27:57] [INFO] >> [async_runner] Starting run #7759 — Type: ui, Browser: chrome
+[11:27:59] [INFO] [pool] Acquiring browser context from shared pool...
+[11:28:01] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[11:28:08] [PASS] [OK] navigate completed
+[11:28:08] [INFO] >> Step 2: Clicking: [ #username ]
+[11:28:08] [PASS] [OK] click completed
+[11:28:08] [INFO] >> Step 3: Typing '337800' into: [ #username ]
+[11:28:08] [PASS] [OK] type completed
+[11:28:08] [INFO] >> Step 4: Clicking: [ #password ]
+[11:28:09] [PASS] [OK] click completed
+[11:28:09] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[11:28:09] [PASS] [OK] type completed
+[11:28:09] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[11:28:09] [PASS] [OK] click completed
+[11:28:09] [INFO] >> Step 7: Waiting 2000ms
+[11:28:11] [PASS] [OK] wait completed
+[11:28:11] [INFO] >> Step 8: Pressing key '.' on: [ body ]
+[11:28:12] [PASS] [OK] press completed
+[11:28:12] [INFO] >> Step 9: Typing 'Consumption' into: [ get_by_role("textbox", name="Search") ]
+[11:28:12] [PASS] [OK] type completed
+[11:28:12] [INFO] >> Step 10: Clicking: [ get_by_role("link", name="Consumption Inventory") ]
+[11:28:13] [PASS] [OK] click completed
+[11:28:16] [INFO] >> Step 11: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-consumption > athma-page-header > div > athma-tabs-header > section > div.row.align-items-center > div.col-sm-8 > ul > li.si-container > button ]
+[11:28:20] [PASS] [OK] click completed
+[11:28:20] [INFO] >> Step 12: Waiting for element: [ body > ngb-modal-window > div > div > stock-consumption-select > div.modal-header > h6 ]
+[11:28:20] [PASS] [OK] wait_for_selector completed
+[11:28:20] [INFO] >> Step 13: Search & Select: type 'All' -> pick 'All' in [ #field_consumptionMode > div > div > div.ng-input > input[type=text] ]
+[11:28:20] [INFO] [search_select] typing='All' picking='All'
+[11:28:23] [PASS] [OK] Search & Select: selected 'All'
+[11:28:23] [PASS] [OK] search_select completed
+[11:28:23] [INFO] >> Step 14: Search & Select: type '157-MS1' -> pick 'Main Store-Raipur' in [ #consumptionStoreInput ]
+[11:28:23] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'
+[11:28:25] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'
+[11:28:25] [PASS] [OK] search_select completed
+[11:28:25] [INFO] >> Step 15: Search & Select: type '157-MS1' -> pick 'Main Store-Raipur' in [ #consumptionHSCnput ]
+[11:28:25] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'
+[11:28:27] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'
+[11:28:27] [PASS] [OK] search_select completed
+[11:28:27] [INFO] >> Step 16: Clicking: [ #continueButton ]
+[11:28:27] [PASS] [OK] click completed
+[11:28:27] [INFO] >> Step 17: Waiting for element: [ #itemInput ]
+[11:28:27] [PASS] [OK] wait_for_selector completed
+[11:28:27] [INFO] [DATA TABLE] 3 row(s), columns: ['Item_name', 'Batch_no', 'Qty']
+[11:28:27] [INFO] [DATA TABLE] Row 1/3: Item_name=FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-, Batch_no=2119077, Qty=2
+[11:28:27] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[11:28:28] [PASS] [OK] click completed
+[11:28:28] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' in [ #itemInput ]
+[11:28:28] [INFO] [search_select] typing='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' picking='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'
+[11:28:31] [PASS] [OK] Search & Select: selected 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'
+[11:28:31] [PASS] [OK] search_select completed
+[11:28:31] [INFO] >> Step 3: Search & Select: type '{{Batch_no}}' -> pick '2119077' in [ body > jhi-main > div > section > div.app-content > jhi-stock-consumption-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-header > table > tbody > tr > td:nth-child(2) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:28:31] [INFO] [search_select] typing='2119077' picking='2119077'
+[11:28:33] [PASS] [OK] Search & Select: selected '2119077'
+[11:28:33] [PASS] [OK] search_select completed
+[11:28:33] [INFO] >> Step 4: Clicking: [ #quantity_field ]
+[11:28:34] [PASS] [OK] click completed
+[11:28:34] [INFO] >> Step 5: Clearing: [ #quantity_field ]
+[11:28:34] [PASS] [OK] clear completed
+[11:28:34] [INFO] >> Step 6: Typing '2' into: [ #quantity_field ]
+[11:28:34] [PASS] [OK] type completed
+[11:28:34] [INFO] >> Step 7: Pressing key 'Enter' on: [ #quantity_field ]
+[11:28:34] [PASS] [OK] press completed
+[11:28:34] [INFO] [DATA TABLE] Row 2/3: Item_name=PANTOPRAZOLE-TABLET-40MG-PAN-, Batch_no=19440364, Qty=3
+[11:28:34] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[11:28:35] [PASS] [OK] click completed
+[11:28:35] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'PANTOPRAZOLE-TABLET-40MG-PAN-' in [ #itemInput ]
+[11:28:35] [INFO] [search_select] typing='PANTOPRAZOLE-TABLET-40MG-PAN-' picking='PANTOPRAZOLE-TABLET-40MG-PAN-'
+[11:28:37] [PASS] [OK] Search & Select: selected 'PANTOPRAZOLE-TABLET-40MG-PAN-'
+[11:28:37] [PASS] [OK] search_select completed
+[11:28:37] [INFO] >> Step 3: Search & Select: type '{{Batch_no}}' -> pick '19440364' in [ body > jhi-main > div > section > div.app-content > jhi-stock-consumption-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-header > table > tbody > tr > td:nth-child(2) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:28:37] [INFO] [search_select] typing='19440364' picking='19440364'
+[11:28:40] [PASS] [OK] Search & Select: selected '19440364'
+[11:28:40] [PASS] [OK] search_select completed
+[11:28:40] [INFO] >> Step 4: Clicking: [ #quantity_field ]
+[11:28:40] [PASS] [OK] click completed
+[11:28:40] [INFO] >> Step 5: Clearing: [ #quantity_field ]
+[11:28:40] [PASS] [OK] clear completed
+[11:28:40] [INFO] >> Step 6: Typing '3' into: [ #quantity_field ]
+[11:28:40] [PASS] [OK] type completed
+[11:28:40] [INFO] >> Step 7: Pressing key 'Enter' on: [ #quantity_field ]
+[11:28:40] [PASS] [OK] press completed
+[11:28:40] [INFO] [DATA TABLE] Row 3/3: Item_name=PARACETAMOL-TABLET-750MG-P 750-, Batch_no=batch main, Qty=4
+[11:28:40] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[11:28:41] [PASS] [OK] click completed
+[11:28:41] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'PARACETAMOL-TABLET-750MG-P 750-' in [ #itemInput ]
+[11:28:41] [INFO] [search_select] typing='PARACETAMOL-TABLET-750MG-P 750-' picking='PARACETAMOL-TABLET-750MG-P 750-'
+[11:28:44] [PASS] [OK] Search & Select: selected 'PARACETAMOL-TABLET-750MG-P 750-'
+[11:28:44] [PASS] [OK] search_select completed
+[11:28:44] [INFO] >> Step 3: Search & Select: type '{{Batch_no}}' -> pick 'batch main' in [ body > jhi-main > div > section > div.app-content > jhi-stock-consumption-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-header > table > tbody > tr > td:nth-child(2) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:28:44] [INFO] [search_select] typing='batch main' picking='batch main'
+[11:28:46] [PASS] [OK] Search & Select: selected 'batch main'
+[11:28:46] [PASS] [OK] search_select completed
+[11:28:46] [INFO] >> Step 4: Clicking: [ #quantity_field ]
+[11:28:47] [PASS] [OK] click completed
+[11:28:47] [INFO] >> Step 5: Clearing: [ #quantity_field ]
+[11:28:47] [PASS] [OK] clear completed
+[11:28:47] [INFO] >> Step 6: Typing '4' into: [ #quantity_field ]
+[11:28:47] [PASS] [OK] type completed
+[11:28:47] [INFO] >> Step 7: Pressing key 'Enter' on: [ #quantity_field ]
+[11:28:47] [PASS] [OK] press completed
+[11:28:47] [INFO] >> Step 27: Clicking: [ get_by_role("button", name="Save") ]
+[11:28:47] [PASS] [OK] click completed
+[11:28:48] [INFO] >> Step 28: Waiting 3000ms
+[11:28:51] [PASS] [OK] wait completed
+[11:28:51] [INFO] >> Step 29: store_text -- body > jhi-main > div > section > div.app-content > jhi-stock-consumption-dialog > div > div > div.pl-0.athma-detail-form-panel > div > div.preview-form-header > h5 > span
+[11:28:51] [PASS] [OK] Stored 'DRAFT-25099' → {{Consumption}}
+[11:28:51] [INFO] >> Step 30: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-consumption-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > stock-consumption-button > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-secondary ]
+[11:28:51] [PASS] [OK] click completed
+[11:28:51] [INFO] [SKIP] Step 31 (wait_for_selector) is disabled — skipping
+[11:28:51] [INFO] >> Step 32: Clicking: [ #inputDebounce ]
+[11:28:53] [PASS] [OK] click completed
+[11:28:53] [INFO] >> Step 33: press_sequentially -- #inputDebounce
+[11:28:54] [INFO] [press_sequentially] filled and waited for debounce: 'DRAFT-25099'
+[11:28:54] [PASS] [OK] press_sequentially completed
+[11:28:54] [INFO] >> Step 34: Clicking: [ get_by_text("DRAFT-25099") ]
+[11:28:55] [PASS] [OK] click completed
+[11:28:55] [INFO] >> Step 35: Clicking: [ get_by_role("button", name="Open") ]
+[11:28:55] [PASS] [OK] click completed
+[11:28:55] [INFO] >> Step 36: Waiting for element: [ #itemInput ]
+[11:28:56] [PASS] [OK] wait_for_selector completed
+[11:28:56] [INFO] [DATA TABLE] 2 row(s), columns: ['Item_name', 'Batch_no', 'Qty']
+[11:28:56] [INFO] [DATA TABLE] Row 1/2: Item_name=URETERAL ACCESS SHEATH-.-12FR X 45CM-W/AQ HYDROPHILIC COAT.FUS120045 G46168-, Batch_no=NS8379985, Qty=2
+[11:28:56] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[11:28:56] [PASS] [OK] click completed
+[11:28:56] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'URETERAL ACCESS SHEATH-.-12FR X 45CM-W/AQ HYDROPHILIC COAT.FUS120045 G46168-' in [ #itemInput ]
+[11:28:56] [INFO] [search_select] typing='URETERAL ACCESS SHEATH-.-12FR X 45CM-W/AQ HYDROPHILIC COAT.FUS120045 G46168-' picking='URETERAL ACCESS SHEATH-.-12FR X 45CM-W/AQ HYDROPHILIC COAT.FUS120045 G46168-'
+[11:29:01] [PASS] [OK] Search & Select: selected 'URETERAL ACCESS SHEATH-.-12FR X 45CM-W/AQ HYDROPHILIC COAT.FUS120045 G46168-'
+[11:29:01] [PASS] [OK] search_select completed
+[11:29:01] [INFO] >> Step 3: Search & Select: type '{{Batch_no}}' -> pick 'NS8379985' in [ body > jhi-main > div > section > div.app-content > jhi-stock-consumption-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-header > table > tbody > tr > td:nth-child(2) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:29:01] [INFO] [search_select] typing='NS8379985' picking='NS8379985'
+[11:29:03] [PASS] [OK] Search & Select: selected 'NS8379985'
+[11:29:03] [PASS] [OK] search_select completed
+[11:29:04] [INFO] >> Step 4: Clicking: [ #quantity_field ]
+[11:29:04] [PASS] [OK] click completed
+[11:29:04] [INFO] >> Step 5: Clearing: [ #quantity_field ]
+[11:29:04] [PASS] [OK] clear completed
+[11:29:04] [INFO] >> Step 6: Typing '2' into: [ #quantity_field ]
+[11:29:04] [PASS] [OK] type completed
+[11:29:04] [INFO] >> Step 7: Pressing key 'Enter' on: [ #quantity_field ]
+[11:29:04] [PASS] [OK] press completed
+[11:29:04] [INFO] [DATA TABLE] Row 2/2: Item_name=URINE SAMPLE CONTAINER-STERILE-30ML-.-, Batch_no=03092019, Qty=1
+[11:29:04] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[11:29:05] [PASS] [OK] click completed
+[11:29:05] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'URINE SAMPLE CONTAINER-STERILE-30ML-.-' in [ #itemInput ]
+[11:29:05] [INFO] [search_select] typing='URINE SAMPLE CONTAINER-STERILE-30ML-.-' picking='URINE SAMPLE CONTAINER-STERILE-30ML-.-'
+[11:29:08] [PASS] [OK] Search & Select: selected 'URINE SAMPLE CONTAINER-STERILE-30ML-.-'
+[11:29:08] [PASS] [OK] search_select completed
+[11:29:08] [INFO] >> Step 3: Search & Select: type '{{Batch_no}}' -> pick '03092019' in [ body > jhi-main > div > section > div.app-content > jhi-stock-consumption-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-header > table > tbody > tr > td:nth-child(2) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:29:08] [INFO] [search_select] typing='03092019' picking='03092019'
+[11:29:11] [PASS] [OK] Search & Select: selected '03092019'
+[11:29:11] [PASS] [OK] search_select completed
+[11:29:11] [INFO] >> Step 4: Clicking: [ #quantity_field ]
+[11:29:11] [PASS] [OK] click completed
+[11:29:11] [INFO] >> Step 5: Clearing: [ #quantity_field ]
+[11:29:11] [PASS] [OK] clear completed
+[11:29:11] [INFO] >> Step 6: Typing '1' into: [ #quantity_field ]
+[11:29:11] [PASS] [OK] type completed
+[11:29:11] [INFO] >> Step 7: Pressing key 'Enter' on: [ #quantity_field ]
+[11:29:11] [PASS] [OK] press completed
+[11:29:11] [INFO] >> Step 46: Clicking: [ get_by_role("button", name="Send for Approval") ]
+[11:29:12] [PASS] [OK] click completed
+[11:29:12] [INFO] >> Step 47: Waiting for element: [ body > ngb-modal-window > div > div > message-modal > div.modal-header > h3 ]
+[11:29:12] [PASS] [OK] wait_for_selector completed
+[11:29:12] [INFO] >> Step 48: Clicking: [ #submitBtn ]
+[11:29:12] [PASS] [OK] click completed
+[11:29:12] [INFO] >> Step 49: Waiting 3000ms
+[11:29:15] [PASS] [OK] wait completed
+[11:29:15] [INFO] >> Step 50: Clicking: [ text="Claim" ]
+[11:29:16] [PASS] [OK] click completed
+[11:29:16] [INFO] >> Step 51: store_text -- body > jhi-main > div > section > div.app-content > jhi-stock-consumption-dialog > div > div > div.pl-0.athma-detail-form-panel > div > div.preview-form-header > h5 > span
+[11:29:16] [PASS] [OK] Stored 'SCP-1754-2601377' → {{Consumption}}
+[11:29:16] [INFO] >> Step 52: Waiting 2000ms
+[11:29:18] [PASS] [OK] wait completed
+[11:29:18] [INFO] >> Step 53: Clicking: [ get_by_role("button", name="Approve") ]
+[11:29:19] [PASS] [OK] click completed
+[11:29:19] [INFO] >> Step 54: Waiting 2000ms
+[11:29:21] [PASS] [OK] wait completed
+[11:29:21] [INFO] >> Step 55: Waiting for element: [ #submitBtn ]
+[11:29:21] [PASS] [OK] wait_for_selector completed
+[11:29:21] [INFO] >> Step 56: Clicking: [ #submitBtn ]
+[11:29:21] [PASS] [OK] click completed
+[11:29:21] [INFO] >> Step 57: Waiting 2000ms
+[11:29:23] [PASS] [OK] wait completed
+[11:29:23] [INFO] [OK] PASSED -- 73/74 steps in 84074ms

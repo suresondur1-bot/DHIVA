@@ -1,0 +1,142 @@
+[11:20:03] [INFO] >> [async_runner] Starting run #7753 — Type: ui, Browser: chrome
+[11:20:05] [INFO] [pool] Acquiring browser context from shared pool...
+[11:20:06] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[11:20:14] [PASS] [OK] navigate completed
+[11:20:14] [INFO] >> Step 2: Clicking: [ #username ]
+[11:20:14] [PASS] [OK] click completed
+[11:20:14] [INFO] >> Step 3: Typing '337800' into: [ #username ]
+[11:20:14] [PASS] [OK] type completed
+[11:20:14] [INFO] >> Step 4: Clicking: [ #password ]
+[11:20:15] [PASS] [OK] click completed
+[11:20:15] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[11:20:15] [PASS] [OK] type completed
+[11:20:15] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[11:20:15] [PASS] [OK] click completed
+[11:20:15] [INFO] >> Step 7: Waiting 2000ms
+[11:20:17] [PASS] [OK] wait completed
+[11:20:17] [INFO] >> Step 8: Pressing key '.' on: [ body ]
+[11:20:17] [PASS] [OK] press completed
+[11:20:17] [INFO] >> Step 9: Typing 'Inventory Adjustment' into: [ get_by_role("textbox", name="Search") ]
+[11:20:18] [PASS] [OK] type completed
+[11:20:18] [INFO] >> Step 10: Clicking: [ get_by_role("link", name="Inventory Adjustment Inventory") ]
+[11:20:18] [PASS] [OK] click completed
+[11:20:18] [INFO] >> Step 11: Waiting 4000ms
+[11:20:22] [PASS] [OK] wait completed
+[11:20:22] [INFO] >> Step 12: Clicking: [ get_by_role("button", name="Create New") ]
+[11:20:23] [PASS] [OK] click completed
+[11:20:23] [INFO] >> Step 13: Clicking: [ #adjustmentStoreInput ]
+[11:20:24] [PASS] [OK] click completed
+[11:20:24] [INFO] >> Step 14: Clearing: [ #adjustmentStoreInput ]
+[11:20:24] [PASS] [OK] clear completed
+[11:20:24] [INFO] >> Step 15: Search & Select: type '157-MS1' -> pick 'Main Store-Raipur' in [ #adjustmentStoreInput ]
+[11:20:24] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'
+[11:20:26] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'
+[11:20:26] [PASS] [OK] search_select completed
+[11:20:26] [INFO] >> Step 16: Clicking: [ #continueBtn ]
+[11:20:26] [PASS] [OK] click completed
+[11:20:26] [INFO] >> Step 17: Waiting 1000ms
+[11:20:27] [PASS] [OK] wait completed
+[11:20:27] [INFO] [DATA TABLE] 2 row(s), columns: ['Item_Name', 'Batch_no', 'Qty', 'Reason', 'Type']
+[11:20:27] [INFO] [DATA TABLE] Row 1/2: Item_Name=ROSUVASTATIN-TABLET-40MG-JUPIROS-, Batch_no=19440156, Qty=1, Reason=Qty more, Type=Negative
+[11:20:27] [INFO] >> Step 1: Clicking: [ #add-item-searchbox ]
+[11:20:28] [PASS] [OK] click completed
+[11:20:28] [INFO] >> Step 2: Search & Select: type '{{Item_Name}}' -> pick 'ROSUVASTATIN-TABLET-40MG-JUPIROS-' in [ #add-item-searchbox ]
+[11:20:28] [INFO] [search_select] typing='ROSUVASTATIN-TABLET-40MG-JUPIROS-' picking='ROSUVASTATIN-TABLET-40MG-JUPIROS-'
+[11:20:30] [PASS] [OK] Search & Select: selected 'ROSUVASTATIN-TABLET-40MG-JUPIROS-'
+[11:20:30] [PASS] [OK] search_select completed
+[11:20:30] [INFO] >> Step 3: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(2) > ng-select ]
+[11:20:31] [PASS] [OK] click completed
+[11:20:31] [INFO] >> Step 4: Search & Select: type '{{Batch_no}}' -> pick '19440156' in [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(2) > ng-select ]
+[11:20:31] [INFO] [search_select] typing='19440156' picking='19440156'
+[11:20:33] [PASS] [OK] Search & Select: selected '19440156'
+[11:20:33] [PASS] [OK] search_select completed
+[11:20:33] [INFO] >> Step 5: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(4) > input ]
+[11:20:33] [PASS] [OK] click completed
+[11:20:33] [INFO] >> Step 6: Clearing: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(4) > input ]
+[11:20:34] [PASS] [OK] clear completed
+[11:20:34] [INFO] >> Step 7: Typing '1' into: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(4) > input ]
+[11:20:34] [PASS] [OK] type completed
+[11:20:34] [INFO] >> Step 8: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(6) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:34] [PASS] [OK] click completed
+[11:20:34] [INFO] >> Step 9: Search & Select: type '{{Reason}}' -> pick 'Qty more' in [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(6) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:34] [INFO] [search_select] typing='Qty more' picking='Qty more'
+[11:20:36] [PASS] [OK] Search & Select: selected 'Qty more'
+[11:20:36] [PASS] [OK] search_select completed
+[11:20:37] [INFO] >> Step 10: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(7) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:37] [PASS] [OK] click completed
+[11:20:37] [INFO] >> Step 11: Search & Select: type '{{Type}}' -> pick 'Negative' in [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(7) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:37] [INFO] [search_select] typing='Negative' picking='Negative'
+[11:20:39] [PASS] [OK] Search & Select: selected 'Negative'
+[11:20:39] [PASS] [OK] search_select completed
+[11:20:39] [INFO] >> Step 12: Waiting 2000ms
+[11:20:41] [PASS] [OK] wait completed
+[11:20:41] [INFO] [DATA TABLE] Row 2/2: Item_Name=PREDNISOLONE-TABLET-40MG-OMNACORTIL-, Batch_no=GOF909A, Qty=1, Reason=Qty more, Type=Negative
+[11:20:41] [INFO] >> Step 1: Clicking: [ #add-item-searchbox ]
+[11:20:42] [PASS] [OK] click completed
+[11:20:42] [INFO] >> Step 2: Search & Select: type '{{Item_Name}}' -> pick 'PREDNISOLONE-TABLET-40MG-OMNACORTIL-' in [ #add-item-searchbox ]
+[11:20:42] [INFO] [search_select] typing='PREDNISOLONE-TABLET-40MG-OMNACORTIL-' picking='PREDNISOLONE-TABLET-40MG-OMNACORTIL-'
+[11:20:44] [PASS] [OK] Search & Select: selected 'PREDNISOLONE-TABLET-40MG-OMNACORTIL-'
+[11:20:44] [PASS] [OK] search_select completed
+[11:20:44] [INFO] >> Step 3: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(2) > ng-select ]
+[11:20:45] [PASS] [OK] click completed
+[11:20:45] [INFO] >> Step 4: Search & Select: type '{{Batch_no}}' -> pick 'GOF909A' in [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(2) > ng-select ]
+[11:20:45] [INFO] [search_select] typing='GOF909A' picking='GOF909A'
+[11:20:47] [PASS] [OK] Search & Select: selected 'GOF909A'
+[11:20:47] [PASS] [OK] search_select completed
+[11:20:47] [INFO] >> Step 5: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(4) > input ]
+[11:20:48] [PASS] [OK] click completed
+[11:20:48] [INFO] >> Step 6: Clearing: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(4) > input ]
+[11:20:48] [PASS] [OK] clear completed
+[11:20:48] [INFO] >> Step 7: Typing '1' into: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(4) > input ]
+[11:20:48] [PASS] [OK] type completed
+[11:20:48] [INFO] >> Step 8: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(6) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:48] [PASS] [OK] click completed
+[11:20:48] [INFO] >> Step 9: Search & Select: type '{{Reason}}' -> pick 'Qty more' in [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(6) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:48] [INFO] [search_select] typing='Qty more' picking='Qty more'
+[11:20:51] [PASS] [OK] Search & Select: selected 'Qty more'
+[11:20:51] [PASS] [OK] search_select completed
+[11:20:51] [INFO] >> Step 10: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(7) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:51] [PASS] [OK] click completed
+[11:20:51] [INFO] >> Step 11: Search & Select: type '{{Type}}' -> pick 'Negative' in [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-dialog-items > div > div.scroll-table-header > table:nth-child(2) > thead > tr:nth-child(2) > th:nth-child(7) > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:51] [INFO] [search_select] typing='Negative' picking='Negative'
+[11:20:53] [PASS] [OK] Search & Select: selected 'Negative'
+[11:20:53] [PASS] [OK] search_select completed
+[11:20:54] [INFO] >> Step 12: Waiting 2000ms
+[11:20:56] [PASS] [OK] wait completed
+[11:20:56] [INFO] >> Step 32: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry-outline ]
+[11:20:56] [PASS] [OK] click completed
+[11:20:56] [INFO] >> Step 33: Waiting for element: [ #doneBtn ]
+[11:20:56] [PASS] [OK] wait_for_selector completed
+[11:20:56] [INFO] >> Step 34: Clicking: [ #doneBtn ]
+[11:20:57] [PASS] [OK] click completed
+[11:20:57] [INFO] >> Step 35: Search & Select: type 'Administrator' -> pick 'Administrator' in [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pl-0.athma-detail-form-panel > jhi-inventory-adjustment-dialog-header > div > div > div:nth-child(2) > div.preview-form-body-segment.border-0 > form > div:nth-child(1) > div > div > ng-select > div > div > div.ng-input > input[type=text] ]
+[11:20:57] [INFO] [search_select] typing='Administrator' picking='Administrator'
+[11:20:59] [PASS] [OK] Search & Select: selected 'Administrator'
+[11:20:59] [PASS] [OK] search_select completed
+[11:20:59] [INFO] >> Step 36: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry ]
+[11:21:00] [PASS] [OK] click completed
+[11:21:00] [INFO] >> Step 37: Waiting for element: [ #doneBtn ]
+[11:21:01] [PASS] [OK] wait_for_selector completed
+[11:21:01] [INFO] >> Step 38: Clicking: [ #doneBtn ]
+[11:21:01] [PASS] [OK] click completed
+[11:21:01] [INFO] >> Step 39: Waiting 1000ms
+[11:21:02] [PASS] [OK] wait completed
+[11:21:02] [INFO] >> Step 40: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry ]
+[11:21:03] [PASS] [OK] click completed
+[11:21:03] [INFO] >> Step 41: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry ]
+[11:21:03] [PASS] [OK] wait_for_selector completed
+[11:21:03] [INFO] >> Step 42: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry ]
+[11:21:03] [PASS] [OK] click completed
+[11:21:03] [INFO] >> Step 43: Waiting for element: [ #doneBtn ]
+[11:21:04] [PASS] [OK] wait_for_selector completed
+[11:21:04] [INFO] >> Step 44: Clicking: [ #doneBtn ]
+[11:21:04] [PASS] [OK] click completed
+[11:21:04] [INFO] >> Step 45: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry ]
+[11:21:04] [PASS] [OK] wait_for_selector completed
+[11:21:04] [INFO] >> Step 46: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry ]
+[11:21:05] [PASS] [OK] click completed
+[11:21:05] [INFO] >> Step 47: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry ]
+[11:21:05] [PASS] [OK] wait_for_selector completed
+[11:21:05] [INFO] >> Step 48: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-inventory-adjustment-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > jhi-inventory-adjustment-action-bar > div > div.col-sm-8.text-right.pad-right-4 > button.athma-btn.athma-btn-priamry ]
+[11:21:05] [PASS] [OK] click completed
+[11:21:05] [INFO] [OK] PASSED -- 58/58 steps in 60743ms

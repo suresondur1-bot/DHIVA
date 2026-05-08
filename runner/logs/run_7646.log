@@ -1,0 +1,163 @@
+[11:50:49] [INFO] >> [async_runner] Starting run #7646 — Type: ui, Browser: chrome
+[11:50:51] [INFO] [pool] Acquiring browser context from shared pool...
+[11:50:52] [INFO] Project variables loaded: Consumption, Direct_transfer, Ehr_MRN, PR_Reg, Password, Receipt_Number, Login_URL, UserID, Issue_Number, Indent_Number
+[11:50:52] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[11:50:59] [PASS] [OK] navigate completed
+[11:50:59] [INFO] >> Step 2: Typing '337800' into: [ #username ]
+[11:50:59] [PASS] [OK] type completed
+[11:50:59] [INFO] >> Step 3: Typing 'admin' into: [ #password ]
+[11:50:59] [PASS] [OK] type completed
+[11:50:59] [INFO] >> Step 4: Clicking: [ button:has-text("Sign in") ]
+[11:51:00] [INFO] >> Step 5: Pressing key '.' on: [ body ]
+[11:51:01] [PASS] [OK] press completed
+[11:51:01] [INFO] >> Step 6: Typing 'service purchase Requisition' into: [ #menuSearch ]
+[11:51:01] [PASS] [OK] type completed
+[11:51:01] [INFO] >> Step 7: Clicking: [ get_by_role("link", name="Service Purchase Requisition SPM") ]
+[11:51:01] [PASS] [OK] click completed
+[11:51:02] [INFO] >> Step 8: Clicking: [ button:has-text("Create New") ]
+[11:51:06] [INFO] >> Step 9: Typing 'gree' into: [ #supplierInput ]
+[11:51:06] [PASS] [OK] type completed
+[11:51:06] [INFO] >> Step 10: Clicking: [ ngb-typeahead-window > button > ngb-highlight ]
+[11:51:06] [PASS] [OK] click completed
+[11:51:06] [INFO] >> Step 11: Search & Select: type 'Digi Workbook' -> pick 'Digi Workbook' in [ #serviceCategoryList ]
+[11:51:06] [INFO] [search_select] typing='Digi Workbook' picking='Digi Workbook'
+[11:51:09] [PASS] [OK] Search & Select: selected 'Digi Workbook'
+[11:51:09] [PASS] [OK] search_select completed
+[11:51:09] [INFO] [SKIP] Step 12 (click) is disabled — skipping
+[11:51:09] [INFO] >> Step 13: Clicking: [ #btnNext ]
+[11:51:09] [PASS] [OK] click completed
+[11:51:09] [INFO] >> Step 14: Typing 'testing with automation' into: [ #prDescription ]
+[11:51:10] [PASS] [OK] type completed
+[11:51:10] [INFO] [DATA TABLE] 4 row(s), columns: ['serviceName', 'longDisc', 'qty', 'startDate', 'endDate', 'budget']
+[11:51:10] [INFO] [DATA TABLE] Row 1/4: serviceName=S-D-AE02-MARKETING-00001, longDisc=SAI YOUTUBE, qty=1, startDate=, endDate=, budget=Digital marketing
+[11:51:10] [INFO] >> Step 1: Search & Select: type '{{serviceName}}' -> pick 'S-D-AE02-MARKETING-00001' in [ #itemInput ]
+[11:51:10] [INFO] [search_select] typing='S-D-AE02-MARKETING-00001' picking='S-D-AE02-MARKETING-00001'
+[11:51:12] [PASS] [OK] Search & Select: selected 'S-D-AE02-MARKETING-00001'
+[11:51:12] [PASS] [OK] search_select completed
+[11:51:12] [INFO] [SKIP] Step 2 (click) is disabled — skipping
+[11:51:12] [INFO] >> Step 3: Search & Select: type '{{longDisc}}' -> pick 'SAI YOUTUBE' in [ #longDescription > div > div > div.ng-input > input[type=text] ]
+[11:51:12] [INFO] [search_select] typing='SAI YOUTUBE' picking='SAI YOUTUBE'
+[11:51:14] [PASS] [OK] Search & Select: selected 'SAI YOUTUBE'
+[11:51:14] [PASS] [OK] search_select completed
+[11:51:14] [INFO] >> Step 4: Typing '1' into: [ (//tbody)[2]//tr[1]//td[5]//input ]
+[11:51:14] [PASS] [OK] type completed
+[11:51:14] [INFO] >> Step 5: Clicking: [ (//tbody)[2]//tr[1]//td[12]//button ]
+[11:51:15] [PASS] [OK] click completed
+[11:51:15] [PASS] [OK] date_today: '07/05/26' → {{startDate}}
+[11:51:15] [PASS] [OK] date_add: '09/05/26' → {{endDate}}
+[11:51:15] [PASS] [OK] date_format: 'Thursday, May 7, 2026' → {{startDate}}
+[11:51:15] [PASS] [OK] date_format: 'Saturday, May 9, 2026' → {{endDate}}
+[11:51:15] [INFO] >> Step 10: Clicking: [ [aria-label="Thursday, May 7, 2026"] ]
+[11:51:15] [PASS] [OK] click completed
+[11:51:15] [INFO] >> Step 11: Clicking: [ (//tbody)[2]//tr[1]//td[13]//button ]
+[11:51:16] [PASS] [OK] click completed
+[11:51:16] [INFO] >> Step 12: Clicking: [ [aria-label="Saturday, May 9, 2026"] ]
+[11:51:16] [PASS] [OK] click completed
+[11:51:16] [INFO] >> Step 13: focus -- (//tbody)[2]//tr[1]//td[14]
+[11:51:16] [PASS] [OK] focus completed
+[11:51:17] [INFO] >> Step 14: Search & Select: type '{{budget}}' -> pick 'Digital marketing' in [ (//tbody)[2]//tr[1]//td[14]//ng-select ]
+[11:51:17] [INFO] [search_select] typing='Digital marketing' picking='Digital marketing'
+[11:51:19] [PASS] [OK] Search & Select: selected 'Digital marketing'
+[11:51:19] [PASS] [OK] search_select completed
+[11:51:19] [INFO] >> Step 15: Clicking: [ i.icon-add_outline ]
+[11:51:19] [PASS] [OK] click completed
+[11:51:19] [INFO] [DATA TABLE] Row 2/4: serviceName=S-D-AE02-MARKETING-00002, longDisc=LinkedIn Digi, qty=1, startDate=, endDate=, budget=Digital marketing
+[11:51:19] [INFO] >> Step 1: Search & Select: type '{{serviceName}}' -> pick 'S-D-AE02-MARKETING-00002' in [ #itemInput ]
+[11:51:19] [INFO] [search_select] typing='S-D-AE02-MARKETING-00002' picking='S-D-AE02-MARKETING-00002'
+[11:51:22] [PASS] [OK] Search & Select: selected 'S-D-AE02-MARKETING-00002'
+[11:51:22] [PASS] [OK] search_select completed
+[11:51:22] [INFO] [SKIP] Step 2 (click) is disabled — skipping
+[11:51:22] [INFO] >> Step 3: Search & Select: type '{{longDisc}}' -> pick 'LinkedIn Digi' in [ #longDescription > div > div > div.ng-input > input[type=text] ]
+[11:51:22] [INFO] [search_select] typing='LinkedIn Digi' picking='LinkedIn Digi'
+[11:51:24] [PASS] [OK] Search & Select: selected 'LinkedIn Digi'
+[11:51:24] [PASS] [OK] search_select completed
+[11:51:24] [INFO] >> Step 4: Typing '1' into: [ (//tbody)[2]//tr[1]//td[5]//input ]
+[11:51:24] [PASS] [OK] type completed
+[11:51:24] [INFO] >> Step 5: Clicking: [ (//tbody)[2]//tr[1]//td[12]//button ]
+[11:51:25] [PASS] [OK] click completed
+[11:51:25] [PASS] [OK] date_today: '07/05/26' → {{startDate}}
+[11:51:25] [PASS] [OK] date_add: '09/05/26' → {{endDate}}
+[11:51:25] [PASS] [OK] date_format: 'Thursday, May 7, 2026' → {{startDate}}
+[11:51:25] [PASS] [OK] date_format: 'Saturday, May 9, 2026' → {{endDate}}
+[11:51:25] [INFO] >> Step 10: Clicking: [ [aria-label="Thursday, May 7, 2026"] ]
+[11:51:25] [PASS] [OK] click completed
+[11:51:25] [INFO] >> Step 11: Clicking: [ (//tbody)[2]//tr[1]//td[13]//button ]
+[11:51:26] [PASS] [OK] click completed
+[11:51:26] [INFO] >> Step 12: Clicking: [ [aria-label="Saturday, May 9, 2026"] ]
+[11:51:26] [PASS] [OK] click completed
+[11:51:26] [INFO] >> Step 13: focus -- (//tbody)[2]//tr[1]//td[14]
+[11:51:26] [PASS] [OK] focus completed
+[11:51:26] [INFO] >> Step 14: Search & Select: type '{{budget}}' -> pick 'Digital marketing' in [ (//tbody)[2]//tr[1]//td[14]//ng-select ]
+[11:51:26] [INFO] [search_select] typing='Digital marketing' picking='Digital marketing'
+[11:51:29] [PASS] [OK] Search & Select: selected 'Digital marketing'
+[11:51:29] [PASS] [OK] search_select completed
+[11:51:29] [INFO] >> Step 15: Clicking: [ i.icon-add_outline ]
+[11:51:29] [PASS] [OK] click completed
+[11:51:29] [INFO] [DATA TABLE] Row 3/4: serviceName=S-D-AE02-MARKETING-00003, longDisc=Blood Digi, qty=1, startDate=, endDate=, budget=Digital marketing
+[11:51:29] [INFO] >> Step 1: Search & Select: type '{{serviceName}}' -> pick 'S-D-AE02-MARKETING-00003' in [ #itemInput ]
+[11:51:29] [INFO] [search_select] typing='S-D-AE02-MARKETING-00003' picking='S-D-AE02-MARKETING-00003'
+[11:51:32] [PASS] [OK] Search & Select: selected 'S-D-AE02-MARKETING-00003'
+[11:51:32] [PASS] [OK] search_select completed
+[11:51:32] [INFO] [SKIP] Step 2 (click) is disabled — skipping
+[11:51:32] [INFO] >> Step 3: Search & Select: type '{{longDisc}}' -> pick 'Blood Digi' in [ #longDescription > div > div > div.ng-input > input[type=text] ]
+[11:51:32] [INFO] [search_select] typing='Blood Digi' picking='Blood Digi'
+[11:51:34] [PASS] [OK] Search & Select: selected 'Blood Digi'
+[11:51:34] [PASS] [OK] search_select completed
+[11:51:34] [INFO] >> Step 4: Typing '1' into: [ (//tbody)[2]//tr[1]//td[5]//input ]
+[11:51:34] [PASS] [OK] type completed
+[11:51:34] [INFO] >> Step 5: Clicking: [ (//tbody)[2]//tr[1]//td[12]//button ]
+[11:51:35] [PASS] [OK] click completed
+[11:51:35] [PASS] [OK] date_today: '07/05/26' → {{startDate}}
+[11:51:35] [PASS] [OK] date_add: '09/05/26' → {{endDate}}
+[11:51:35] [PASS] [OK] date_format: 'Thursday, May 7, 2026' → {{startDate}}
+[11:51:35] [PASS] [OK] date_format: 'Saturday, May 9, 2026' → {{endDate}}
+[11:51:35] [INFO] >> Step 10: Clicking: [ [aria-label="Thursday, May 7, 2026"] ]
+[11:51:35] [PASS] [OK] click completed
+[11:51:35] [INFO] >> Step 11: Clicking: [ (//tbody)[2]//tr[1]//td[13]//button ]
+[11:51:36] [PASS] [OK] click completed
+[11:51:36] [INFO] >> Step 12: Clicking: [ [aria-label="Saturday, May 9, 2026"] ]
+[11:51:36] [PASS] [OK] click completed
+[11:51:36] [INFO] >> Step 13: focus -- (//tbody)[2]//tr[1]//td[14]
+[11:51:36] [PASS] [OK] focus completed
+[11:51:36] [INFO] >> Step 14: Search & Select: type '{{budget}}' -> pick 'Digital marketing' in [ (//tbody)[2]//tr[1]//td[14]//ng-select ]
+[11:51:36] [INFO] [search_select] typing='Digital marketing' picking='Digital marketing'
+[11:51:39] [PASS] [OK] Search & Select: selected 'Digital marketing'
+[11:51:39] [PASS] [OK] search_select completed
+[11:51:39] [INFO] >> Step 15: Clicking: [ i.icon-add_outline ]
+[11:51:39] [PASS] [OK] click completed
+[11:51:39] [INFO] [DATA TABLE] Row 4/4: serviceName=S-D-AE02-MARKETING-00004, longDisc=Google Digi, qty=1, startDate=, endDate=, budget=Digital marketing
+[11:51:39] [INFO] >> Step 1: Search & Select: type '{{serviceName}}' -> pick 'S-D-AE02-MARKETING-00004' in [ #itemInput ]
+[11:51:39] [INFO] [search_select] typing='S-D-AE02-MARKETING-00004' picking='S-D-AE02-MARKETING-00004'
+[11:51:41] [PASS] [OK] Search & Select: selected 'S-D-AE02-MARKETING-00004'
+[11:51:41] [PASS] [OK] search_select completed
+[11:51:42] [INFO] [SKIP] Step 2 (click) is disabled — skipping
+[11:51:42] [INFO] >> Step 3: Search & Select: type '{{longDisc}}' -> pick 'Google Digi' in [ #longDescription > div > div > div.ng-input > input[type=text] ]
+[11:51:42] [INFO] [search_select] typing='Google Digi' picking='Google Digi'
+[11:51:44] [PASS] [OK] Search & Select: selected 'Google Digi'
+[11:51:44] [PASS] [OK] search_select completed
+[11:51:44] [INFO] >> Step 4: Typing '1' into: [ (//tbody)[2]//tr[1]//td[5]//input ]
+[11:51:44] [PASS] [OK] type completed
+[11:51:44] [INFO] >> Step 5: Clicking: [ (//tbody)[2]//tr[1]//td[12]//button ]
+[11:51:45] [PASS] [OK] click completed
+[11:51:45] [PASS] [OK] date_today: '07/05/26' → {{startDate}}
+[11:51:45] [PASS] [OK] date_add: '09/05/26' → {{endDate}}
+[11:51:45] [PASS] [OK] date_format: 'Thursday, May 7, 2026' → {{startDate}}
+[11:51:45] [PASS] [OK] date_format: 'Saturday, May 9, 2026' → {{endDate}}
+[11:51:45] [INFO] >> Step 10: Clicking: [ [aria-label="Thursday, May 7, 2026"] ]
+[11:51:45] [PASS] [OK] click completed
+[11:51:45] [INFO] >> Step 11: Clicking: [ (//tbody)[2]//tr[1]//td[13]//button ]
+[11:51:46] [PASS] [OK] click completed
+[11:51:46] [INFO] >> Step 12: Clicking: [ [aria-label="Saturday, May 9, 2026"] ]
+[11:51:46] [PASS] [OK] click completed
+[11:51:46] [INFO] >> Step 13: focus -- (//tbody)[2]//tr[1]//td[14]
+[11:51:46] [PASS] [OK] focus completed
+[11:51:46] [INFO] >> Step 14: Search & Select: type '{{budget}}' -> pick 'Digital marketing' in [ (//tbody)[2]//tr[1]//td[14]//ng-select ]
+[11:51:46] [INFO] [search_select] typing='Digital marketing' picking='Digital marketing'
+[11:51:48] [PASS] [OK] Search & Select: selected 'Digital marketing'
+[11:51:48] [PASS] [OK] search_select completed
+[11:51:49] [INFO] >> Step 15: Clicking: [ i.icon-add_outline ]
+[11:51:49] [PASS] [OK] click completed
+[11:51:49] [INFO] >> Step 32: Clicking: [ button:has-text("Save") ]
+[11:51:51] [INFO] >> Step 33: Waiting 2000ms
+[11:51:53] [PASS] [OK] wait completed
+[11:51:53] [INFO] [OK] PASSED -- 71/76 steps in 61548ms

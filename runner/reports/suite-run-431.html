@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Suite Report — just-2</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#f5f5f5; color:#333; }
+  .header { background:#1a2332; color:#fff; padding:24px 32px; }
+  .header h1 { font-size:22px; margin-bottom:4px; }
+  .header .sub { font-size:13px; color:#94a3b8; }
+  .section { background:#fff; margin:16px 32px; border-radius:8px;
+             box-shadow:0 1px 4px rgba(0,0,0,0.08); overflow:hidden; }
+  .section-title { padding:12px 16px; background:#f8f9fc;
+                   border-bottom:1px solid #e2e6ed; font-weight:700;
+                   font-size:13px; color:#1a2332; }
+  .env-grid { display:grid; grid-template-columns:140px 1fr; gap:6px 0;
+              padding:14px 16px; font-size:13px; }
+  .env-grid .lbl { color:#888; font-weight:600; }
+  .summary { display:flex; gap:0; }
+  .stat { flex:1; padding:20px; text-align:center; border-right:1px solid #e2e6ed; }
+  .stat:last-child { border-right:none; }
+  .stat .num { font-size:32px; font-weight:800; }
+  .stat .lbl { font-size:12px; color:#888; margin-top:4px; text-transform:uppercase; letter-spacing:0.05em; }
+  .total  .num { color:#1a2332; }
+  .passed .num { color:#00a86b; }
+  .failed .num { color:#e53935; }
+  .skipped .num{ color:#f59e0b; }
+  table.cases { width:100%; border-collapse:collapse; }
+  table.cases thead th { padding:10px 12px; background:#f0f2f5; font-size:12px;
+    text-align:left; color:#666; border-bottom:2px solid #e2e6ed; }
+  table.cases tbody tr:hover { background:#f8f9fc; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:12px;
+           font-size:11px; font-weight:700; }
+  .badge.passed { background:#e8f8f0; color:#00a86b; }
+  .badge.failed { background:#fce8e8; color:#e53935; }
+</style>
+<script>
+function toggle(idx) {
+  const el = document.getElementById("detail-"+idx);
+  el.style.display = el.style.display==="none" ? "table-row" : "none";
+}
+function expandAll() { document.querySelectorAll('[id^="detail-"]').forEach(e=>e.style.display="table-row"); }
+function collapseAll() { document.querySelectorAll('[id^="detail-"]').forEach(e=>e.style.display="none"); }
+</script>
+</head>
+<body>
+
+<div class="header">
+  <h1>📋 Test Suite Execution Report</h1>
+  <div class="sub">Generated: 2026-05-07 09:17:47.903 UTC</div>
+</div>
+
+<div class="section">
+  <div class="section-title">Execution Environment</div>
+  <div class="env-grid">
+    <span class="lbl">Host name:</span>    <span>CORPLPW000153</span>
+    <span class="lbl">Local OS:</span>     <span>Windows</span>
+    <span class="lbl">Suite:</span>        <span>just-2</span>
+    <span class="lbl">Browser:</span>      <span>chrome</span>
+    <span class="lbl">Start:</span>        <span>2026-05-07 09:11:18.570</span>
+    <span class="lbl">End:</span>          <span>2026-05-07 09:16:33.077</span>
+    <span class="lbl">Elapsed:</span>      <span>0h 5m 14s</span>
+    <span class="lbl">Suite Run #:</span>  <span>431</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Summary</div>
+  <div class="summary">
+    <div class="stat total">
+      <div class="num">2</div>
+      <div class="lbl">Total</div>
+    </div>
+    <div class="stat passed">
+      <div class="num">2</div>
+      <div class="lbl">Passed</div>
+    </div>
+    <div class="stat failed">
+      <div class="num">0</div>
+      <div class="lbl">Failed</div>
+    </div>
+    <div class="stat skipped">
+      <div class="num">0</div>
+      <div class="lbl">Skipped</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+    <span>Test Execution Log — <strong>just-2</strong></span>
+    <span>
+      <button onclick="expandAll()" style="margin-right:8px;padding:4px 12px;cursor:pointer;
+        border:1px solid #ccc;border-radius:4px;font-size:12px;background:#fff">Expand All</button>
+      <button onclick="collapseAll()" style="padding:4px 12px;cursor:pointer;
+        border:1px solid #ccc;border-radius:4px;font-size:12px;background:#fff">Collapse All</button>
+    </span>
+  </div>
+  <table class="cases">
+    <thead><tr>
+      <th>Test Case</th>
+      <th>Status</th>
+      <th>Duration</th>
+      <th>Steps</th>
+      <th>Logs</th>
+    </tr></thead>
+    <tbody>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(0)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Draft</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">186.05s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">112✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-0" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        
+        <table style="width:100%;border-collapse:collapse;margin-top:6px;font-family:monospace">
+          <thead><tr style="background:#f0f0f0">
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Time</th>
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Status</th>
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Message</th>
+          </tr></thead>
+          <tbody><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:18] [INFO] &gt;&gt; [async_runner] Starting run #7567 — Type: ui, Browser: chrome</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:20] [INFO] [pool] Acquiring browser context from shared pool...</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:25] [INFO] &gt;&gt; Step 1: Navigating to URL: https://sqa.narayanahealth.org/</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:31] [PASS] [OK] navigate completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:31] [INFO] &gt;&gt; Step 2: Clicking: [ #username ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:32] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:32] [INFO] &gt;&gt; Step 3: Typing '337800' into: [ #username ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:32] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:32] [INFO] &gt;&gt; Step 4: Clicking: [ #password ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:33] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:33] [INFO] &gt;&gt; Step 5: Typing 'admin' into: [ #password ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:33] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:33] [INFO] &gt;&gt; Step 6: Clicking: [ body &gt; app-root &gt; div &gt; section &gt; div.app-content &gt; jhi-home &gt; div &gt; div &gt; form:nth-child(2) &gt; div.col-12 &gt; button ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:33] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:33] [INFO] &gt;&gt; Step 7: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:35] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:35] [INFO] &gt;&gt; Step 8: Pressing key '.' on: [ body ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:35] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:35] [INFO] &gt;&gt; Step 9: Typing 'indent' into: [ get_by_role("textbox", name="Search") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:35] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:35] [INFO] &gt;&gt; Step 10: Clicking: [ get_by_role("link", name="Indent Inventory") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:36] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:36] [INFO] &gt;&gt; Step 11: Waiting 4000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:40] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:40] [INFO] &gt;&gt; Step 12: Clicking: [ get_by_role("button", name="Create New") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:41] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:41] [INFO] &gt;&gt; Step 13: Clicking: [ #indentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:42] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:42] [INFO] &gt;&gt; Step 14: Clearing: [ #indentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:42] [PASS] [OK] clear completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:42] [INFO] &gt;&gt; Step 15: Search & Select: type 'IP Pharmacy-Raipur' -&gt; pick 'IP Pharmacy-Raipur' in [ #indentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:42] [INFO] [search_select] typing='IP Pharmacy-Raipur' picking='IP Pharmacy-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:44] [PASS] [OK] Search & Select: selected 'IP Pharmacy-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:44] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:44] [INFO] &gt;&gt; Step 16: Clicking: [ #issueStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:45] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:45] [INFO] &gt;&gt; Step 17: Clearing: [ #issueStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:45] [PASS] [OK] clear completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:45] [INFO] &gt;&gt; Step 18: Search & Select: type '157-MS1' -&gt; pick 'Main Store-Raipur' in [ #issueStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:45] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:47] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:47] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:47] [INFO] &gt;&gt; Step 19: Clicking: [ #btnNext ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:47] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:47] [INFO] &gt;&gt; Step 20: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:48] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:48] [INFO] [DATA TABLE] 3 row(s), columns: ['Item_name', 'Qty']</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:48] [INFO] [DATA TABLE] Row 1/3: Item_name=PARACETAMOL-TABLET-750MG-P 750-, Qty=2</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:48] [INFO] &gt;&gt; Step 1: Clicking: [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:49] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:49] [INFO] &gt;&gt; Step 2: Search & Select: type '{{Item_name}}' -&gt; pick 'PARACETAMOL-TABLET-750MG-P 750-' in [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:49] [INFO] [search_select] typing='PARACETAMOL-TABLET-750MG-P 750-' picking='PARACETAMOL-TABLET-750MG-P 750-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:52] [PASS] [OK] Search & Select: selected 'PARACETAMOL-TABLET-750MG-P 750-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:52] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:52] [INFO] &gt;&gt; Step 3: Clicking: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:52] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:52] [INFO] &gt;&gt; Step 4: Typing '2' into: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:52] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:52] [INFO] &gt;&gt; Step 5: Pressing key 'Enter' on: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:53] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:53] [INFO] [DATA TABLE] Row 2/3: Item_name=FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-, Qty=4</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:53] [INFO] &gt;&gt; Step 1: Clicking: [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:53] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:53] [INFO] &gt;&gt; Step 2: Search & Select: type '{{Item_name}}' -&gt; pick 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' in [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:53] [INFO] [search_select] typing='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' picking='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:56] [PASS] [OK] Search & Select: selected 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:56] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:56] [INFO] &gt;&gt; Step 3: Clicking: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:57] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:57] [INFO] &gt;&gt; Step 4: Typing '4' into: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:57] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:57] [INFO] &gt;&gt; Step 5: Pressing key 'Enter' on: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:57] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:57] [INFO] [DATA TABLE] Row 3/3: Item_name=PANTOPRAZOLE-TABLET-40MG-PAN-, Qty=6</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:57] [INFO] &gt;&gt; Step 1: Clicking: [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:58] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:58] [INFO] &gt;&gt; Step 2: Search & Select: type '{{Item_name}}' -&gt; pick 'PANTOPRAZOLE-TABLET-40MG-PAN-' in [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:11:58] [INFO] [search_select] typing='PANTOPRAZOLE-TABLET-40MG-PAN-' picking='PANTOPRAZOLE-TABLET-40MG-PAN-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [PASS] [OK] Search & Select: selected 'PANTOPRAZOLE-TABLET-40MG-PAN-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [INFO] &gt;&gt; Step 3: Clicking: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [INFO] &gt;&gt; Step 4: Typing '6' into: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [INFO] &gt;&gt; Step 5: Pressing key 'Enter' on: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:01] [INFO] &gt;&gt; Step 28: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:03] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:03] [INFO] &gt;&gt; Step 29: Clicking: [ get_by_role("button", name="Save") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:04] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:04] [INFO] &gt;&gt; Step 30: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:06] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:06] [INFO] &gt;&gt; Step 31: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:07] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:07] [INFO] &gt;&gt; Step 32: Clicking: [ get_by_role("button", name="Send for Approval") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:07] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:07] [INFO] &gt;&gt; Step 33: Waiting for element: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:08] [PASS] [OK] wait_for_selector completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:08] [INFO] &gt;&gt; Step 34: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:08] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:09] [INFO] &gt;&gt; Step 35: store_text -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-indent-dialog &gt; div &gt; div &gt; div.pl-0.athma-detail-form-panel &gt; div &gt; div.preview-form-header &gt; h5 &gt; span</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:09] [PASS] [OK] Stored 'SRQ-1754-2601582' → {{Indent_Number}}</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:09] [INFO] &gt;&gt; Step 36: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:11] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:11] [INFO] &gt;&gt; Step 37: Clicking: [ get_by_role("button", name="Claim") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:11] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:11] [INFO] &gt;&gt; Step 38: Clicking: [ get_by_role("button", name="Approve") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:12] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:12] [INFO] &gt;&gt; Step 39: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:14] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:14] [INFO] &gt;&gt; Step 40: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:15] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:15] [INFO] &gt;&gt; Step 41: Clicking: [ body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-indent-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; stock-indent-button &gt; div &gt; div.col-sm-8.text-right.pr-0 &gt; button ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:15] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:16] [INFO] &gt;&gt; Step 42: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:18] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:18] [INFO] &gt;&gt; Step 43: Clicking: [ body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-indent &gt; athma-page-header &gt; div &gt; athma-tabs-header &gt; section &gt; div.row.align-items-center &gt; div.col-sm-8 &gt; ul &gt; li:nth-child(1) &gt; a &gt; span ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:18] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:18] [INFO] &gt;&gt; Step 44: Clicking: [ #inputDebounce ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:19] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:19] [INFO] &gt;&gt; Step 45: press_sequentially -- #inputDebounce</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:20] [INFO] [press_sequentially] filled and waited for debounce: 'SRQ-1754-2601582'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:20] [PASS] [OK] press_sequentially completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:20] [PASS] [OK] call_test: 'SAI_Indent_ForLoop' done</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:20] [INFO] &gt;&gt; Step 2: Navigating to URL: https://sqa.narayanahealth.org/home-page</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:23] [PASS] [OK] navigate completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:23] [INFO] &gt;&gt; Step 3: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:25] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:25] [INFO] &gt;&gt; Step 4: Pressing key '.' on: [ body ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:25] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:25] [INFO] &gt;&gt; Step 5: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:27] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:27] [INFO] &gt;&gt; Step 6: press_sequentially -- get_by_role("textbox", name="Search")</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:28] [INFO] [press_sequentially] filled and waited for debounce: 'issue'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:28] [PASS] [OK] press_sequentially completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:28] [INFO] &gt;&gt; Step 7: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:30] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:31] [INFO] &gt;&gt; Step 8: Clicking: [ #menu_0_0_7 ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:31] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:31] [INFO] &gt;&gt; Step 9: Waiting 3000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:34] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:35] [INFO] &gt;&gt; Step 10: Clicking: [ #inputDebounce ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:37] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:37] [INFO] &gt;&gt; Step 11: press_sequentially -- #inputDebounce</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:38] [INFO] [press_sequentially] filled and waited for debounce: 'SRQ-1754-2601582'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:38] [PASS] [OK] press_sequentially completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:38] [INFO] &gt;&gt; Step 12: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:39] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:39] [INFO] &gt;&gt; Step 13: Clicking: [ get_by_text("SRQ-1754-2601582") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:40] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:40] [INFO] &gt;&gt; Step 14: Waiting 2001ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:42] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:42] [INFO] &gt;&gt; Step 15: Clicking: [ get_by_role("button", name="Open") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:43] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:43] [INFO] &gt;&gt; Step 16: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:45] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:45] [INFO] [DATA TABLE] 3 row(s), columns: ['issue_itemName', 'Batch', 'Issue_Qty']</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:45] [INFO] [DATA TABLE] Row 1/3: issue_itemName=PARACETAMOL-TABLET-750MG-P 750-, Batch=batch main, Issue_Qty=2</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:45] [INFO] &gt;&gt; Step 1: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:47] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:47] [INFO] &gt;&gt; Step 2: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:52] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:52] [INFO] &gt;&gt; Step 3: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:53] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:53] [INFO] [DATA TABLE] Row 2/3: issue_itemName=FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-, Batch=2119077, Issue_Qty=4</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:53] [INFO] &gt;&gt; Step 1: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:55] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:12:55] [INFO] &gt;&gt; Step 2: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:00] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:00] [INFO] &gt;&gt; Step 3: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:01] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:01] [INFO] [DATA TABLE] Row 3/3: issue_itemName=PANTOPRAZOLE-TABLET-40MG-PAN-, Batch=19440364, Issue_Qty=6</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:01] [INFO] &gt;&gt; Step 1: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:03] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:03] [INFO] &gt;&gt; Step 2: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:08] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:08] [INFO] &gt;&gt; Step 3: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:09] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:09] [INFO] &gt;&gt; Step 22: Clicking: [ get_by_role("button", name="Send for Approval") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:10] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:10] [INFO] &gt;&gt; Step 23: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:12] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:12] [INFO] &gt;&gt; Step 24: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:13] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:13] [INFO] &gt;&gt; Step 25: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:15] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:15] [INFO] &gt;&gt; Step 26: Clicking: [ get_by_role("button", name="Claim") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:15] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:15] [INFO] &gt;&gt; Step 27: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:17] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:17] [INFO] &gt;&gt; Step 28: Clicking: [ text="Approve" ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:18] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:18] [INFO] &gt;&gt; Step 29: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:19] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:19] [INFO] &gt;&gt; Step 30: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:21] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:21] [INFO] &gt;&gt; Step 31: store_text -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pl-0.athma-detail-form-panel &gt; div &gt; div.preview-form-header &gt; h5 &gt; span</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:22] [PASS] [OK] Stored 'SIS-1754-2601083' → {{Issue_Number}}</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:22] [INFO] &gt;&gt; Step 32: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:24] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:24] [INFO] &gt;&gt; Step 33: Clicking: [ get_by_role("button", name="Cancel") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:24] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:25] [PASS] [OK] call_test: 'Issue_Full_Qty' done</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:25] [INFO] &gt;&gt; Step 2: Clicking: [ #sidebar-wrapper &gt; div &gt; div &gt; div &gt; div &gt; svg ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:25] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:25] [INFO] &gt;&gt; Step 3: Waiting for URL to contain: 'https://sqa.narayanahealth.org/home-page'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:27] [PASS] [OK] wait_for_url completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:27] [INFO] &gt;&gt; Step 4: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:29] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:30] [INFO] &gt;&gt; Step 5: Pressing key '.' on: [ body ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:30] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:13:30] [INFO] &gt;&gt; Step 6: Waiting for element: [ #inputDebounce ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:00] [INFO]   [RETRY] Step failed with: Locator.wait_for: Timeout 30000ms exceeded.</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">Call log:</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">  - waiting for locator("#inputDebounce") to b -- trying AI heal...</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:00] [INFO]   [AI Heal] Step 6 failed -- asking AI to find element...</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:04] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:04] [INFO]   [AI Heal] Trying [1] get_by_placeholder("Search") (high) -- Search input field with visible placeholder text</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:04] [PASS]   [AI Heal] SUCCESS -- healed with: get_by_placeholder("Search")</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:04] [INFO] &gt;&gt; Step 7: press_sequentially -- get_by_role("textbox", name="Search")</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:05] [INFO] [press_sequentially] filled and waited for debounce: 'receipt'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:05] [PASS] [OK] press_sequentially completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:05] [INFO] &gt;&gt; Step 8: Waiting for element: [ get_by_role("link", name="Receipt Inventory") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:05] [PASS] [OK] wait_for_selector completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:05] [INFO] &gt;&gt; Step 9: Clicking: [ get_by_role("link", name="Receipt Inventory") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:06] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:06] [INFO] &gt;&gt; Step 10: Waiting 3000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:09] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:09] [INFO] &gt;&gt; Step 11: Clicking: [ #inputDebounce ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:09] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:09] [INFO] &gt;&gt; Step 12: press_sequentially -- #inputDebounce</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:11] [INFO] [press_sequentially] filled and waited for debounce: 'SIS-1754-2601083'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:11] [PASS] [OK] press_sequentially completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:12] [INFO] &gt;&gt; Step 13: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:13] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:13] [INFO] &gt;&gt; Step 14: Clicking: [ get_by_text("SIS-1754-2601083") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:13] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:13] [INFO] &gt;&gt; Step 15: Waiting 2001ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:15] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:15] [INFO] &gt;&gt; Step 16: Clicking: [ get_by_role("button", name="Open") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:16] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:16] [INFO] &gt;&gt; Step 17: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:18] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:18] [INFO] &gt;&gt; Step 18: Clicking: [ text="Save Draft" ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:18] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:18] [INFO] &gt;&gt; Step 19: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:20] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:21] [INFO] &gt;&gt; Step 20: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:21] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:21] [INFO] &gt;&gt; Step 21: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:23] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:23] [INFO] &gt;&gt; Step 22: store_text -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-receipt-dialog &gt; div &gt; div &gt; div.pl-0.athma-detail-form-panel &gt; div &gt; div.preview-form-header &gt; h5 &gt; span</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:23] [PASS] [OK] Stored 'DRAFT-363047' → {{Receipt_Number}}</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:23] [INFO] &gt;&gt; Step 23: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:25] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:25] [INFO] &gt;&gt; Step 24: Clicking: [ get_by_role("button", name="Cancel") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:26] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:26] [INFO] [OK] PASSED -- 112/112 steps in 186046ms</td>
+      </tr></tbody>
+        </table>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(1)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Partially_Item</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">121.53s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">89✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-1" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        
+        <table style="width:100%;border-collapse:collapse;margin-top:6px;font-family:monospace">
+          <thead><tr style="background:#f0f0f0">
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Time</th>
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Status</th>
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Message</th>
+          </tr></thead>
+          <tbody><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:29] [INFO] &gt;&gt; [async_runner] Starting run #7568 — Type: ui, Browser: chrome</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:31] [INFO] [pool] Acquiring browser context from shared pool...</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:34] [INFO] &gt;&gt; Step 1: Navigating to URL: https://sqa.narayanahealth.org/</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:40] [PASS] [OK] navigate completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:40] [INFO] &gt;&gt; Step 2: Clicking: [ #username ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:41] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:41] [INFO] &gt;&gt; Step 3: Typing '337800' into: [ #username ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:41] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:41] [INFO] &gt;&gt; Step 4: Clicking: [ #password ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:41] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:41] [INFO] &gt;&gt; Step 5: Typing 'admin' into: [ #password ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:41] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:41] [INFO] &gt;&gt; Step 6: Clicking: [ body &gt; app-root &gt; div &gt; section &gt; div.app-content &gt; jhi-home &gt; div &gt; div &gt; form:nth-child(2) &gt; div.col-12 &gt; button ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:42] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:42] [INFO] &gt;&gt; Step 7: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:44] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:44] [INFO] &gt;&gt; Step 8: Pressing key '.' on: [ body ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:44] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:44] [INFO] &gt;&gt; Step 9: Typing 'indent' into: [ get_by_role("textbox", name="Search") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:44] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:44] [INFO] &gt;&gt; Step 10: Clicking: [ get_by_role("link", name="Indent Inventory") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:45] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:47] [INFO] &gt;&gt; Step 11: Waiting 4000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:51] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:51] [INFO] &gt;&gt; Step 12: Clicking: [ get_by_role("button", name="Create New") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:52] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:52] [INFO] &gt;&gt; Step 13: Clicking: [ #indentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:53] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:53] [INFO] &gt;&gt; Step 14: Clearing: [ #indentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:53] [PASS] [OK] clear completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:53] [INFO] &gt;&gt; Step 15: Search & Select: type 'IP Pharmacy-Raipur' -&gt; pick 'IP Pharmacy-Raipur' in [ #indentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:53] [INFO] [search_select] typing='IP Pharmacy-Raipur' picking='IP Pharmacy-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:55] [PASS] [OK] Search & Select: selected 'IP Pharmacy-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:55] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:55] [INFO] &gt;&gt; Step 16: Clicking: [ #issueStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:56] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:56] [INFO] &gt;&gt; Step 17: Clearing: [ #issueStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:56] [PASS] [OK] clear completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:56] [INFO] &gt;&gt; Step 18: Search & Select: type '157-MS1' -&gt; pick 'Main Store-Raipur' in [ #issueStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:56] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:58] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:58] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:58] [INFO] &gt;&gt; Step 19: Clicking: [ #btnNext ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:58] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:58] [INFO] &gt;&gt; Step 20: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:59] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:59] [INFO] [DATA TABLE] 3 row(s), columns: ['Item_name', 'Qty']</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:59] [INFO] [DATA TABLE] Row 1/3: Item_name=PARACETAMOL-TABLET-750MG-P 750-, Qty=2</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:14:59] [INFO] &gt;&gt; Step 1: Clicking: [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:00] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:00] [INFO] &gt;&gt; Step 2: Search & Select: type '{{Item_name}}' -&gt; pick 'PARACETAMOL-TABLET-750MG-P 750-' in [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:00] [INFO] [search_select] typing='PARACETAMOL-TABLET-750MG-P 750-' picking='PARACETAMOL-TABLET-750MG-P 750-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [PASS] [OK] Search & Select: selected 'PARACETAMOL-TABLET-750MG-P 750-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [INFO] &gt;&gt; Step 3: Clicking: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [INFO] &gt;&gt; Step 4: Typing '2' into: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [INFO] &gt;&gt; Step 5: Pressing key 'Enter' on: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [INFO] [DATA TABLE] Row 2/3: Item_name=FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-, Qty=4</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:03] [INFO] &gt;&gt; Step 1: Clicking: [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:04] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:04] [INFO] &gt;&gt; Step 2: Search & Select: type '{{Item_name}}' -&gt; pick 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' in [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:04] [INFO] [search_select] typing='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' picking='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:07] [PASS] [OK] Search & Select: selected 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:07] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:07] [INFO] &gt;&gt; Step 3: Clicking: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [INFO] &gt;&gt; Step 4: Typing '4' into: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [INFO] &gt;&gt; Step 5: Pressing key 'Enter' on: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [INFO] [DATA TABLE] Row 3/3: Item_name=PANTOPRAZOLE-TABLET-40MG-PAN-, Qty=6</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [INFO] &gt;&gt; Step 1: Clicking: [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [INFO] &gt;&gt; Step 2: Search & Select: type '{{Item_name}}' -&gt; pick 'PANTOPRAZOLE-TABLET-40MG-PAN-' in [ #itemInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:08] [INFO] [search_select] typing='PANTOPRAZOLE-TABLET-40MG-PAN-' picking='PANTOPRAZOLE-TABLET-40MG-PAN-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:11] [PASS] [OK] Search & Select: selected 'PANTOPRAZOLE-TABLET-40MG-PAN-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:11] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:11] [INFO] &gt;&gt; Step 3: Clicking: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:12] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:12] [INFO] &gt;&gt; Step 4: Typing '6' into: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:12] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:12] [INFO] &gt;&gt; Step 5: Pressing key 'Enter' on: [ #lImQty ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:12] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:12] [INFO] &gt;&gt; Step 28: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:14] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:14] [INFO] &gt;&gt; Step 29: Clicking: [ get_by_role("button", name="Save") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:14] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:14] [INFO] &gt;&gt; Step 30: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:16] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:17] [INFO] &gt;&gt; Step 31: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:17] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:17] [INFO] &gt;&gt; Step 32: Clicking: [ get_by_role("button", name="Send for Approval") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:18] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:18] [INFO] &gt;&gt; Step 33: Waiting for element: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:18] [PASS] [OK] wait_for_selector completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:18] [INFO] &gt;&gt; Step 34: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:19] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:19] [INFO] &gt;&gt; Step 35: store_text -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-indent-dialog &gt; div &gt; div &gt; div.pl-0.athma-detail-form-panel &gt; div &gt; div.preview-form-header &gt; h5 &gt; span</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:19] [PASS] [OK] Stored 'SRQ-1754-2601583' → {{Indent_Number}}</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:19] [INFO] &gt;&gt; Step 36: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:21] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:21] [INFO] &gt;&gt; Step 37: Clicking: [ get_by_role("button", name="Claim") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:22] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:22] [INFO] &gt;&gt; Step 38: Clicking: [ get_by_role("button", name="Approve") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:23] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:23] [INFO] &gt;&gt; Step 39: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:25] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:25] [INFO] &gt;&gt; Step 40: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:25] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:25] [INFO] &gt;&gt; Step 41: Clicking: [ body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-indent-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; stock-indent-button &gt; div &gt; div.col-sm-8.text-right.pr-0 &gt; button ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:26] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:26] [INFO] &gt;&gt; Step 42: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:28] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:28] [INFO] &gt;&gt; Step 43: Clicking: [ body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-indent &gt; athma-page-header &gt; div &gt; athma-tabs-header &gt; section &gt; div.row.align-items-center &gt; div.col-sm-8 &gt; ul &gt; li:nth-child(1) &gt; a &gt; span ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:29] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:29] [INFO] &gt;&gt; Step 44: Clicking: [ #inputDebounce ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:29] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:29] [INFO] &gt;&gt; Step 45: press_sequentially -- #inputDebounce</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:30] [INFO] [press_sequentially] filled and waited for debounce: 'SRQ-1754-2601583'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:30] [PASS] [OK] press_sequentially completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:30] [PASS] [OK] call_test: 'SAI_Indent_ForLoop' done</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:30] [INFO] &gt;&gt; Step 2: Navigating to URL: https://sqa.narayanahealth.org/home-page</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:32] [PASS] [OK] navigate completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:32] [INFO] &gt;&gt; Step 3: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:34] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:34] [INFO] &gt;&gt; Step 4: Pressing key '.' on: [ body ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:35] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:35] [INFO] &gt;&gt; Step 5: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:37] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:37] [INFO] &gt;&gt; Step 6: press_sequentially -- get_by_role("textbox", name="Search")</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:38] [INFO] [press_sequentially] filled and waited for debounce: 'issue'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:38] [PASS] [OK] press_sequentially completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:38] [INFO] &gt;&gt; Step 7: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:40] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:40] [INFO] &gt;&gt; Step 8: Clicking: [ #menu_0_0_7 ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:41] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:41] [INFO] &gt;&gt; Step 9: Waiting 3000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:44] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:45] [INFO] &gt;&gt; Step 10: Clicking: [ #inputDebounce ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:45] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:45] [INFO] &gt;&gt; Step 11: press_sequentially -- #inputDebounce</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:46] [INFO] [press_sequentially] filled and waited for debounce: 'SRQ-1754-2601583'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:46] [PASS] [OK] press_sequentially completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:46] [INFO] &gt;&gt; Step 12: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:47] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:47] [INFO] &gt;&gt; Step 13: Clicking: [ get_by_text("SRQ-1754-2601583") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:48] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:48] [INFO] &gt;&gt; Step 14: Waiting 2001ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:50] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:50] [INFO] &gt;&gt; Step 15: Clicking: [ get_by_role("button", name="Open") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:51] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:51] [INFO] &gt;&gt; Step 16: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:53] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:53] [INFO] [DATA TABLE] 3 row(s), columns: ['issue_itemName', 'Batch', 'Issue_Qty']</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:53] [INFO] [DATA TABLE] Row 1/3: issue_itemName=PARACETAMOL-TABLET-750MG-P 750-, Batch=batch main, Issue_Qty=2</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:53] [INFO] &gt;&gt; Step 1: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:55] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:15:55] [INFO] &gt;&gt; Step 2: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:00] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:00] [INFO] &gt;&gt; Step 3: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:01] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:01] [INFO] [DATA TABLE] Row 2/3: issue_itemName=FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-, Batch=2119077, Issue_Qty=4</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:01] [INFO] &gt;&gt; Step 1: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:03] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:03] [INFO] &gt;&gt; Step 2: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:08] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:08] [INFO] &gt;&gt; Step 3: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:09] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:09] [INFO] [DATA TABLE] Row 3/3: issue_itemName=PANTOPRAZOLE-TABLET-40MG-PAN-, Batch=19440364, Issue_Qty=0</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:09] [INFO] &gt;&gt; Step 1: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:11] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:11] [INFO] &gt;&gt; Step 2: table_action -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; div &gt; div.scroll-table-body.ps.position-relative &gt; table</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:16] [PASS] [OK] table_action completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:16] [INFO] &gt;&gt; Step 3: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:17] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:17] [INFO] &gt;&gt; Step 22: Clicking: [ get_by_role("button", name="Send for Approval") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:18] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:18] [INFO] &gt;&gt; Step 23: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:20] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:20] [INFO] &gt;&gt; Step 24: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:20] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:20] [INFO] &gt;&gt; Step 25: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:22] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:23] [INFO] &gt;&gt; Step 26: Clicking: [ get_by_role("button", name="Claim") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:23] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:23] [INFO] &gt;&gt; Step 27: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:25] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:25] [INFO] &gt;&gt; Step 28: Clicking: [ text="Approve" ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:26] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:26] [INFO] &gt;&gt; Step 29: Clicking: [ #btnDone ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:27] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:27] [INFO] &gt;&gt; Step 30: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:29] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:29] [INFO] &gt;&gt; Step 31: store_text -- body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-stock-issue-dialog &gt; div &gt; div &gt; div.pl-0.athma-detail-form-panel &gt; div &gt; div.preview-form-header &gt; h5 &gt; span</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:29] [PASS] [OK] Stored 'SIS-1754-2601084' → {{Issue_Number}}</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:29] [INFO] &gt;&gt; Step 32: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:31] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:32] [INFO] &gt;&gt; Step 33: Clicking: [ get_by_role("button", name="Cancel") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:32] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[09:16:33] [INFO] [OK] PASSED -- 89/89 steps in 121535ms</td>
+      </tr></tbody>
+        </table>
+      </td>
+    </tr></tbody>
+  </table>
+</div>
+
+<div style="text-align:center;padding:20px;font-size:11px;color:#aaa">
+  Generated by Narayana Automation Tool (NAT) • Suite Run #431
+</div>
+</body>
+</html>

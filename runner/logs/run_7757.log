@@ -1,0 +1,49 @@
+[11:24:55] [INFO] >> [async_runner] Starting run #7757 — Type: ui, Browser: chrome
+[11:24:57] [INFO] [pool] Acquiring browser context from shared pool...
+[11:24:58] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[11:25:09] [PASS] [OK] navigate completed
+[11:25:09] [INFO] >> Step 2: Clicking: [ #username ]
+[11:25:09] [PASS] [OK] click completed
+[11:25:09] [INFO] >> Step 3: Typing '337800' into: [ #username ]
+[11:25:09] [PASS] [OK] type completed
+[11:25:09] [INFO] >> Step 4: Clicking: [ #password ]
+[11:25:10] [PASS] [OK] click completed
+[11:25:10] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[11:25:10] [PASS] [OK] type completed
+[11:25:10] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[11:25:10] [PASS] [OK] click completed
+[11:25:10] [INFO] >> Step 7: Waiting 2000ms
+[11:25:12] [PASS] [OK] wait completed
+[11:25:12] [INFO] >> Step 8: Pressing key '.' on: [ body ]
+[11:25:12] [PASS] [OK] press completed
+[11:25:12] [INFO] >> Step 9: Typing 'Consumption' into: [ get_by_role("textbox", name="Search") ]
+[11:25:50] [INFO]   [RETRY] Step failed with: Locator.type: Timeout 30000ms exceeded.
+Call log:
+  - waiting for get_by_role("textbox", name="Searc -- trying AI heal...
+[11:25:50] [INFO]   [AI Heal] Step 9 failed -- asking AI to find element...
+[11:25:56] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[11:25:56] [INFO]   [AI Heal] Trying [1] get_by_placeholder("Search") (high) -- Search input typically has placeholder attribute matching its purpose
+[11:26:01] [INFO]   [AI Heal] [1] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_plac
+[11:26:01] [INFO]   [AI Heal] Trying [2] [data-testid="search-input"] (medium) -- Common data-testid pattern for search elements
+[11:26:06] [INFO]   [AI Heal] [2] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("[d
+[11:26:06] [INFO]   [AI Heal] Trying [3] get_by_role("searchbox") (medium) -- Search inputs often have searchbox role instead of textbox
+[11:26:11] [INFO]   [AI Heal] [3] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_role
+[11:26:11] [INFO]   [AI Heal] Trying [4] .search-input (low) -- Common class naming convention for search inputs
+[11:26:17] [INFO]   [AI Heal] [4] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".s
+[11:26:17] [INFO]   [AI Heal] Trying [5] input[type="search"] (low) -- HTML5 search input type selector
+[11:26:22] [INFO]   [AI Heal] [5] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("in
+[11:26:22] [INFO]   [AI Heal] All suggestions failed -- step cannot be auto-healed
+[11:26:22] [FAIL] Locator.type: Timeout 30000ms exceeded.
+[11:26:22] [FAIL] Call log:
+[11:26:22] [FAIL]   - waiting for get_by_role("textbox", name="Search")
+[11:26:22] [INFO] [FAIL] FAILED -- 8/9 steps in 84706ms

@@ -1,0 +1,228 @@
+[17:39:25] [INFO] >> [async_runner] Starting run #7703 — Type: ui, Browser: chrome
+[17:39:27] [INFO] [pool] Acquiring browser context from shared pool...
+[17:39:28] [INFO] Test variables: SAI=, BP_Systolic=145, Diastolic=84, Ehr_MRN=17540000994244
+[17:39:28] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org
+[17:39:37] [PASS] [OK] navigate completed
+[17:39:37] [INFO] >> Step 2: Clicking: [ #username ]
+[17:39:38] [PASS] [OK] click completed
+[17:39:38] [INFO] >> Step 3: Typing '101168' into: [ #username ]
+[17:39:38] [PASS] [OK] type completed
+[17:39:38] [INFO] >> Step 4: Clicking: [ #password ]
+[17:39:38] [PASS] [OK] click completed
+[17:39:38] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[17:39:38] [PASS] [OK] type completed
+[17:39:38] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[17:39:39] [PASS] [OK] click completed
+[17:39:39] [INFO] >> Step 7: Waiting 1000ms
+[17:39:40] [PASS] [OK] wait completed
+[17:39:40] [INFO] >> Step 8: store_url -- D_Dashboard
+[17:39:40] [PASS] [OK] Stored 'https://sqa.narayanahealth.org/ehrweb/doctor-dashboard' → {{D_Dashboard}}
+[17:39:40] [INFO] >> Step 9: Asserting [ body > jhi-main > div > section > div.app-content > header > jhi-navbar > nav > div.jh-logo-container.float-left.col-6.pl-0 > a.navbar-brand.logo.float-left > span.navbar-version ] contains: 'Doctor Dashboard'
+[17:40:05] [PASS] [OK] assert_text completed
+[17:40:05] [INFO] [IF] url_not_contains 'https://sqa.narayanahealth.org/ehrweb/doctor-dashboard' => False
+[17:40:05] [INFO] >> Step 16: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-doctor-dashboard > div > div.row > div > div.col-8.left-content-part.p-0 > div > ul > li.emr-tabs-tab.emr-tab.active > a > span ]
+[17:40:05] [PASS] [OK] wait_for_selector completed
+[17:40:05] [INFO] >> Step 17: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-doctor-dashboard > div > div.row > div > div.col-8.left-content-part.p-0 > div > ul > li.emr-tabs-tab.emr-tab.active > a > span ]
+[17:40:06] [PASS] [OK] click completed
+[17:40:06] [INFO] >> Step 18: Waiting 1000ms
+[17:40:07] [PASS] [OK] wait completed
+[17:40:07] [INFO] >> Step 19: Typing '17540000994244 ' into: [ #inputDebounce ]
+[17:40:08] [PASS] [OK] type completed
+[17:40:09] [INFO] >> Step 20: Pressing key 'Enter' on: [ #inputDebounce ]
+[17:40:09] [PASS] [OK] press completed
+[17:40:09] [INFO] >> Step 21: Waiting 2000ms
+[17:40:11] [PASS] [OK] wait completed
+[17:40:11] [INFO] >> Step 22: store_attr -- #startConsultation
+[17:40:11] [PASS] [OK] Stored 'emr-table-action-btn primary-disabled' → {{StartConsultation}}
+[17:40:11] [INFO] [IF] 'emr-table-action-btn primary-disabled' contains 'disabled' => True
+[17:40:11] [INFO] >> Step 1: Clicking: [ #patientChart ]
+[17:40:12] [PASS] [OK] click completed
+[17:40:20] [INFO] >> Step 2: Waiting 2000ms
+[17:40:23] [PASS] [OK] wait completed
+[17:40:24] [INFO] [IF] "//div[contains(@class,'modal-content')]" element_visible => False
+[17:40:24] [INFO] >> Step 6: Waiting 2000ms
+[17:40:26] [PASS] [OK] wait completed
+[17:40:26] [INFO] [SKIP] Step 38 (wait) is disabled — skipping
+[17:40:26] [INFO] >> Step 39: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-consultation-form > div > jhi-emr-filter-section > section > div.d-flex.align-items-center.emr-filter-section-left.pl-4 > button.start-video-call-btn.ml-3 ]
+[17:40:26] [PASS] [OK] wait_for_selector completed
+[17:40:26] [INFO] >> Step 40: Waiting 1000ms
+[17:40:27] [PASS] [OK] wait completed
+[17:40:27] [INFO] >> Step 41: Clicking: [ .col.emr-content-area-main >> text=Allergy ]
+[17:40:28] [PASS] [OK] click completed
+[17:40:28] [INFO] >> Step 42: Waiting 1000ms
+[17:40:29] [PASS] [OK] wait completed
+[17:40:29] [INFO] [SKIP] Step 43 (click) is disabled — skipping
+[17:40:29] [INFO] [SKIP] Step 44 (wait) is disabled — skipping
+[17:40:29] [INFO] >> Step 45: focus -- .col.emr-content-area-main >> text=Vitals
+[17:40:30] [PASS] [OK] focus completed
+[17:40:30] [INFO] [SKIP] Step 46 (wait) is disabled — skipping
+[17:40:30] [INFO] [SKIP] Step 47 (scroll) is disabled — skipping
+[17:40:30] [INFO] >> Step 48: store_attr -- #vital-sign_14 > jhi-vitals-form > form > div > div.emr-consultation-section-title.athma-pointer.d-flex.align-items-center.justify-content-between.p-3.mb-2
+[17:41:00] [INFO]   [RETRY] Step failed with: Locator.get_attribute: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#vital-sign_14 > -- trying AI heal...
+[17:41:00] [INFO]   [AI Heal] Step 48 failed -- asking AI to find element...
+[17:41:05] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[17:41:05] [INFO]   [AI Heal] Trying [1] get_by_role("button", name="Vitals") (high) -- The Vitals section is a collapsible section header that acts as a button
+[17:41:10] [INFO]   [AI Heal] [1] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_role
+[17:41:10] [INFO]   [AI Heal] Trying [2] [data-testid="vitals-section"] (high) -- Standard data-testid attribute for the vitals section
+[17:41:15] [INFO]   [AI Heal] [2] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("[d
+[17:41:15] [INFO]   [AI Heal] Trying [3] .emr-consultation-section-title (medium) -- Class name that appears in the original selector for the section title
+[17:41:15] [INFO]   [AI Heal] [3] failed: Locator.wait_for: Error: strict mode violation: locator(".emr-consultation-secti
+[17:41:15] [INFO]   [AI Heal] Trying [4] get_by_text("Vitals") (medium) -- The visible text of the vitals section header
+[17:41:15] [INFO]   [AI Heal] [4] failed: Locator.wait_for: Error: strict mode violation: get_by_text("Vitals") resolved t
+[17:41:15] [INFO]   [AI Heal] Trying [5] #vital-sign_14 jhi-vitals-form (low) -- Parent component selector without the specific nested div classes
+[17:41:20] [INFO]   [AI Heal] [5] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("#v
+[17:41:21] [INFO]   [AI Heal] All suggestions failed -- step cannot be auto-healed
+[17:41:21] [FAIL] Locator.get_attribute: Timeout 30000ms exceeded.
+[17:41:21] [FAIL] Call log:
+[17:41:21] [FAIL]   - waiting for locator("#vital-sign_14 > jhi-vitals-form > form > div > div.emr-consultation-section-title.athma-pointer.d-flex.align-items-center.justify-content-between.p-3.mb-2")
+[17:41:21] [INFO] [FAIL] FAILED -- 24/30 steps in 114071ms
+[17:45:28] [INFO] >> [async_runner] Starting run #7703 — Type: ui, Browser: chrome
+[17:45:30] [INFO] [pool] Acquiring browser context from shared pool...
+[17:45:31] [INFO] Test variables: SAI=, BP_Systolic=164, Diastolic=80, Ehr_MRN=17540000994244
+[17:45:31] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org
+[17:45:40] [PASS] [OK] navigate completed
+[17:45:40] [INFO] >> Step 2: Clicking: [ #username ]
+[17:45:41] [PASS] [OK] click completed
+[17:45:41] [INFO] >> Step 3: Typing '101168' into: [ #username ]
+[17:45:41] [PASS] [OK] type completed
+[17:45:41] [INFO] >> Step 4: Clicking: [ #password ]
+[17:45:41] [PASS] [OK] click completed
+[17:45:41] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[17:45:41] [PASS] [OK] type completed
+[17:45:41] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[17:45:42] [PASS] [OK] click completed
+[17:45:42] [INFO] >> Step 7: Waiting 1000ms
+[17:45:43] [PASS] [OK] wait completed
+[17:45:43] [INFO] >> Step 8: store_url -- D_Dashboard
+[17:45:43] [PASS] [OK] Stored 'https://sqa.narayanahealth.org/ehrweb/doctor-dashboard' → {{D_Dashboard}}
+[17:45:43] [INFO] >> Step 9: Asserting [ body > jhi-main > div > section > div.app-content > header > jhi-navbar > nav > div.jh-logo-container.float-left.col-6.pl-0 > a.navbar-brand.logo.float-left > span.navbar-version ] contains: 'Doctor Dashboard'
+[17:46:02] [PASS] [OK] assert_text completed
+[17:46:02] [INFO] [IF] url_not_contains 'https://sqa.narayanahealth.org/ehrweb/doctor-dashboard' => False
+[17:46:02] [INFO] >> Step 16: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-doctor-dashboard > div > div.row > div > div.col-8.left-content-part.p-0 > div > ul > li.emr-tabs-tab.emr-tab.active > a > span ]
+[17:46:02] [PASS] [OK] wait_for_selector completed
+[17:46:02] [INFO] >> Step 17: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-doctor-dashboard > div > div.row > div > div.col-8.left-content-part.p-0 > div > ul > li.emr-tabs-tab.emr-tab.active > a > span ]
+[17:46:03] [PASS] [OK] click completed
+[17:46:03] [INFO] >> Step 18: Waiting 1000ms
+[17:46:04] [PASS] [OK] wait completed
+[17:46:04] [INFO] >> Step 19: Typing '17540000994244 ' into: [ #inputDebounce ]
+[17:46:05] [PASS] [OK] type completed
+[17:46:05] [INFO] >> Step 20: Pressing key 'Enter' on: [ #inputDebounce ]
+[17:46:05] [PASS] [OK] press completed
+[17:46:05] [INFO] >> Step 21: Waiting 2000ms
+[17:46:07] [PASS] [OK] wait completed
+[17:46:07] [INFO] >> Step 22: store_attr -- #startConsultation
+[17:46:07] [PASS] [OK] Stored 'emr-table-action-btn primary-disabled' → {{StartConsultation}}
+[17:46:07] [INFO] [IF] 'emr-table-action-btn primary-disabled' contains 'disabled' => True
+[17:46:07] [INFO] >> Step 1: Clicking: [ #patientChart ]
+[17:46:09] [PASS] [OK] click completed
+[17:46:17] [INFO] >> Step 2: Waiting 2000ms
+[17:46:20] [PASS] [OK] wait completed
+[17:46:20] [INFO] [IF] "//div[contains(@class,'modal-content')]" element_visible => False
+[17:46:20] [INFO] >> Step 6: Waiting 2000ms
+[17:46:22] [PASS] [OK] wait completed
+[17:46:22] [INFO] [SKIP] Step 38 (wait) is disabled — skipping
+[17:46:22] [INFO] >> Step 39: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-consultation-form > div > jhi-emr-filter-section > section > div.d-flex.align-items-center.emr-filter-section-left.pl-4 > button.start-video-call-btn.ml-3 ]
+[17:46:22] [PASS] [OK] wait_for_selector completed
+[17:46:22] [INFO] >> Step 40: Waiting 1000ms
+[17:46:23] [PASS] [OK] wait completed
+[17:46:23] [INFO] >> Step 41: Clicking: [ .col.emr-content-area-main >> text=Allergy ]
+[17:46:24] [PASS] [OK] click completed
+[17:46:24] [INFO] >> Step 42: Waiting 1000ms
+[17:46:25] [PASS] [OK] wait completed
+[17:46:25] [INFO] [SKIP] Step 43 (click) is disabled — skipping
+[17:46:25] [INFO] [SKIP] Step 44 (wait) is disabled — skipping
+[17:46:25] [INFO] >> Step 45: focus -- .col.emr-content-area-main >> text=Vitals
+[17:46:26] [PASS] [OK] focus completed
+[17:46:26] [INFO] [SKIP] Step 46 (wait) is disabled — skipping
+[17:46:26] [INFO] [SKIP] Step 47 (scroll) is disabled — skipping
+[17:46:26] [INFO] >> Step 48: store_attr -- #vital-sign_14 > jhi-vitals-form > form > div > div.emr-consultation-section-title.athma-pointer.d-flex.align-items-center.justify-content-between.p-3.mb-2
+[17:46:56] [INFO]   [RETRY] Step failed with: Locator.get_attribute: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#vital-sign_14 > -- trying AI heal...
+[17:46:56] [INFO]   [AI Heal] Step 48 failed -- asking AI to find element...
+[17:47:00] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[17:47:00] [INFO]   [AI Heal] Trying [1] get_by_role("heading", name="Vitals") (high) -- The Vitals section header is visible in the left panel
+[17:47:05] [INFO]   [AI Heal] [1] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_role
+[17:47:05] [INFO]   [AI Heal] Trying [2] .emr-consultation-section-title (high) -- Class selector for consultation section titles used in the form
+[17:47:06] [INFO]   [AI Heal] [2] failed: Locator.wait_for: Error: strict mode violation: locator(".emr-consultation-secti
+[17:47:06] [INFO]   [AI Heal] Trying [3] get_by_text("Vitals") (medium) -- Text-based selector for the Vitals section
+[17:47:06] [INFO]   [AI Heal] [3] failed: Locator.wait_for: Error: strict mode violation: get_by_text("Vitals") resolved t
+[17:47:06] [INFO]   [AI Heal] Trying [4] [data-testid="vitals-section"] (low) -- Potential data-testid attribute for vitals section
+[17:47:11] [INFO]   [AI Heal] [4] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("[d
+[17:47:11] [INFO]   [AI Heal] Trying [5] jhi-vitals-form form (medium) -- Component and form selector for vitals form
+[17:47:11] [PASS]   [AI Heal] SUCCESS -- healed with: jhi-vitals-form form
+[17:47:11] [INFO] [SKIP] Step 49 (wait) is disabled — skipping
+[17:47:11] [INFO] [IF] '' contains 'collapse' => False
+[17:47:11] [INFO] >> Step 1: Clicking: [ #vital-sign_14 > jhi-vitals-form > form > div > div.emr-consultation-section-title.athma-pointer.d-flex.align-items-center.justify-content-between.p-3.mb-2.pb-4.expand > div:nth-child(1) > button ]
+[17:47:28] [PASS] [OK] click completed
+[17:47:28] [INFO] >> Step 55: Clicking: [ #bp ]
+[17:48:40] [INFO]   [RETRY] Step failed with: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#bp")
+ -- trying AI heal...
+[17:48:40] [INFO]   [AI Heal] Step 55 failed -- asking AI to find element...
+[17:48:45] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[17:48:45] [INFO]   [AI Heal] Trying [1] get_by_role("button", name="Submit") (high) -- Blue submit button with exact text visible in dialog
+[17:48:56] [PASS]   [AI Heal] SUCCESS -- healed with: get_by_role("button", name="Submit")
+[17:48:56] [INFO] >> Step 56: Typing '164/80' into: [ #bp ]
+[17:49:34] [INFO]   [RETRY] Step failed with: Locator.type: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#bp")
+ -- trying AI heal...
+[17:49:34] [INFO]   [AI Heal] Step 56 failed -- asking AI to find element...
+[17:49:38] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[17:49:38] [INFO]   [AI Heal] Trying [1] get_by_placeholder("Write here about the incident") (high) -- Text area with clear placeholder text visible in the dialog
+[17:49:38] [PASS]   [AI Heal] SUCCESS -- healed with: get_by_placeholder("Write here about the incident")
+[17:49:39] [INFO] >> Step 57: Clicking: [ #heartRate ]
+[17:50:51] [INFO]   [RETRY] Step failed with: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#heartRate")
+ -- trying AI heal...
+[17:50:51] [INFO]   [AI Heal] Step 57 failed -- asking AI to find element...
+[17:50:56] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[17:50:56] [INFO]   [AI Heal] Trying [1] get_by_role("button", name="Submit") (high) -- Blue submit button visible in the dialog
+[17:50:56] [PASS]   [AI Heal] SUCCESS -- healed with: get_by_role("button", name="Submit")
+[17:50:57] [INFO] >> Step 58: Typing '90' into: [ #heartRate ]
+[17:51:35] [INFO]   [RETRY] Step failed with: Locator.type: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#heartRate")
+ -- trying AI heal...
+[17:51:35] [INFO]   [AI Heal] Step 58 failed -- asking AI to find element...
+[17:51:39] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[17:51:39] [INFO]   [AI Heal] Trying [1] get_by_label("Heart Rate") (high) -- Label-based selector for form input, most accessible approach
+[17:51:44] [INFO]   [AI Heal] [1] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_labe
+[17:51:44] [INFO]   [AI Heal] Trying [2] [data-testid="heartRate"] (high) -- Data test ID is reliable for form fields in medical systems
+[17:51:49] [INFO]   [AI Heal] [2] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("[d
+[17:51:49] [INFO]   [AI Heal] Trying [3] get_by_placeholder("Heart Rate") (medium) -- Placeholder text if present on the input field
+[17:51:54] [INFO]   [AI Heal] [3] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_plac
+[17:51:54] [INFO]   [AI Heal] Trying [4] .vitals-input (medium) -- Class-based selector for vital signs input field
+[17:51:59] [INFO]   [AI Heal] [4] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".v
+[17:51:59] [INFO]   [AI Heal] Trying [5] input[name="heartRate"] (medium) -- Name attribute selector for form input
+[17:52:04] [INFO]   [AI Heal] [5] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("in
+[17:52:04] [INFO]   [AI Heal] All suggestions failed -- step cannot be auto-healed
+[17:52:04] [FAIL] Locator.type: Timeout 30000ms exceeded.
+[17:52:05] [FAIL] Call log:
+[17:52:05] [FAIL]   - waiting for locator("#heartRate")
+[17:52:05] [INFO] [FAIL] FAILED -- 29/36 steps in 395071ms

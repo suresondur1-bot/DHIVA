@@ -1,0 +1,15 @@
+[12:19:11] [INFO] >> [async_runner] Starting run #7666 — Type: ui, Browser: chrome
+[12:19:14] [INFO] [pool] Acquiring browser context from shared pool...
+[12:19:15] [INFO] Project variables loaded: Consumption, Direct_transfer, Ehr_MRN, PR_Reg, Password, Receipt_Number, Login_URL, UserID, Issue_Number, Indent_Number
+[12:19:15] [INFO] Test variables: SAI=, BP_Systolic=165, Diastolic=76, Ehr_MRN=17540000994244
+[12:19:15] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org
+[12:19:22] [PASS] [OK] navigate completed
+[12:19:22] [INFO] >> Step 2: Clicking: [ #username ]
+[12:19:22] [PASS] [OK] click completed
+[12:19:22] [INFO] >> Step 3: Typing '101168' into: [ #username ]
+[12:19:22] [PASS] [OK] type completed
+[12:19:22] [INFO] >> Step 4: Clicking: [ #password ]
+[12:19:23] [PASS] [OK] click completed
+[12:19:23] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[12:19:23] [PASS] [OK] type completed
+[12:19:23] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]

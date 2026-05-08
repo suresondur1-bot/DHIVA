@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 300px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 180px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a3a6b, #1a56db);
+      padding: 12px 14px 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo {
+      width: 28px; height: 28px; background: #fff; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: #1a56db; flex-shrink: 0;
+    }
+    .title { font-size: 13px; font-weight: 700; color: #fff; }
+    .subtitle { font-size: 9px; color: #93c5fd; letter-spacing: 0.1em; }
+
+    .conn-bar {
+      background: #1e293b; padding: 6px 14px;
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; border-bottom: 1px solid #334155;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot.green { background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.25); }
+    .dot.red   { background: #ef4444; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── SCREEN 1: URL input ── */
+    #screen-url { display: flex; flex-direction: column; gap: 10px; }
+
+    /* Current page card — shown when on a valid app page */
+    .current-page-card {
+      background: #1e293b; border: 1.5px solid #1a56db;
+      border-radius: 9px; padding: 11px 13px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .current-page-label {
+      font-size: 10px; font-weight: 700; color: #60a5fa;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .current-page-url {
+      font-size: 11px; color: #94a3b8;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .start-here-btn {
+      width: 100%; padding: 10px; border-radius: 8px; border: none;
+      background: #1a56db; color: #fff; font-size: 13px;
+      font-weight: 700; cursor: pointer; transition: background 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .start-here-btn:hover { background: #1d4ed8; }
+    .start-here-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+
+    .divider {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10px; color: #475569;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #1e293b;
+    }
+
+    .url-label { font-size: 12px; color: #94a3b8; }
+    .url-input {
+      width: 100%; padding: 9px 12px; border-radius: 7px;
+      border: 1.5px solid #334155; background: #1e293b;
+      color: #e2e8f0; font-size: 13px; outline: none;
+    }
+    .url-input:focus { border-color: #1a56db; }
+    .url-input::placeholder { color: #475569; }
+    .go-btn {
+      width: 100%; padding: 9px; border-radius: 8px;
+      border: 1.5px solid #334155; background: transparent;
+      color: #94a3b8; font-size: 12px;
+      font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .go-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+    .go-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── SCREEN 2: Recording ── */
+    #screen-rec { display: none; flex-direction: column; gap: 10px; }
+    .rec-status {
+      background: #1e293b; border-radius: 8px; padding: 10px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .rec-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; color: #f87171;
+    }
+    .rec-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #ef4444;
+      animation: pulse 1s ease-in-out infinite;
+    }
+    .step-num { font-size: 22px; font-weight: 800; color: #60a5fa; }
+
+    .rec-url {
+      font-size: 10px; color: #475569;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      padding: 0 2px;
+    }
+
+    .steps-scroll {
+      max-height: 180px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .step-item {
+      padding: 4px 8px; background: #1e293b; border-radius: 5px;
+      font-size: 10px; color: #94a3b8;
+      display: flex; align-items: center; gap: 6px;
+      overflow: hidden;
+    }
+    .step-badge {
+      background: #334155; color: #60a5fa;
+      padding: 1px 5px; border-radius: 3px;
+      font-size: 9px; font-weight: 700; flex-shrink: 0;
+      text-transform: uppercase;
+    }
+    .step-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .btn-row { display: flex; gap: 8px; }
+    .stop-btn {
+      flex: 1; padding: 9px; border-radius: 7px;
+      border: 1.5px solid #ef4444; background: transparent;
+      color: #f87171; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .stop-btn:hover { background: #1a0f0f; }
+
+    /* ── SCREEN 3: Done ── */
+    #screen-done { display: none; flex-direction: column; gap: 10px; }
+    .done-banner {
+      background: #0f2a1a; border: 1px solid #166534;
+      border-radius: 8px; padding: 10px 12px;
+      text-align: center;
+    }
+    .done-banner .check { font-size: 24px; }
+    .done-banner .done-txt { font-size: 13px; font-weight: 700; color: #4ade80; margin-top: 4px; }
+    .done-banner .done-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+    .nat-btn {
+      width: 100%; padding: 11px; border-radius: 8px; border: none;
+      background: linear-gradient(135deg, #1a56db, #2563eb);
+      color: #fff; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .nat-btn:hover { opacity: 0.9; }
+
+    .add-btn {
+      width: 100%; padding: 9px; border-radius: 7px;
+      border: 1.5px solid #334155; background: #1e293b;
+      color: #94a3b8; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .add-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+
+    .reset-btn {
+      width: 100%; padding: 8px; border-radius: 7px;
+      border: 1px solid #334155; background: transparent;
+      color: #475569; font-size: 11px; cursor: pointer;
+      transition: color 0.15s;
+    }
+    .reset-btn:hover { color: #94a3b8; }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">A</div>
+    <div>
+      <div class="title">ATHMA Recorder</div>
+      <div class="subtitle">TEST AUTOMATION ENGINE</div>
+    </div>
+  </div>
+
+  <div class="conn-bar">
+    <div class="dot red" id="connDot"></div>
+    <span id="connText">Checking ATHMA NAT...</span>
+    <button id="settingsBtn" title="Server Settings" style="margin-left:auto;background:none;border:none;color:#64748b;cursor:pointer;font-size:14px;padding:0 2px;">&#9881;</button>
+  </div>
+
+  <div class="body">
+
+    <!-- SCREEN: Settings -->
+    <div id="screen-settings" style="display:none;flex-direction:column;gap:12px">
+      <div style="font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:0.08em">&#9881; SERVER SETTINGS</div>
+      <div style="font-size:11px;color:#64748b;line-height:1.6;background:#1e293b;border-radius:7px;padding:9px 11px">
+        Set the IP/hostname of the machine running ATHMA NAT backend and frontend.
+      </div>
+      <div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:4px">Backend API URL <span style="color:#475569">(port 6001)</span></div>
+        <input class="url-input" id="settingsApiInput" placeholder="http://10.8.7.176:6001" />
+      </div>
+      <div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:4px">Frontend NAT URL <span style="color:#475569">(port 5176)</span></div>
+        <input class="url-input" id="settingsNatInput" placeholder="http://10.8.7.176:5176" />
+      </div>
+      <button class="start-here-btn" id="saveSettingsBtn">&#10003; Save &amp; Test Connection</button>
+      <div id="settingsStatus" style="font-size:11px;text-align:center;min-height:16px"></div>
+      <button class="reset-btn" id="cancelSettingsBtn">&#8592; Back</button>
+    </div>
+
+    <!-- SCREEN 1: Start recording -->
+    <div id="screen-url">
+      <!-- Shown when already on a valid app page -->
+      <div class="current-page-card" id="currentPageCard" style="display:none">
+        <div class="current-page-label">📍 Current Page</div>
+        <div class="current-page-url" id="currentPageUrl"></div>
+        <button class="start-here-btn" id="startHereBtn">
+          ⏺ Start Recording Here
+        </button>
+      </div>
+
+      <!-- Divider shown only when current page card is visible -->
+      <div class="divider" id="orDivider" style="display:none">or record a different URL</div>
+
+      <input class="url-input" id="urlInput" type="url"
+        placeholder="https://your-app.com" />
+      <button class="go-btn" id="goBtn">▶ Go &amp; Start Recording</button>
+
+      <!-- Inspector button -->
+      <div class="divider" style="display:flex">or inspect an element</div>
+      <div style="font-size:10px;color:#64748b;text-align:center;padding:0 4px">
+        💡 First go to your app tab, then open this popup
+      </div>
+      <button class="go-btn" id="inspectorBtn" style="border-color:#7c3aed;color:#a78bfa">
+        🎯 Activate Inspector on Current Tab
+      </button>
+      <div id="inspectorStatus" style="display:none;background:#1e293b;border:1px solid #7c3aed;border-radius:7px;padding:8px 10px;font-size:11px;color:#a78bfa;text-align:center;line-height:1.7">
+        <b>Inspector active</b> — switch to your app tab<br>
+        <span style="color:#64748b">Tab/click to focus → press <b style='color:#fbbf24'>Space</b> to capture</span><br>
+        <button id="stopInspectorBtn" style="margin-top:6px;background:none;border:1px solid #475569;color:#94a3b8;border-radius:5px;padding:3px 10px;font-size:10px;cursor:pointer">✕ Stop Inspector</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: Recording in progress -->
+    <div id="screen-rec">
+      <div class="rec-status">
+        <div class="rec-badge">
+          <div class="rec-dot"></div>
+          Recording
+        </div>
+        <div>
+          <div style="font-size:10px;color:#64748b;text-align:right">STEPS</div>
+          <div class="step-num" id="stepNum">0</div>
+        </div>
+      </div>
+
+      <div class="rec-url" id="recUrl"></div>
+      <div class="steps-scroll" id="stepsList"></div>
+
+      <div class="btn-row">
+        <button class="stop-btn" id="stopBtn">⏹ Stop</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: Done -->
+    <div id="screen-done">
+      <div class="done-banner">
+        <div class="check">✅</div>
+        <div class="done-txt" id="doneTxt">Recording Complete</div>
+        <div class="done-sub" id="doneSub">0 steps captured</div>
+      </div>
+
+      <button class="nat-btn" id="goNatBtn">
+        💾 Save to NAT
+      </button>
+
+      <button class="add-btn" id="recordMoreBtn">
+        ⏺ Record More Steps
+      </button>
+
+      <button class="reset-btn" id="resetBtn">
+        Start Over (discard steps)
+      </button>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,584 @@
+[12:21:59] [INFO] >> [async_runner] Starting run #7669 — Type: ui, Browser: chrome
+[12:22:02] [INFO] [pool] Acquiring browser context from shared pool...
+[12:22:03] [INFO] Project variables loaded: Consumption, Direct_transfer, Ehr_MRN, PR_Reg, Password, Receipt_Number, Login_URL, UserID, Issue_Number, Indent_Number
+[12:22:03] [INFO] Test variables: SAI=, BP_Systolic=144, Diastolic=103, Ehr_MRN={{PR_Reg}}
+[12:22:05] [INFO] [SKIP] Step 1 (navigate) is disabled — skipping
+[12:22:05] [INFO] >> Step 2: Navigating to URL: https://sqa.narayanahealth.org/
+[12:22:12] [PASS] [OK] navigate completed
+[12:22:12] [INFO] >> Step 3: Clicking: [ #username ]
+[12:22:12] [PASS] [OK] click completed
+[12:22:12] [INFO] >> Step 4: Typing '337800' into: [ #username ]
+[12:22:12] [PASS] [OK] type completed
+[12:22:12] [INFO] >> Step 5: Clicking: [ #password ]
+[12:22:13] [PASS] [OK] click completed
+[12:22:13] [INFO] >> Step 6: Typing 'admin' into: [ #password ]
+[12:22:13] [PASS] [OK] type completed
+[12:22:13] [INFO] >> Step 7: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[12:22:14] [PASS] [OK] click completed
+[12:22:14] [INFO] >> Step 8: Waiting 1000ms
+[12:22:15] [PASS] [OK] wait completed
+[12:22:15] [INFO] >> Step 9: store_url -- Homepage
+[12:22:15] [PASS] [OK] Stored 'https://sqa.narayanahealth.org/home-page' → {{Homepage}}
+[12:22:15] [INFO] >> Step 10: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[12:22:15] [PASS] [OK] assert_url completed
+[12:22:15] [INFO] >> Step 11: Pressing key '.' on: [ body ]
+[12:22:15] [PASS] [OK] press completed
+[12:22:15] [INFO] >> Step 12: Typing 'patient registration' into: [ get_by_role("textbox", name="Search") ]
+[12:22:16] [PASS] [OK] type completed
+[12:22:16] [INFO] >> Step 13: Clicking: [ get_by_role("link", name="Patient Registration Ambulatory") ]
+[12:22:17] [PASS] [OK] click completed
+[12:22:17] [INFO] >> Step 14: Clicking: [ .si-container .athma-btn ]
+[12:22:17] [INFO]    Create New Button
+[12:22:21] [PASS] [OK] click completed
+[12:22:22] [INFO] >> Step 15: Asserting URL contains: 'https://sqa.narayanahealth.org/ambweb/patient-registration'
+[12:22:23] [PASS] [OK] assert_url completed
+[12:22:23] [INFO] >> Step 16: Waiting 2000ms
+[12:22:25] [PASS] [OK] wait completed
+[12:22:27] [INFO] >> Step 17: Selecting '142' in: [ .w-10 .athma-form-control-height-sm ]
+[12:22:27] [PASS] [OK] select completed
+[12:22:27] [INFO] >> Step 18: Waiting 2000ms
+[12:22:29] [PASS] [OK] wait completed
+[12:22:29] [INFO] >> Step 19: Search & Select: type 'Sunil Gouniyal' -> pick 'Dr. Sunil Gouniyal' in [ .select-consultant ng-select.ng-select-ellipsis.athma-highlight-focus ]
+[12:22:29] [INFO] [search_select] typing='Sunil Gouniyal' picking='Dr. Sunil Gouniyal'
+[12:22:33] [PASS] [OK] Search & Select: selected 'Dr. Sunil Gouniyal'
+[12:22:33] [PASS] [OK] search_select completed
+[12:22:33] [INFO] >> Step 20: Waiting for element: [ //div[contains(@class,'modal-content')] ]
+[12:22:33] [PASS] [OK] wait_for_selector completed
+[12:22:33] [INFO] >> Step 21: Clicking: [ (//div[contains(@class,'modal-content')]//span[@class="slot-time-container available selected-slot"])[1] ]
+[12:22:34] [PASS] [OK] click completed
+[12:22:34] [INFO] >> Step 22: Clicking: [ #submitBtn ]
+[12:22:35] [PASS] [OK] click completed
+[12:22:35] [INFO] >> Step 23: Search & Select: type 'Mr' -> pick 'Mr.' in [ .col-1 ng-select.ng-select-ellipsis.athma-highlight-focus ]
+[12:22:35] [INFO] [search_select] typing='Mr' picking='Mr.'
+[12:22:38] [PASS] [OK] Search & Select: selected 'Mr.'
+[12:22:38] [PASS] [OK] search_select completed
+[12:22:38] [INFO] >> Step 24: Typing 'Arjun' into: [ #firstName ]
+[12:22:38] [PASS] [OK] type completed
+[12:22:38] [INFO] >> Step 25: Typing 'Divya' into: [ #middleName ]
+[12:22:38] [PASS] [OK] type completed
+[12:22:38] [INFO] >> Step 26: Typing 'Athma' into: [ #lastName ]
+[12:22:39] [PASS] [OK] type completed
+[12:22:39] [INFO] >> Step 27: Search & Select: type 'General' -> pick 'GENERAL' in [ #patientType ]
+[12:22:39] [INFO] [search_select] typing='General' picking='GENERAL'
+[12:22:42] [PASS] [OK] Search & Select: selected 'GENERAL'
+[12:22:42] [PASS] [OK] search_select completed
+[12:22:42] [INFO] >> Step 28: Search & Select: type 'Male' -> pick 'Male' in [ #gender ]
+[12:22:42] [INFO] [search_select] typing='Male' picking='Male'
+[12:22:45] [PASS] [OK] Search & Select: selected 'Male'
+[12:22:45] [PASS] [OK] search_select completed
+[12:22:45] [INFO] >> Step 29: Search & Select: type 'Don't Know' -> pick 'Don't Know' in [ #sexualOrientation ]
+[12:22:45] [INFO] [search_select] typing="Don't Know" picking="Don't Know"
+[12:22:48] [PASS] [OK] Search & Select: selected 'Don't Know'
+[12:22:48] [PASS] [OK] search_select completed
+[12:22:48] [INFO] >> Step 30: Typing '55' into: [ #age ]
+[12:22:48] [PASS] [OK] type completed
+[12:22:48] [INFO] [SKIP] Step 31 (wait) is disabled — skipping
+[12:22:48] [INFO] >> Step 32: Typing '9880234329' into: [ #sectionPatientInfo > form > div:nth-child(5) > div.col-2.athma-form-group.mb-0.pr-0 > div > div.col-7.px-0 > div > input ]
+[12:22:49] [PASS] [OK] type completed
+[12:22:49] [INFO] [SKIP] Step 33 (wait) is disabled — skipping
+[12:22:49] [INFO] >> Step 34: Typing '560035' into: [ #correspondencePincode ]
+[12:22:49] [PASS] [OK] type completed
+[12:22:49] [INFO] >> Step 35: Pressing key 'Tab' on: [ #correspondencePincode ]
+[12:22:50] [PASS] [OK] press completed
+[12:22:50] [INFO] >> Step 36: Checking: [ #sectionContactInformation > form > div:nth-child(2) > div > div:nth-child(1) > div.col-md-8 > div > div > div > label ]
+[12:22:50] [PASS] [OK] check completed
+[12:22:50] [INFO] >> Step 37: Clicking: [ [jhitranslate="register.button.register"] ]
+[12:22:50] [PASS] [OK] click completed
+[12:22:51] [INFO] >> Step 38: Waiting for element: [ (//ngb-alert)[1]//pre ]
+[12:22:54] [PASS] [OK] wait_for_selector completed
+[12:22:55] [INFO] >> Step 39: store_text -- (//ngb-alert)[1]//pre
+[12:22:55] [PASS] [OK] Stored 'Arjun Divya Athma (17540000994345) is registered successfully!' → {{PR_Reg}}
+[12:22:55] [PASS] [OK] str_split: '17540000994345) is registered successfully!' → {{PR_Reg}}
+[12:22:55] [PASS] [OK] str_split: '17540000994345' → {{PR_Reg}}
+[12:22:55] [INFO] >> Step 42: Waiting for element: [ //div[contains(@class,"modal-content")] ]
+[12:22:55] [PASS] [OK] wait_for_selector completed
+[12:22:55] [INFO] >> Step 43: Clicking: [ (//div[contains(@class,"modal-content")]//button)[1] ]
+[12:22:56] [PASS] [OK] click completed
+[12:22:56] [INFO] >> Step 44: Navigating to URL: https://sqa.narayanahealth.org/ambweb/patient-registration
+[12:23:00] [PASS] [OK] navigate completed
+[12:23:01] [INFO] [SKIP] Step 45 (click) is disabled — skipping
+[12:23:01] [INFO] [SKIP] Step 46 (wait_for_selector) is disabled — skipping
+[12:23:01] [INFO] [SKIP] Step 47 (wait) is disabled — skipping
+[12:23:01] [INFO] [SKIP] Step 48 (if_start) is disabled — skipping
+[12:23:01] [INFO] [SKIP] Step 49 (wait_for_selector) is disabled — skipping
+[12:23:01] [INFO] [SKIP] Step 50 (click) is disabled — skipping
+[12:23:01] [INFO] [SKIP] Step 51 (if_end) is disabled — skipping
+[12:23:01] [INFO] [SKIP] Step 52 (wait_for_selector) is disabled — skipping
+[12:23:01] [INFO] >> Step 53: Waiting 2000ms
+[12:23:03] [PASS] [OK] wait completed
+[12:23:03] [PASS] [OK] call_test: 'Patient_Reg' done
+[12:23:03] [INFO] >> Step 2: Waiting 2000ms
+[12:23:05] [PASS] [OK] wait completed
+[12:23:05] [INFO] >> Step 3: Clicking: [ #account-more ]
+[12:23:06] [PASS] [OK] click completed
+[12:23:06] [INFO] >> Step 4: Waiting 2000ms
+[12:23:08] [PASS] [OK] wait completed
+[12:23:08] [INFO] >> Step 5: Clicking: [ #logout ]
+[12:23:08] [PASS] [OK] click completed
+[12:23:08] [INFO] >> Step 6: Navigating to URL: https://sqa.narayanahealth.org/
+[12:23:15] [PASS] [OK] navigate completed
+[12:23:15] [INFO] >> Step 7: Clicking: [ #username ]
+[12:23:15] [PASS] [OK] click completed
+[12:23:15] [INFO] >> Step 8: Typing '101168' into: [ #username ]
+[12:23:15] [PASS] [OK] type completed
+[12:23:15] [INFO] >> Step 9: Clicking: [ #password ]
+[12:23:16] [PASS] [OK] click completed
+[12:23:16] [INFO] >> Step 10: Typing 'admin' into: [ #password ]
+[12:23:16] [PASS] [OK] type completed
+[12:23:16] [INFO] >> Step 11: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[12:23:16] [PASS] [OK] click completed
+[12:23:16] [INFO] >> Step 12: Waiting 1000ms
+[12:23:17] [PASS] [OK] wait completed
+[12:23:17] [INFO] >> Step 13: store_url -- D_Dashboard
+[12:23:17] [PASS] [OK] Stored 'https://sqa.narayanahealth.org/ehrweb/doctor-dashboard' → {{D_Dashboard}}
+[12:23:17] [INFO] >> Step 14: Asserting [ body > jhi-main > div > section > div.app-content > header > jhi-navbar > nav > div.jh-logo-container.float-left.col-6.pl-0 > a.navbar-brand.logo.float-left > span.navbar-version ] contains: 'Doctor Dashboard'
+[12:23:28] [PASS] [OK] assert_text completed
+[12:23:28] [INFO] [IF] url_not_contains 'https://sqa.narayanahealth.org/ehrweb/doctor-dashboard' => False
+[12:23:28] [INFO] >> Step 21: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-doctor-dashboard > div > div.row > div > div.col-8.left-content-part.p-0 > div > ul > li.emr-tabs-tab.emr-tab.active > a > span ]
+[12:23:28] [PASS] [OK] wait_for_selector completed
+[12:23:28] [INFO] >> Step 22: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-doctor-dashboard > div > div.row > div > div.col-8.left-content-part.p-0 > div > ul > li.emr-tabs-tab.emr-tab.active > a > span ]
+[12:23:29] [PASS] [OK] click completed
+[12:23:29] [INFO] >> Step 23: Waiting 1000ms
+[12:23:30] [PASS] [OK] wait completed
+[12:23:30] [INFO] >> Step 24: Typing '17540000994345' into: [ #inputDebounce ]
+[12:23:31] [PASS] [OK] type completed
+[12:23:31] [INFO] >> Step 25: Pressing key 'Enter' on: [ #inputDebounce ]
+[12:23:31] [PASS] [OK] press completed
+[12:23:31] [INFO] >> Step 26: Waiting 2000ms
+[12:23:33] [PASS] [OK] wait completed
+[12:23:33] [INFO] >> Step 27: store_attr -- #startConsultation
+[12:23:33] [PASS] [OK] Stored 'emr-table-action-btn primary' → {{StartConsultation}}
+[12:23:33] [INFO] [IF] 'emr-table-action-btn primary' contains 'disabled' => False
+[12:23:33] [INFO] >> Step 1: Clicking: [ #startConsultation ]
+[12:23:33] [INFO]    SAI TEST 3
+[12:23:34] [PASS] [OK] click completed
+[12:23:34] [INFO] >> Step 2: Waiting 2000ms
+[12:23:36] [PASS] [OK] wait completed
+[12:23:50] [INFO] [IF] "//div[contains(@class,'modal-content')]" element_visible => False
+[12:23:50] [INFO] >> Step 6: Waiting 2000ms
+[12:23:52] [PASS] [OK] wait completed
+[12:23:52] [INFO] >> Step 43: Waiting 2000ms
+[12:23:54] [PASS] [OK] wait completed
+[12:23:54] [INFO] >> Step 44: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-consultation-form > div > jhi-emr-filter-section > section > div.d-flex.align-items-center.emr-filter-section-left.pl-4 > button.start-video-call-btn.ml-3 ]
+[12:23:55] [PASS] [OK] wait_for_selector completed
+[12:23:55] [INFO] >> Step 45: Waiting 1000ms
+[12:23:56] [PASS] [OK] wait completed
+[12:23:56] [INFO] >> Step 46: Clicking: [ .col.emr-content-area-main >> text=Allergy ]
+[12:23:57] [PASS] [OK] click completed
+[12:23:57] [INFO] >> Step 47: Waiting 1000ms
+[12:23:58] [PASS] [OK] wait completed
+[12:23:58] [INFO] [SKIP] Step 48 (click) is disabled — skipping
+[12:23:58] [INFO] [SKIP] Step 49 (wait) is disabled — skipping
+[12:23:58] [INFO] >> Step 50: focus -- .col.emr-content-area-main >> text=Vitals
+[12:23:58] [PASS] [OK] focus completed
+[12:23:58] [INFO] [SKIP] Step 51 (wait) is disabled — skipping
+[12:23:58] [INFO] [SKIP] Step 52 (scroll) is disabled — skipping
+[12:23:58] [INFO] >> Step 53: store_attr -- .vitals-edit-widget .emr-consultation-section-title
+[12:23:58] [PASS] [OK] Stored 'collapse' → {{SAI}}
+[12:23:58] [INFO] [SKIP] Step 54 (wait) is disabled — skipping
+[12:23:58] [INFO] [IF] 'collapse' contains 'collapse' => True
+[12:23:58] [INFO] >> Step 1: Clicking: [ .col.emr-content-area-main >> text=Vitals ]
+[12:23:59] [PASS] [OK] click completed
+[12:23:59] [INFO] >> Step 60: Clicking: [ #bp ]
+[12:24:00] [PASS] [OK] click completed
+[12:24:01] [INFO] >> Step 61: Typing '144/103' into: [ #bp ]
+[12:24:01] [PASS] [OK] type completed
+[12:24:01] [INFO] >> Step 62: Clicking: [ #heartRate ]
+[12:24:02] [PASS] [OK] click completed
+[12:24:02] [INFO] >> Step 63: Typing '90' into: [ #heartRate ]
+[12:24:02] [PASS] [OK] type completed
+[12:24:02] [INFO] >> Step 64: Clicking: [ #respiratoryRate ]
+[12:24:03] [PASS] [OK] click completed
+[12:24:03] [INFO] >> Step 65: Typing '100' into: [ #respiratoryRate ]
+[12:24:03] [PASS] [OK] type completed
+[12:24:03] [INFO] >> Step 66: Clicking: [ #bodyTemperature ]
+[12:24:04] [PASS] [OK] click completed
+[12:24:04] [INFO] >> Step 67: Typing '99' into: [ #bodyTemperature ]
+[12:24:04] [PASS] [OK] type completed
+[12:24:04] [INFO] >> Step 68: Clicking: [ jhi-vitals-form > form > div > div.position-relative.pb-2 > div > div.pl-3 > div:nth-child(2) > div:nth-child(1) > div > ng-select ]
+[12:24:04] [PASS] [OK] click completed
+[12:24:05] [INFO] >> Step 69: Search & Select: type 'Alert' -> pick 'Alert' in [ jhi-vitals-form > form > div > div.position-relative.pb-2 > div > div.pl-3 > div:nth-child(2) > div:nth-child(1) > div > ng-select ]
+[12:24:05] [INFO] [search_select] typing='Alert' picking='Alert'
+[12:24:08] [PASS] [OK] Search & Select: selected 'Alert'
+[12:24:08] [PASS] [OK] search_select completed
+[12:24:08] [INFO] >> Step 70: Clicking: [ jhi-vitals-form > form > div > div.position-relative.pb-2 > div > div.pl-3 > div:nth-child(2) > div:nth-child(3) > div > input ]
+[12:24:09] [PASS] [OK] click completed
+[12:24:09] [INFO] >> Step 71: Typing '100' into: [ jhi-vitals-form > form > div > div.position-relative.pb-2 > div > div.pl-3 > div:nth-child(2) > div:nth-child(3) > div > input ]
+[12:24:09] [PASS] [OK] type completed
+[12:24:09] [INFO] >> Step 72: Clicking: [ jhi-vitals-form > form > div > div.position-relative.pb-2 > div > div.border-top.pt-2.d-flex.justify-content-end.save-vitals > button ]
+[12:24:10] [PASS] [OK] click completed
+[12:24:10] [INFO] >> Step 73: Waiting 1000ms
+[12:24:11] [PASS] [OK] wait completed
+[12:24:11] [INFO] >> Step 74: focus -- .col.emr-content-area-main >> text='Family History'
+[12:24:11] [PASS] [OK] focus completed
+[12:24:11] [INFO] >> Step 75: Clicking: [ .col.emr-content-area-main >> text='Family History' ]
+[12:24:13] [PASS] [OK] click completed
+[12:24:13] [INFO] [DATA TABLE] 2 row(s), columns: ['familyHistoryInput', 'relation']
+[12:24:13] [INFO] [DATA TABLE] Row 1/2: familyHistoryInput=Cold, relation=Father
+[12:24:13] [INFO] >> Step 1: Clicking: [ #familyHistoryInput ]
+[12:24:14] [PASS] [OK] click completed
+[12:24:14] [INFO] >> Step 2: Search & Select: type '{{familyHistoryInput}}' -> pick 'Cold' in [ #familyHistoryInput ]
+[12:24:14] [INFO] [search_select] typing='Cold' picking='Cold'
+[12:24:17] [PASS] [OK] Search & Select: selected 'Cold'
+[12:24:17] [PASS] [OK] search_select completed
+[12:24:17] [INFO] >> Step 3: Clicking: [ #familyRelationDropDown > div > div > div.ng-input > input[type=text] ]
+[12:24:18] [PASS] [OK] click completed
+[12:24:18] [INFO] >> Step 4: Search & Select: type '{{relation}}' -> pick 'Father' in [ #familyRelationDropDown > div > div > div.ng-input > input[type=text] ]
+[12:24:18] [INFO] [search_select] typing='Father' picking='Father'
+[12:24:21] [PASS] [OK] Search & Select: selected 'Father'
+[12:24:21] [PASS] [OK] search_select completed
+[12:24:21] [INFO] >> Step 5: Clicking: [ #familyHistories ]
+[12:24:22] [PASS] [OK] click completed
+[12:24:22] [INFO] [DATA TABLE] Row 2/2: familyHistoryInput=Low back pain, relation=Brother
+[12:24:22] [INFO] >> Step 1: Clicking: [ #familyHistoryInput ]
+[12:24:22] [PASS] [OK] click completed
+[12:24:23] [INFO] >> Step 2: Search & Select: type '{{familyHistoryInput}}' -> pick 'Low back pain' in [ #familyHistoryInput ]
+[12:24:23] [INFO] [search_select] typing='Low back pain' picking='Low back pain'
+[12:24:27] [PASS] [OK] Search & Select: selected 'Low back pain'
+[12:24:27] [PASS] [OK] search_select completed
+[12:24:27] [INFO] >> Step 3: Clicking: [ #familyRelationDropDown > div > div > div.ng-input > input[type=text] ]
+[12:24:28] [PASS] [OK] click completed
+[12:24:28] [INFO] >> Step 4: Search & Select: type '{{relation}}' -> pick 'Brother' in [ #familyRelationDropDown > div > div > div.ng-input > input[type=text] ]
+[12:24:28] [INFO] [search_select] typing='Brother' picking='Brother'
+[12:24:31] [PASS] [OK] Search & Select: selected 'Brother'
+[12:24:31] [PASS] [OK] search_select completed
+[12:24:31] [INFO] >> Step 5: Clicking: [ #familyHistories ]
+[12:24:32] [PASS] [OK] click completed
+[12:24:32] [INFO] >> Step 83: focus -- .col.emr-content-area-main >> text='Social History'
+[12:24:32] [PASS] [OK] focus completed
+[12:24:32] [INFO] >> Step 84: Clicking: [ .col.emr-content-area-main >> text='Social History' ]
+[12:24:33] [PASS] [OK] click completed
+[12:24:33] [INFO] [DATA TABLE] 3 row(s), columns: ['socialHistoryInput', 'socialaddRemarks']
+[12:24:33] [INFO] [DATA TABLE] Row 1/3: socialHistoryInput=Smoking, socialaddRemarks=TESTING
+[12:24:33] [INFO] >> Step 1: Clicking: [ #socialHistoryInput ]
+[12:24:34] [PASS] [OK] click completed
+[12:24:34] [INFO] >> Step 2: Search & Select: type '{{socialHistoryInput}}' -> pick 'Smoking' in [ #socialHistoryInput ]
+[12:24:34] [INFO] [search_select] typing='Smoking' picking='Smoking'
+[12:24:37] [PASS] [OK] Search & Select: selected 'Smoking'
+[12:24:37] [PASS] [OK] search_select completed
+[12:24:37] [INFO] >> Step 3: Clicking: [ #socialaddRemarksCreateFlow ]
+[12:24:38] [PASS] [OK] click completed
+[12:24:38] [INFO] >> Step 4: Typing 'TESTING' into: [ #socialaddRemarksCreateFlow ]
+[12:24:39] [PASS] [OK] type completed
+[12:24:39] [INFO] >> Step 5: Clicking: [ #knownHistory ]
+[12:24:40] [PASS] [OK] click completed
+[12:24:40] [INFO] [DATA TABLE] Row 2/3: socialHistoryInput=Drinking, socialaddRemarks=Drinking
+[12:24:40] [INFO] >> Step 1: Clicking: [ #socialHistoryInput ]
+[12:24:40] [PASS] [OK] click completed
+[12:24:40] [INFO] >> Step 2: Search & Select: type '{{socialHistoryInput}}' -> pick 'Drinking' in [ #socialHistoryInput ]
+[12:24:40] [INFO] [search_select] typing='Drinking' picking='Drinking'
+[12:24:44] [PASS] [OK] Search & Select: selected 'Drinking'
+[12:24:44] [PASS] [OK] search_select completed
+[12:24:44] [INFO] >> Step 3: Clicking: [ #socialaddRemarksCreateFlow ]
+[12:24:44] [PASS] [OK] click completed
+[12:24:44] [INFO] >> Step 4: Typing 'Drinking' into: [ #socialaddRemarksCreateFlow ]
+[12:24:45] [PASS] [OK] type completed
+[12:24:45] [INFO] >> Step 5: Clicking: [ #knownHistory ]
+[12:24:46] [PASS] [OK] click completed
+[12:24:46] [INFO] [DATA TABLE] Row 3/3: socialHistoryInput=No known exposure to tobacco smoke, socialaddRemarks=No known exposure to tobacco smoke
+[12:24:46] [INFO] >> Step 1: Clicking: [ #socialHistoryInput ]
+[12:24:47] [PASS] [OK] click completed
+[12:24:47] [INFO] >> Step 2: Search & Select: type '{{socialHistoryInput}}' -> pick 'No known exposure to tobacco smoke' in [ #socialHistoryInput ]
+[12:24:47] [INFO] [search_select] typing='No known exposure to tobacco smoke' picking='No known exposure to tobacco smoke'
+[12:24:52] [PASS] [OK] Search & Select: selected 'No known exposure to tobacco smoke'
+[12:24:52] [PASS] [OK] search_select completed
+[12:24:52] [INFO] >> Step 3: Clicking: [ #socialaddRemarksCreateFlow ]
+[12:24:53] [PASS] [OK] click completed
+[12:24:53] [INFO] >> Step 4: Typing 'No known exposure to tobacco smoke' into: [ #socialaddRemarksCreateFlow ]
+[12:24:56] [PASS] [OK] type completed
+[12:24:56] [INFO] >> Step 5: Clicking: [ #knownHistory ]
+[12:24:57] [PASS] [OK] click completed
+[12:24:57] [INFO] >> Step 92: Waiting 1000ms
+[12:24:58] [PASS] [OK] wait completed
+[12:24:58] [INFO] >> Step 93: Scrolling page
+[12:24:58] [PASS] [OK] scroll completed
+[12:24:58] [INFO] >> Step 94: focus -- .col.emr-content-area-main >> text='Allergy'
+[12:24:59] [PASS] [OK] focus completed
+[12:24:59] [INFO] >> Step 95: Waiting 1000ms
+[12:25:00] [PASS] [OK] wait completed
+[12:25:00] [INFO] >> Step 96: store_attr -- #allergy_0 > jhi-allergy-form > div > div.emr-consultation-section-title.athma-pointer.d-flex.align-items-center.p-3.position-relative.expand
+[12:25:00] [PASS] [OK] Stored '' → {{allergy}}
+[12:25:00] [INFO] [IF] '' contains 'collapse' => False
+[12:25:00] [INFO] [DATA TABLE] 3 row(s), columns: ['allergyInput', 'level']
+[12:25:00] [INFO] [DATA TABLE] Row 1/3: allergyInput=Carrot, level=Severe
+[12:25:00] [INFO] >> Step 1: Clicking: [ #allergyInput ]
+[12:25:01] [PASS] [OK] click completed
+[12:25:01] [INFO] >> Step 2: Search & Select: type '{{allergyInput}}' -> pick 'Carrot' in [ #allergyInput ]
+[12:25:01] [INFO] [search_select] typing='Carrot' picking='Carrot'
+[12:25:05] [PASS] [OK] Search & Select: selected 'Carrot'
+[12:25:05] [PASS] [OK] search_select completed
+[12:25:05] [INFO] >> Step 3: Clicking: [ #allergy_0 > jhi-allergy-form > div > div:nth-child(2) > div > div.col-9.pl-0.d-flex > div.col-2.pl-0.custom-ngselect > ng-select > div > div > div.ng-input > input[type=text] ]
+[12:25:05] [PASS] [OK] click completed
+[12:25:05] [INFO] >> Step 4: Search & Select: type '{{level}}' -> pick 'Severe' in [ #allergy_0 > jhi-allergy-form > div > div:nth-child(2) > div > div.col-9.pl-0.d-flex > div.col-2.pl-0.custom-ngselect > ng-select > div > div > div.ng-input > input[type=text] ]
+[12:25:05] [INFO] [search_select] typing='Severe' picking='Severe'
+[12:25:09] [PASS] [OK] Search & Select: selected 'Severe'
+[12:25:09] [PASS] [OK] search_select completed
+[12:25:09] [INFO] >> Step 5: Clicking: [ #addAllergies ]
+[12:25:09] [PASS] [OK] click completed
+[12:25:09] [INFO] [DATA TABLE] Row 2/3: allergyInput=milk cream, level=Mild
+[12:25:09] [INFO] >> Step 1: Clicking: [ #allergyInput ]
+[12:25:10] [PASS] [OK] click completed
+[12:25:10] [INFO] >> Step 2: Search & Select: type '{{allergyInput}}' -> pick 'milk cream' in [ #allergyInput ]
+[12:25:10] [INFO] [search_select] typing='milk cream' picking='milk cream'
+[12:25:14] [PASS] [OK] Search & Select: selected 'milk cream'
+[12:25:14] [PASS] [OK] search_select completed
+[12:25:14] [INFO] >> Step 3: Clicking: [ #allergy_0 > jhi-allergy-form > div > div:nth-child(2) > div > div.col-9.pl-0.d-flex > div.col-2.pl-0.custom-ngselect > ng-select > div > div > div.ng-input > input[type=text] ]
+[12:25:14] [PASS] [OK] click completed
+[12:25:14] [INFO] >> Step 4: Search & Select: type '{{level}}' -> pick 'Mild' in [ #allergy_0 > jhi-allergy-form > div > div:nth-child(2) > div > div.col-9.pl-0.d-flex > div.col-2.pl-0.custom-ngselect > ng-select > div > div > div.ng-input > input[type=text] ]
+[12:25:14] [INFO] [search_select] typing='Mild' picking='Mild'
+[12:25:18] [PASS] [OK] Search & Select: selected 'Mild'
+[12:25:18] [PASS] [OK] search_select completed
+[12:25:18] [INFO] >> Step 5: Clicking: [ #addAllergies ]
+[12:25:18] [PASS] [OK] click completed
+[12:25:18] [INFO] [DATA TABLE] Row 3/3: allergyInput=manganese citrate, level=Moderate
+[12:25:18] [INFO] >> Step 1: Clicking: [ #allergyInput ]
+[12:25:19] [PASS] [OK] click completed
+[12:25:19] [INFO] >> Step 2: Search & Select: type '{{allergyInput}}' -> pick 'manganese citrate' in [ #allergyInput ]
+[12:25:19] [INFO] [search_select] typing='manganese citrate' picking='manganese citrate'
+[12:25:23] [PASS] [OK] Search & Select: selected 'manganese citrate'
+[12:25:23] [PASS] [OK] search_select completed
+[12:25:24] [INFO] >> Step 3: Clicking: [ #allergy_0 > jhi-allergy-form > div > div:nth-child(2) > div > div.col-9.pl-0.d-flex > div.col-2.pl-0.custom-ngselect > ng-select > div > div > div.ng-input > input[type=text] ]
+[12:25:24] [PASS] [OK] click completed
+[12:25:24] [INFO] >> Step 4: Search & Select: type '{{level}}' -> pick 'Moderate' in [ #allergy_0 > jhi-allergy-form > div > div:nth-child(2) > div > div.col-9.pl-0.d-flex > div.col-2.pl-0.custom-ngselect > ng-select > div > div > div.ng-input > input[type=text] ]
+[12:25:24] [INFO] [search_select] typing='Moderate' picking='Moderate'
+[12:25:28] [PASS] [OK] Search & Select: selected 'Moderate'
+[12:25:28] [PASS] [OK] search_select completed
+[12:25:28] [INFO] >> Step 5: Clicking: [ #addAllergies ]
+[12:25:29] [PASS] [OK] click completed
+[12:25:29] [INFO] >> Step 107: focus -- .col.emr-content-area-main >> text='Investigation Order'
+[12:25:29] [PASS] [OK] focus completed
+[12:25:29] [INFO] >> Step 108: store_attr -- #investigation-order_6 > jhi-investigation-order-form > div > div.emr-consultation-section-title.athma-pointer.d-flex.align-items-center.justify-content-between.py-3.pl-3
+[12:25:29] [PASS] [OK] Stored 'emr-consultation-section-title athma-pointer d-flex align-items-center justify-c' → {{investigation}}
+[12:25:29] [INFO] [SKIP] Step 109 (if_start) is disabled — skipping
+[12:25:29] [INFO] >> Step 110: Clicking: [ .col.emr-content-area-main >> text='Investigation Order' ]
+[12:25:30] [PASS] [OK] click completed
+[12:25:30] [INFO] [SKIP] Step 111 (if_end) is disabled — skipping
+[12:25:30] [INFO] [DATA TABLE] 3 row(s), columns: ['investigationOrderInput']
+[12:25:30] [INFO] [DATA TABLE] Row 1/3: investigationOrderInput=COMPLETE BLOOD COUNT (CBC)
+[12:25:30] [INFO] >> Step 1: Clicking: [ #investigationOrderInput ]
+[12:25:31] [PASS] [OK] click completed
+[12:25:31] [INFO] >> Step 2: Search & Select: type '{{investigationOrderInput}}' -> pick 'COMPLETE BLOOD COUNT (CBC)' in [ #investigationOrderInput ]
+[12:25:31] [INFO] [search_select] typing='COMPLETE BLOOD COUNT (CBC)' picking='COMPLETE BLOOD COUNT (CBC)'
+[12:25:36] [PASS] [OK] Search & Select: selected 'COMPLETE BLOOD COUNT (CBC)'
+[12:25:36] [PASS] [OK] search_select completed
+[12:25:36] [INFO] >> Step 3: Waiting 1000ms
+[12:25:37] [PASS] [OK] wait completed
+[12:25:37] [INFO] [DATA TABLE] Row 2/3: investigationOrderInput=LIPID PROFILE (CHOL,TRIG,HDL,LDL,VLDL)
+[12:25:37] [INFO] >> Step 1: Clicking: [ #investigationOrderInput ]
+[12:25:38] [PASS] [OK] click completed
+[12:25:38] [INFO] >> Step 2: Search & Select: type '{{investigationOrderInput}}' -> pick 'LIPID PROFILE (CHOL,TRIG,HDL,LDL,VLDL)' in [ #investigationOrderInput ]
+[12:25:38] [INFO] [search_select] typing='LIPID PROFILE (CHOL,TRIG,HDL,LDL,VLDL)' picking='LIPID PROFILE (CHOL,TRIG,HDL,LDL,VLDL)'
+[12:25:44] [PASS] [OK] Search & Select: selected 'LIPID PROFILE (CHOL,TRIG,HDL,LDL,VLDL)'
+[12:25:44] [PASS] [OK] search_select completed
+[12:25:44] [INFO] >> Step 3: Waiting 1000ms
+[12:25:45] [PASS] [OK] wait completed
+[12:25:46] [INFO] [DATA TABLE] Row 3/3: investigationOrderInput=MIC1
+[12:25:46] [INFO] >> Step 1: Clicking: [ #investigationOrderInput ]
+[12:25:46] [PASS] [OK] click completed
+[12:25:46] [INFO] >> Step 2: Search & Select: type '{{investigationOrderInput}}' -> pick 'MIC1' in [ #investigationOrderInput ]
+[12:25:46] [INFO] [search_select] typing='MIC1' picking='MIC1'
+[12:25:50] [PASS] [OK] Search & Select: selected 'MIC1'
+[12:25:50] [PASS] [OK] search_select completed
+[12:25:50] [INFO] >> Step 3: Waiting 1000ms
+[12:25:51] [PASS] [OK] wait completed
+[12:25:51] [INFO] >> Step 117: Clicking: [ #investigation-order_6 > jhi-investigation-order-form > div > div.pt-2.d-flex.justify-content-end.pr-2.border.pb-2 > button:nth-child(2) ]
+[12:25:52] [PASS] [OK] click completed
+[12:25:52] [INFO] >> Step 118: focus -- .col.emr-content-area-main >> text='Medication Order'
+[12:25:52] [PASS] [OK] focus completed
+[12:25:52] [INFO] >> Step 119: Clicking: [ .col.emr-content-area-main >> text='Medication Order' ]
+[12:25:53] [PASS] [OK] click completed
+[12:25:54] [INFO] >> Step 120: Waiting 1000ms
+[12:25:55] [PASS] [OK] wait completed
+[12:25:55] [INFO] [DATA TABLE] 1 row(s), columns: ['medicationOrderInput', 'frequency', 'frequencyM', 'frequencyA', 'frequencyE', 'frequencyN', 'unit', 'route', 'food', 'duration', 'days', 'qty']
+[12:25:55] [INFO] [DATA TABLE] Row 1/1: medicationOrderInput=ISOPROPYL ALCOHOL-TABLET-50MG-, frequency=Twice Daily, frequencyM=1, frequencyA=0, frequencyE=0, frequencyN=1, unit=Tablet, route=Orally, food=AFTER FOOD, duration=2, days=Days, qty=
+[12:25:55] [INFO] >> Step 1: Clicking: [ #medicationOrderInput ]
+[12:25:55] [PASS] [OK] click completed
+[12:25:55] [INFO] >> Step 2: Search & Select: type '{{medicationOrderInput}}' -> pick 'ISOPROPYL ALCOHOL-TABLET-50MG-' in [ #medicationOrderInput ]
+[12:25:55] [INFO] [search_select] typing='ISOPROPYL ALCOHOL-TABLET-50MG-' picking='ISOPROPYL ALCOHOL-TABLET-50MG-'
+[12:26:01] [PASS] [OK] Search & Select: selected 'ISOPROPYL ALCOHOL-TABLET-50MG-'
+[12:26:01] [PASS] [OK] search_select completed
+[12:26:01] [INFO] >> Step 3: Clicking: [ text="Frequency" >> .. >> input ]
+[12:26:02] [PASS] [OK] click completed
+[12:26:02] [INFO] >> Step 4: Search & Select: type '{{frequency}}' -> pick 'Twice Daily' in [ text="Frequency" >> .. >> input ]
+[12:26:02] [INFO] [search_select] typing='Twice Daily' picking='Twice Daily'
+[12:26:06] [PASS] [OK] Search & Select: selected 'Twice Daily'
+[12:26:06] [PASS] [OK] search_select completed
+[12:26:06] [INFO] >> Step 5: Clearing: [ #frequencyInput ]
+[12:26:06] [PASS] [OK] clear completed
+[12:26:06] [INFO] >> Step 6: Typing '1' into: [ #frequencyInput ]
+[12:26:06] [PASS] [OK] type completed
+[12:26:06] [INFO] >> Step 7: Clearing: [ #frequencyPopAft ]
+[12:26:07] [PASS] [OK] clear completed
+[12:26:07] [INFO] >> Step 8: Typing '0' into: [ #frequencyPopAft ]
+[12:26:07] [PASS] [OK] type completed
+[12:26:07] [INFO] >> Step 9: Clearing: [ #evening ]
+[12:26:07] [PASS] [OK] clear completed
+[12:26:07] [INFO] >> Step 10: Typing '0' into: [ #evening ]
+[12:26:07] [PASS] [OK] type completed
+[12:26:07] [INFO] >> Step 11: Clearing: [ #night ]
+[12:26:07] [PASS] [OK] clear completed
+[12:26:07] [INFO] >> Step 12: Typing '1' into: [ #night ]
+[12:26:07] [PASS] [OK] type completed
+[12:26:07] [INFO] [SKIP] Step 13 (click) is disabled — skipping
+[12:26:07] [INFO] [SKIP] Step 14 (search_select) is disabled — skipping
+[12:26:07] [INFO] [SKIP] Step 15 (click) is disabled — skipping
+[12:26:07] [INFO] [SKIP] Step 16 (search_select) is disabled — skipping
+[12:26:07] [INFO] >> Step 17: Clicking: [ (//div[contains(@class,'tab-food-instruction-width') and contains(@class,'tab-align-change-field')]//ng-select)[2] ]
+[12:26:08] [PASS] [OK] click completed
+[12:26:08] [INFO] >> Step 18: Search & Select: type '{{food}}' -> pick 'AFTER FOOD' in [ (//div[contains(@class,'tab-food-instruction-width') and contains(@class,'tab-align-change-field')]//ng-select)[2] ]
+[12:26:08] [INFO] [search_select] typing='AFTER FOOD' picking='AFTER FOOD'
+[12:26:12] [PASS] [OK] Search & Select: selected 'AFTER FOOD'
+[12:26:12] [PASS] [OK] search_select completed
+[12:26:12] [INFO] >> Step 19: Clearing: [ #duration ]
+[12:26:12] [PASS] [OK] clear completed
+[12:26:12] [INFO] >> Step 20: Typing '2' into: [ #duration ]
+[12:26:12] [PASS] [OK] type completed
+[12:26:12] [INFO] >> Step 21: Clicking: [ div.tab-duration input[type='text'] ]
+[12:26:13] [PASS] [OK] click completed
+[12:26:13] [INFO] >> Step 22: Search & Select: type '{{days}}' -> pick 'Days' in [ ng-select.col-9.p-0 > div.ng-select-container ]
+[12:26:13] [INFO] [search_select] typing='Days' picking='Days'
+[12:26:16] [PASS] [OK] Search & Select: selected 'Days'
+[12:26:16] [PASS] [OK] search_select completed
+[12:26:17] [INFO] >> Step 23: Clicking: [ #ngb-popover-2857 > div.popover-body > div.d-flex.modal-footer.footer.px-3.py-1 > button.athma-btn.athma-btn-primary.primary.m-0 ]
+[12:26:17] [INFO]    Medication Order Add Button
+[12:26:25] [PASS] [OK] click completed
+[12:26:26] [INFO] >> Step 146: Clicking: [ [id^="medication-order"] .disable-primary-btn ]
+[12:26:27] [PASS] [OK] click completed
+[12:26:27] [INFO] >> Step 147: focus -- .col.emr-content-area-main >> text='Past Medical History'
+[12:26:27] [PASS] [OK] focus completed
+[12:26:27] [INFO] >> Step 148: Clicking: [ .col.emr-content-area-main >> text='Past Medical History' ]
+[12:26:28] [PASS] [OK] click completed
+[12:26:28] [INFO] >> Step 149: Clicking: [ #medicalHistoryInput ]
+[12:26:30] [PASS] [OK] click completed
+[12:26:30] [INFO] >> Step 150: Search & Select: type 'Adiposis dolorosa' -> pick 'Adiposis dolorosa' in [ #medicalHistoryInput ]
+[12:26:30] [INFO] [search_select] typing='Adiposis dolorosa' picking='Adiposis dolorosa'
+[12:26:42] [PASS] [OK] Search & Select: selected 'Adiposis dolorosa'
+[12:26:42] [PASS] [OK] search_select completed
+[12:26:42] [INFO] >> Step 151: Clicking: [ #mhaddRemarksCreateFlow ]
+[12:26:43] [PASS] [OK] click completed
+[12:26:43] [INFO] >> Step 152: Typing 'TESTING' into: [ #mhaddRemarksCreateFlow ]
+[12:26:44] [PASS] [OK] type completed
+[12:26:44] [INFO] >> Step 153: Clicking: [ //div[contains(@id,'medical-history')]//button[contains(@id,'knownHistory')] ]
+[12:26:45] [PASS] [OK] click completed
+[12:26:45] [INFO] >> Step 154: focus -- .col.emr-content-area-main >> text='Procedure History'
+[12:26:45] [PASS] [OK] focus completed
+[12:26:45] [INFO] >> Step 155: Clicking: [ .col.emr-content-area-main >> text='Procedure History' ]
+[12:26:46] [PASS] [OK] click completed
+[12:26:46] [INFO] >> Step 156: Checking: [ #surgical-history_4 > jhi-surgical-history-form > div > div.emr-consultation-section-title.athma-pointer.d-flex.align-items-center.p-3.expand > div.d-flex.align-items-center.ml-3.pl-3.no-known-history > div > div > label ]
+[12:26:46] [PASS] [OK] check completed
+[12:26:47] [INFO] [IF] 'jhi-confirm-popup >> nth=0' element_visible => False
+[12:26:47] [INFO] >> Step 160: Waiting 2000ms
+[12:26:49] [PASS] [OK] wait completed
+[12:26:49] [INFO] [SKIP] Step 161 (focus) is disabled — skipping
+[12:26:49] [INFO] [SKIP] Step 162 (click) is disabled — skipping
+[12:26:49] [INFO] [SKIP] Step 163 (click) is disabled — skipping
+[12:26:49] [INFO] [SKIP] Step 164 (type) is disabled — skipping
+[12:26:49] [INFO] [SKIP] Step 165 (click) is disabled — skipping
+[12:26:49] [INFO] >> Step 166: focus -- .col.emr-content-area-main >> text='Admission Request'
+[12:26:49] [PASS] [OK] focus completed
+[12:26:49] [INFO] >> Step 167: Clicking: [ .col.emr-content-area-main >> text='Admission Request' ]
+[12:26:50] [PASS] [OK] click completed
+[12:26:50] [INFO] >> Step 168: Search & Select: type 'Surgery' -> pick 'Surgery' in [ (//div[contains(@id,'admission-request')]//ng-select)[5]//input ]
+[12:26:50] [INFO] [search_select] typing='Surgery' picking='Surgery'
+[12:26:54] [PASS] [OK] Search & Select: selected 'Surgery'
+[12:26:54] [PASS] [OK] search_select completed
+[12:26:54] [INFO] >> Step 169: Typing '3' into: [ //div[contains(@id,'admission-request')]//input[contains(@id,'admissionRequestEstimatedLengthOfStay')] ]
+[12:26:54] [PASS] [OK] type completed
+[12:26:54] [INFO] >> Step 170: Typing 'Testing for EHR Morew' into: [ (//div[contains(@id,'admission-request')]//textarea[contains(@id,'textArea')])[1] ]
+[12:26:55] [PASS] [OK] type completed
+[12:26:55] [INFO] >> Step 171: Typing 'he element may have additional classes' into: [ (//div[contains(@id,'admission-request')]//textarea[contains(@id,'textArea')])[2] ]
+[12:26:58] [PASS] [OK] type completed
+[12:26:58] [INFO] >> Step 172: Clicking: [ //div[contains(@id,'admission-request')]//button[contains(@ng-reflect-jhi-translate,'entity.action.submit')] ]
+[12:26:59] [PASS] [OK] click completed
+[12:26:59] [INFO] >> Step 173: focus -- .col.emr-content-area-main >> text='Diagnosis'
+[12:26:59] [PASS] [OK] focus completed
+[12:26:59] [INFO] >> Step 174: Clicking: [ .col.emr-content-area-main >> text='Diagnosis' ]
+[12:27:00] [PASS] [OK] click completed
+[12:27:00] [INFO] >> Step 175: Search & Select: type 'Y90.8' -> pick 'Blood alcohol level of 240 mg/100 ml or more' in [ //div[contains(@id,'diagnosis')]//input[contains(@id,'diagnosisInput')] ]
+[12:27:00] [INFO] [search_select] typing='Y90.8' picking='Blood alcohol level of 240 mg/100 ml or more'
+[12:27:13] [PASS] [OK] Search & Select: selected 'Blood alcohol level of 240 mg/100 ml or more'
+[12:27:13] [PASS] [OK] search_select completed
+[12:27:13] [INFO] >> Step 176: Search & Select: type 'Primary' -> pick 'Primary' in [ (//div[contains(@id,'diagnosis')]//input)[3] ]
+[12:27:13] [INFO] [search_select] typing='Primary' picking='Primary'
+[12:27:17] [PASS] [OK] Search & Select: selected 'Primary'
+[12:27:17] [PASS] [OK] search_select completed
+[12:27:17] [INFO] >> Step 177: Search & Select: type 'ADMITTING' -> pick 'ADMITTING' in [ (//div[contains(@id,'diagnosis')]//input)[4] ]
+[12:27:17] [INFO] [search_select] typing='ADMITTING' picking='ADMITTING'
+[12:27:20] [PASS] [OK] Search & Select: selected 'ADMITTING'
+[12:27:20] [PASS] [OK] search_select completed
+[12:27:20] [INFO] >> Step 178: Typing 'Remark for patient' into: [ //div[contains(@id,'diagnosis')]//textarea[contains(@id,'DiagnosisRemark')] ]
+[12:27:22] [PASS] [OK] type completed
+[12:27:22] [INFO] >> Step 179: Clicking: [ //div[contains(@id,'diagnosis')]//button[contains(@id,'addDiagnosys')] ]
+[12:27:23] [PASS] [OK] click completed
+[12:27:24] [INFO] >> Step 180: focus -- .col.emr-content-area-main >> text='Chief Complaints & History of Present Illness'
+[12:27:24] [PASS] [OK] focus completed
+[12:27:24] [INFO] >> Step 181: Clicking: [ .col.emr-content-area-main >> text='Chief Complaints & History of Present Illness' ]
+[12:27:25] [PASS] [OK] click completed
+[12:27:25] [INFO] >> Step 182: Search & Select: type 'Leg Pain' -> pick 'Leg Pain' in [ #chiefComplaintInput ]
+[12:27:25] [INFO] [search_select] typing='Leg Pain' picking='Leg Pain'
+[12:27:29] [PASS] [OK] Search & Select: selected 'Leg Pain'
+[12:27:29] [PASS] [OK] search_select completed
+[12:27:29] [INFO] >> Step 183: Typing 'One more infor' into: [ #ccfaddRemarksCreateFlow ]
+[12:27:30] [PASS] [OK] type completed
+[12:27:30] [INFO] >> Step 184: Clicking: [ //div[contains(@id,'chief-complaint')]//button[contains(@id,'add-chief-complints-btn')] ]
+[12:27:31] [PASS] [OK] click completed
+[12:27:32] [INFO] >> Step 185: focus -- .col.emr-content-area-main >> text='General Examination'
+[12:27:32] [PASS] [OK] focus completed
+[12:27:32] [INFO] >> Step 186: Clicking: [ .col.emr-content-area-main >> text='General Examination' ]
+[12:27:33] [PASS] [OK] click completed
+[12:27:33] [INFO] >> Step 187: Search & Select: type 'Skin' -> pick 'Skin' in [ //div[contains(@id,'general-examination')]//input ]
+[12:27:33] [INFO] [search_select] typing='Skin' picking='Skin'
+[12:27:37] [PASS] [OK] Search & Select: selected 'Skin'
+[12:27:37] [PASS] [OK] search_select completed
+[12:27:37] [INFO] >> Step 188: Typing 'Working Knowing' into: [ //div[contains(@id,'general-examination')]//textarea ]
+[12:27:38] [PASS] [OK] type completed
+[12:27:38] [INFO] >> Step 189: Clicking: [ //div[contains(@id,'general-examination')]//button[contains(@id,'generalExaminations')] ]
+[12:27:39] [PASS] [OK] click completed
+[12:27:39] [INFO] >> Step 190: focus -- .col.emr-content-area-main >> text='Follow up'
+[12:27:39] [PASS] [OK] focus completed
+[12:27:39] [INFO] >> Step 191: Clicking: [ .col.emr-content-area-main >> text='Follow up' ]
+[12:27:41] [PASS] [OK] click completed
+[12:27:42] [INFO] [IF] '//jhi-request-followup-popup' element_visible => True
+[12:27:42] [INFO] >> Step 1: Search & Select: type 'MMII Narayana Multispeciality Hospital, Raipur' -> pick 'MMII Narayana Multispeciality Hospital, Raipur' in [ #unitField ]
+[12:27:42] [INFO] [search_select] typing='MMII Narayana Multispeciality Hospital, Raipur' picking='MMII Narayana Multispeciality Hospital, Raipur'
+[12:27:48] [PASS] [OK] Search & Select: selected 'MMII Narayana Multispeciality Hospital, Raipur'
+[12:27:48] [PASS] [OK] search_select completed
+[12:27:48] [INFO] >> Step 2: Search & Select: type 'Sunil Gouniyal' -> pick 'Sunil Gouniyal' in [ #consultantField ]
+[12:27:48] [INFO] [search_select] typing='Sunil Gouniyal' picking='Sunil Gouniyal'
+[12:27:52] [PASS] [OK] Search & Select: selected 'Sunil Gouniyal'
+[12:27:52] [PASS] [OK] search_select completed
+[12:27:52] [INFO] >> Step 3: Clicking: [ body > ngb-modal-window > div > div > jhi-request-followup-popup > div.request-followup-popup.modal-body.p-0.detail-popup > div.followup-scroll-area.position-relative.ps > div.followup-slot-booking-container.mx-3.pb-4 > div.d-flex.follow-up-type-list.justify-content-between > div.d-flex.follow-up-type.flex-wrap.justify-content-center.active ]
+[12:27:53] [PASS] [OK] click completed
+[12:27:53] [INFO] >> Step 4: Typing '2' into: [ #durationValue ]
+[12:27:53] [PASS] [OK] type completed
+[12:27:53] [INFO] >> Step 5: Search & Select: type 'Weeks' -> pick 'Weeks' in [ body > ngb-modal-window > div > div > jhi-request-followup-popup > div.request-followup-popup.modal-body.p-0.detail-popup > div.followup-scroll-area.position-relative.ps > div.followup-slot-booking-container.mx-3.pb-4 > div.d-flex.my-3 > div.d-flex.align-items-center.mr-2 > div.pl-2.pr-0.d-flex.sincewhen-container.duration-sincewhen-container > div.col-8.p-0.custom-ngselect-no-border > ng-select > div > div > div.ng-input > input[type=text] ]
+[12:27:53] [INFO] [search_select] typing='Weeks' picking='Weeks'
+[12:27:57] [PASS] [OK] Search & Select: selected 'Weeks'
+[12:27:57] [PASS] [OK] search_select completed
+[12:27:57] [INFO] >> Step 6: Search & Select: type '24 Hours Urine for calcium' -> pick '24 Hours Urine for calcium' in [ .followup-investigation #investigationOrderInput ]
+[12:27:57] [INFO] [search_select] typing='24 Hours Urine for calcium' picking='24 Hours Urine for calcium'
+[12:28:03] [PASS] [OK] Search & Select: selected '24 Hours Urine for calcium'
+[12:28:03] [PASS] [OK] search_select completed
+[12:28:03] [INFO] >> Step 7: Clicking: [ body > ngb-modal-window > div > div > jhi-request-followup-popup > div.modal-footer.d-flex.justify-content-between > div.modal-actions > button.athma-btn.athma-btn-ehr-priamry ]
+[12:28:04] [PASS] [OK] click completed
+[12:28:04] [INFO] >> Step 201: Clicking: [ [jhitranslate="gatewayApp.consultationForm.finish"] ]
+[12:28:05] [PASS] [OK] click completed
+[12:28:05] [INFO] >> Step 202: Waiting for element: [ button.ml-2.finish-btn ]
+[12:28:06] [PASS] [OK] wait_for_selector completed
+[12:28:06] [INFO] >> Step 203: Clicking: [ button.ml-2.finish-btn ]
+[12:28:38] [PASS] [OK] click completed
+[12:28:39] [INFO] >> Step 204: Waiting for element: [ button.athma-btn.athma-btn-ehr-secondary ]
+[12:28:39] [PASS] [OK] wait_for_selector completed
+[12:28:39] [INFO] >> Step 205: Clicking: [ button.athma-btn.athma-btn-ehr-secondary ]
+[12:28:39] [PASS] [OK] click completed
+[12:28:40] [INFO] >> Step 206: Waiting for element: [ .textLayer >> nth=0 ]
+[12:28:42] [PASS] [OK] wait_for_selector completed
+[12:28:42] [INFO] >> Step 207: Waiting 4000ms
+[12:28:46] [PASS] [OK] wait completed
+[12:28:46] [INFO] >> Step 208: assert_ai -- Does the report show mrn =17540000994345 and consultant = Dr.Sunil Gouniyal and consultation Date = todays date show actual and required data aslo
+[12:28:51] [INFO]   [assert_ai] RESULT: NO
+
+REASON: While the report shows MRN = 17540000994345 and Consultant = Dr. Sunil Gouniyal correctly, the Consultation Date shown is 07/05/2026 05:53 PM, which is a future date (May 7, 2026) 
+[12:28:51] [FAIL]   [ASSERT FAILED] assert_ai FAILED: While the report shows MRN = 17540000994345 and Consultant = Dr. Sunil Gouniyal correctly, the Consultation Date shown is 07/05/2026 05:53 PM, which is a future date (May 7, 2026) an
+[12:28:53] [INFO] Persisted 1 runtime variable(s)
+[12:28:53] [INFO] [FAIL] FAILED -- 223/251 steps in 411620ms

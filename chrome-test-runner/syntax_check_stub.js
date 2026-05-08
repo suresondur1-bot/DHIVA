@@ -1,0 +1,3 @@
+// syntax check wrapper - wraps chrome APIs as stubs
+const chrome = { storage:{local:{get:(k,cb)=>cb({}),set:(d,cb)=>cb&&cb(),remove:()=>{}}}, tabs:{query:(o,cb)=>cb([]),create:()=>Promise.resolve({id:1}),get:()=>Promise.resolve({id:1,url:''}),update:()=>Promise.resolve(),onUpdated:{addListener:()=>{},removeListener:()=>{}}}, scripting:{executeScript:()=>Promise.resolve([])}, runtime:{id:'test',getManifest:()=>({version:'2.0'}),onMessage:{addListener:()=>{}},onMessageExternal:{addListener:()=>{}}}, windows:{update:()=>{}} };
+const WebSocket = class { constructor(){} send(){} set onopen(v){} set onmessage(v){} set onerror(v){} set onclose(v){} get readyState(){return 1;} };

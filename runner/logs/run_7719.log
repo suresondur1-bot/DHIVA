@@ -1,0 +1,22 @@
+[07:41:35] [INFO] >> [async_runner] Starting run #7719 — Type: ui, Browser: firefox
+[07:41:37] [INFO] [pool] Acquiring browser context from shared pool...
+[07:41:38] [ERROR] [FAIL] Test runner crashed: Traceback (most recent call last):
+  File "C:\Users\337799\automation\runner\async_runner.py", line 3197, in async_main
+    context = await acquire_context(
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\337799\automation\runner\async_runner.py", line 105, in acquire_context
+    browser = await get_browser(browser_type, headless=headless, slow_mo=slow_mo)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\337799\automation\runner\async_runne
+[07:41:38] [INFO] [FAIL] FAILED -- 0/1 steps in 1545ms
+[07:46:32] [INFO] >> [async_runner] Starting run #7719 — Type: ui, Browser: firefox
+[07:46:34] [INFO] [pool] Acquiring browser context from shared pool...
+[07:46:35] [ERROR] [FAIL] Test runner crashed: Traceback (most recent call last):
+  File "C:\Users\337799\automation\runner\async_runner.py", line 3197, in async_main
+    context = await acquire_context(
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\337799\automation\runner\async_runner.py", line 105, in acquire_context
+    browser = await get_browser(browser_type, headless=headless, slow_mo=slow_mo)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\337799\automation\runner\async_runne
+[07:46:35] [INFO] [FAIL] FAILED -- 0/1 steps in 904ms

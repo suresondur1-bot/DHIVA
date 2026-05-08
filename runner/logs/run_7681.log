@@ -1,0 +1,215 @@
+[16:46:10] [INFO] >> [async_runner] Starting run #7681 — Type: ui, Browser: chrome
+[16:46:12] [INFO] [pool] Acquiring browser context from shared pool...
+[16:46:15] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[16:46:24] [PASS] [OK] navigate completed
+[16:46:24] [INFO] >> Step 2: Clicking: [ #username ]
+[16:46:25] [PASS] [OK] click completed
+[16:46:25] [INFO] >> Step 3: Typing '337800' into: [ #username ]
+[16:46:25] [PASS] [OK] type completed
+[16:46:25] [INFO] >> Step 4: Clicking: [ #password ]
+[16:46:26] [PASS] [OK] click completed
+[16:46:26] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[16:46:26] [PASS] [OK] type completed
+[16:46:26] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[16:46:26] [PASS] [OK] click completed
+[16:46:26] [INFO] >> Step 7: Waiting 2000ms
+[16:46:28] [PASS] [OK] wait completed
+[16:46:28] [INFO] >> Step 8: Pressing key '.' on: [ body ]
+[16:46:29] [PASS] [OK] press completed
+[16:46:29] [INFO] >> Step 9: Typing 'Direct' into: [ get_by_role("textbox", name="Search") ]
+[16:46:29] [PASS] [OK] type completed
+[16:46:29] [INFO] >> Step 10: Clicking: [ get_by_role("link", name="Direct Transfer Inventory") ]
+[16:46:30] [PASS] [OK] click completed
+[16:47:00] [INFO] >> Step 11: Waiting for element: [ body > jhi-main > div > section > div.app-content > header > jhi-navbar > nav > div.jh-logo-container.float-left.col-6.pl-0 > a.navbar-brand.logo.float-left > span.navbar-version ]
+[16:47:17] [PASS] [OK] wait_for_selector completed
+[16:47:17] [INFO] >> Step 12: Clicking: [ get_by_role("button", name="Create New") ]
+[16:47:18] [PASS] [OK] click completed
+[16:47:18] [INFO] >> Step 13: Clicking: [ #indentStoreInput ]
+[16:47:19] [PASS] [OK] click completed
+[16:47:19] [INFO] >> Step 14: Clearing: [ #indentStoreInput ]
+[16:47:19] [PASS] [OK] clear completed
+[16:47:19] [INFO] >> Step 15: Search & Select: type '157-MS1' -> pick 'Main Store-Raipur' in [ #indentStoreInput ]
+[16:47:19] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'
+[16:47:22] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'
+[16:47:22] [PASS] [OK] search_select completed
+[16:47:22] [INFO] >> Step 16: Clicking: [ body > ngb-modal-window > div > div > store-selector > div.modal-body > ng-select > div > div > div.ng-input > input[type=text] ]
+[16:47:22] [PASS] [OK] click completed
+[16:47:22] [INFO] >> Step 17: Clearing: [ body > ngb-modal-window > div > div > store-selector > div.modal-body > ng-select > div > div > div.ng-input > input[type=text] ]
+[16:47:22] [PASS] [OK] clear completed
+[16:47:22] [INFO] >> Step 18: Search & Select: type 'IP Pharmacy-Raipur' -> pick 'IP Pharmacy-Raipur' in [ body > ngb-modal-window > div > div > store-selector > div.modal-body > ng-select > div > div > div.ng-input > input[type=text] ]
+[16:47:22] [INFO] [search_select] typing='IP Pharmacy-Raipur' picking='IP Pharmacy-Raipur'
+[16:47:25] [PASS] [OK] Search & Select: selected 'IP Pharmacy-Raipur'
+[16:47:25] [PASS] [OK] search_select completed
+[16:47:25] [INFO] >> Step 19: Clicking: [ #btnNext ]
+[16:47:26] [PASS] [OK] click completed
+[16:47:26] [INFO] >> Step 20: Waiting for element: [ #itemInput ]
+[16:47:26] [PASS] [OK] wait_for_selector completed
+[16:47:26] [INFO] [DATA TABLE] 3 row(s), columns: ['Item_name', 'Qty', 'batch_no']
+[16:47:26] [INFO] [DATA TABLE] Row 1/3: Item_name=PARACETAMOL-TABLET-750MG-P 750-, Qty=2, batch_no=batch main
+[16:47:26] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[16:47:26] [PASS] [OK] click completed
+[16:47:26] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'PARACETAMOL-TABLET-750MG-P 750-' in [ #itemInput ]
+[16:47:26] [INFO] [search_select] typing='PARACETAMOL-TABLET-750MG-P 750-' picking='PARACETAMOL-TABLET-750MG-P 750-'
+[16:47:29] [PASS] [OK] Search & Select: selected 'PARACETAMOL-TABLET-750MG-P 750-'
+[16:47:29] [PASS] [OK] search_select completed
+[16:47:29] [INFO] >> Step 3: Search & Select: type '{{batch_no}}' -> pick 'batch main' in [ #qty_head > div > div > div.ng-input > input[type=text] ]
+[16:47:29] [INFO] [search_select] typing='batch main' picking='batch main'
+[16:47:32] [PASS] [OK] Search & Select: selected 'batch main'
+[16:47:32] [PASS] [OK] search_select completed
+[16:47:32] [INFO] >> Step 4: Clicking: [ #header-qty ]
+[16:47:32] [PASS] [OK] click completed
+[16:47:32] [INFO] >> Step 5: Typing '2' into: [ #header-qty ]
+[16:47:33] [PASS] [OK] type completed
+[16:47:33] [INFO] >> Step 6: Pressing key 'Enter' on: [ #header-qty ]
+[16:47:33] [PASS] [OK] press completed
+[16:47:33] [INFO] [DATA TABLE] Row 2/3: Item_name=FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-, Qty=4, batch_no=2119077
+[16:47:33] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[16:47:33] [PASS] [OK] click completed
+[16:47:33] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' in [ #itemInput ]
+[16:47:33] [INFO] [search_select] typing='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' picking='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'
+[16:47:36] [PASS] [OK] Search & Select: selected 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'
+[16:47:36] [PASS] [OK] search_select completed
+[16:47:37] [INFO] >> Step 3: Search & Select: type '{{batch_no}}' -> pick '2119077' in [ #qty_head > div > div > div.ng-input > input[type=text] ]
+[16:47:37] [INFO] [search_select] typing='2119077' picking='2119077'
+[16:47:39] [PASS] [OK] Search & Select: selected '2119077'
+[16:47:39] [PASS] [OK] search_select completed
+[16:47:39] [INFO] >> Step 4: Clicking: [ #header-qty ]
+[16:47:40] [PASS] [OK] click completed
+[16:47:40] [INFO] >> Step 5: Typing '4' into: [ #header-qty ]
+[16:47:40] [PASS] [OK] type completed
+[16:47:40] [INFO] >> Step 6: Pressing key 'Enter' on: [ #header-qty ]
+[16:47:40] [PASS] [OK] press completed
+[16:47:40] [INFO] [DATA TABLE] Row 3/3: Item_name=PANTOPRAZOLE-TABLET-40MG-PAN-, Qty=6, batch_no=19440364
+[16:47:40] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[16:47:40] [PASS] [OK] click completed
+[16:47:41] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'PANTOPRAZOLE-TABLET-40MG-PAN-' in [ #itemInput ]
+[16:47:41] [INFO] [search_select] typing='PANTOPRAZOLE-TABLET-40MG-PAN-' picking='PANTOPRAZOLE-TABLET-40MG-PAN-'
+[16:47:43] [PASS] [OK] Search & Select: selected 'PANTOPRAZOLE-TABLET-40MG-PAN-'
+[16:47:43] [PASS] [OK] search_select completed
+[16:47:43] [INFO] >> Step 3: Search & Select: type '{{batch_no}}' -> pick '19440364' in [ #qty_head > div > div > div.ng-input > input[type=text] ]
+[16:47:43] [INFO] [search_select] typing='19440364' picking='19440364'
+[16:47:46] [PASS] [OK] Search & Select: selected '19440364'
+[16:47:46] [PASS] [OK] search_select completed
+[16:47:46] [INFO] >> Step 4: Clicking: [ #header-qty ]
+[16:47:47] [PASS] [OK] click completed
+[16:47:47] [INFO] >> Step 5: Typing '6' into: [ #header-qty ]
+[16:47:47] [PASS] [OK] type completed
+[16:47:47] [INFO] >> Step 6: Pressing key 'Enter' on: [ #header-qty ]
+[16:47:47] [PASS] [OK] press completed
+[16:47:47] [INFO] >> Step 29: Waiting 1000ms
+[16:47:48] [PASS] [OK] wait completed
+[16:47:48] [INFO] >> Step 30: Clicking: [ get_by_role("button", name="Save") ]
+[16:47:48] [PASS] [OK] click completed
+[16:47:48] [INFO] >> Step 31: Waiting 2000ms
+[16:47:50] [PASS] [OK] wait completed
+[16:47:51] [INFO] >> Step 32: Clicking: [ #btnDone ]
+[16:47:51] [PASS] [OK] click completed
+[16:47:51] [INFO] >> Step 33: Clicking: [ get_by_role("button", name="Send for Approval") ]
+[16:47:52] [PASS] [OK] click completed
+[16:47:52] [INFO] >> Step 34: Waiting for element: [ #btnDone ]
+[16:47:53] [PASS] [OK] wait_for_selector completed
+[16:47:53] [INFO] >> Step 35: Clicking: [ #btnDone ]
+[16:47:53] [PASS] [OK] click completed
+[16:47:53] [INFO] >> Step 36: store_text -- body > jhi-main > div > section > div.app-content > jhi-stock-issue-dialog > div > div > div.pl-0.athma-detail-form-panel > div > div.preview-form-header > h5 > span
+[16:47:53] [PASS] [OK] Stored 'STR-1754-2600792' → {{Direct_transfer}}
+[16:47:53] [INFO] >> Step 37: Waiting 2000ms
+[16:47:55] [PASS] [OK] wait completed
+[16:47:55] [INFO] >> Step 38: Clicking: [ get_by_role("button", name="Claim") ]
+[16:47:56] [PASS] [OK] click completed
+[16:47:56] [INFO] >> Step 39: Waiting 2000ms
+[16:47:58] [PASS] [OK] wait completed
+[16:47:58] [INFO] >> Step 40: Clicking: [ text="Approve" ]
+[16:47:59] [PASS] [OK] click completed
+[16:47:59] [INFO] >> Step 41: Clicking: [ #btnDone ]
+[16:48:00] [PASS] [OK] click completed
+[16:48:00] [INFO] >> Step 42: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-issue-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > stock-issue-button > div > div.col-sm-8.text-right.pad-right-4 > button ]
+[16:48:00] [PASS] [OK] click completed
+[16:48:00] [INFO] >> Step 43: Waiting 2000ms
+[16:48:02] [PASS] [OK] wait completed
+[16:48:02] [INFO] >> Step 44: Clicking: [ #list-header-search-input ]
+[16:48:03] [PASS] [OK] click completed
+[16:48:03] [INFO] >> Step 45: Clicking: [ #inputDebounce ]
+[16:48:03] [PASS] [OK] click completed
+[16:48:03] [INFO] >> Step 46: press_sequentially -- #inputDebounce
+[16:48:04] [INFO] [press_sequentially] filled and waited for debounce: 'STR-1754-2600792'
+[16:48:04] [PASS] [OK] press_sequentially completed
+[16:48:05] [PASS] [OK] call_test: 'Direct_Transfer' done
+[16:48:05] [INFO] >> Step 2: Clicking: [ #sidebar-wrapper > div > div > div > div > svg ]
+[16:48:05] [PASS] [OK] click completed
+[16:48:05] [INFO] >> Step 3: Waiting for URL to contain: 'https://sqa.narayanahealth.org/home-page'
+[16:48:07] [PASS] [OK] wait_for_url completed
+[16:48:08] [INFO] >> Step 4: Pressing key '.' on: [ body ]
+[16:48:08] [PASS] [OK] press completed
+[16:48:09] [INFO] >> Step 5: press_sequentially -- get_by_role("textbox", name="Search")
+[16:48:10] [INFO] [press_sequentially] filled and waited for debounce: 'receipt'
+[16:48:10] [PASS] [OK] press_sequentially completed
+[16:48:10] [INFO] >> Step 6: Waiting 1000ms
+[16:48:11] [PASS] [OK] wait completed
+[16:48:11] [INFO] >> Step 7: Clicking: [ get_by_role("link", name="Receipt Inventory") ]
+[16:48:12] [PASS] [OK] click completed
+[16:48:12] [INFO] >> Step 8: Waiting 3000ms
+[16:48:15] [PASS] [OK] wait completed
+[16:48:15] [INFO] >> Step 9: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-receipt > athma-page-header > div > athma-tabs-header > section > div.row.align-items-center > div.col-sm-8 > ul > li:nth-child(2) > a > span:nth-child(1) ]
+[16:48:19] [PASS] [OK] click completed
+[16:48:20] [INFO] >> Step 10: Clicking: [ #inputDebounce ]
+[16:48:21] [PASS] [OK] click completed
+[16:48:21] [INFO] >> Step 11: press_sequentially -- #inputDebounce
+[16:48:22] [INFO] [press_sequentially] filled and waited for debounce: 'STR-1754-2600792'
+[16:48:22] [PASS] [OK] press_sequentially completed
+[16:48:22] [INFO] >> Step 12: Waiting 1000ms
+[16:48:23] [PASS] [OK] wait completed
+[16:48:23] [INFO] >> Step 13: Clicking: [ get_by_text("STR-1754-2600792") ]
+[16:48:24] [PASS] [OK] click completed
+[16:48:24] [INFO] >> Step 14: Waiting 2001ms
+[16:48:26] [PASS] [OK] wait completed
+[16:48:26] [INFO] >> Step 15: Clicking: [ get_by_role("button", name="Open") ]
+[16:48:27] [PASS] [OK] click completed
+[16:48:27] [INFO] >> Step 16: Waiting for element: [ body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-header > table > thead > tr > th:nth-child(2) > div > div.input-group.athma-input-group-container > button > i ]
+[16:48:27] [PASS] [OK] wait_for_selector completed
+[16:48:27] [INFO] [DATA TABLE] 3 row(s), columns: ['receipt_item', 'Recipt_qty', 'Receipt_reject_Qty', 'Reject_reson']
+[16:48:27] [INFO] [DATA TABLE] Row 1/3: receipt_item=PARACETAMOL-TABLET-750MG-P 750-, Recipt_qty=1, Receipt_reject_Qty=1, Reject_reson=Item is damaged
+[16:48:27] [INFO] >> Step 1: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:32] [PASS] [OK] table_action completed
+[16:48:32] [INFO] >> Step 2: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:37] [PASS] [OK] table_action completed
+[16:48:37] [INFO] >> Step 3: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:37] [PASS] [OK] table_action completed
+[16:48:37] [INFO] [DATA TABLE] Row 2/3: receipt_item=FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-, Recipt_qty=2, Receipt_reject_Qty=2, Reject_reson=Expired or expiry date is less than 30 days
+[16:48:37] [INFO] >> Step 1: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:42] [PASS] [OK] table_action completed
+[16:48:43] [INFO] >> Step 2: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:48] [PASS] [OK] table_action completed
+[16:48:48] [INFO] >> Step 3: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:48] [PASS] [OK] table_action completed
+[16:48:48] [INFO] [DATA TABLE] Row 3/3: receipt_item=PANTOPRAZOLE-TABLET-40MG-PAN-, Recipt_qty=3, Receipt_reject_Qty=3, Reject_reson=Not received
+[16:48:48] [INFO] >> Step 1: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:53] [PASS] [OK] table_action completed
+[16:48:53] [INFO] >> Step 2: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:58] [PASS] [OK] table_action completed
+[16:48:58] [INFO] >> Step 3: table_action -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > div > div.scroll-table-body.ps > table
+[16:48:58] [PASS] [OK] table_action completed
+[16:48:58] [INFO] >> Step 22: Clicking: [ get_by_role("button", name="Send for Approval") ]
+[16:48:59] [PASS] [OK] click completed
+[16:48:59] [INFO] >> Step 23: Waiting 2000ms
+[16:49:01] [PASS] [OK] wait completed
+[16:49:01] [INFO] >> Step 24: Clicking: [ #btnDone ]
+[16:49:01] [PASS] [OK] click completed
+[16:49:01] [INFO] >> Step 25: Waiting 2000ms
+[16:49:03] [PASS] [OK] wait completed
+[16:49:03] [INFO] >> Step 26: Clicking: [ get_by_role("button", name="Claim") ]
+[16:49:04] [PASS] [OK] click completed
+[16:49:04] [INFO] >> Step 27: Waiting 2000ms
+[16:49:06] [PASS] [OK] wait completed
+[16:49:06] [INFO] >> Step 28: Clicking: [ get_by_role("button", name="Approve") ]
+[16:49:06] [PASS] [OK] click completed
+[16:49:06] [INFO] >> Step 29: Clicking: [ #btnDone ]
+[16:49:08] [PASS] [OK] click completed
+[16:49:08] [INFO] >> Step 30: Waiting 2000ms
+[16:49:10] [PASS] [OK] wait completed
+[16:49:10] [INFO] >> Step 31: store_text -- body > jhi-main > div > section > div.app-content > jhi-stock-receipt-dialog > div > div > div.pl-0.athma-detail-form-panel > div > div.preview-form-header > h5 > span
+[16:49:10] [PASS] [OK] Stored 'SRC-D-1754-2601511' → {{Receipt_Number}}
+[16:49:10] [INFO] >> Step 32: Waiting 2000ms
+[16:49:12] [PASS] [OK] wait completed
+[16:49:12] [INFO] >> Step 33: Clicking: [ get_by_role("button", name="Cancel") ]
+[16:49:13] [PASS] [OK] click completed
+[16:49:13] [INFO] [OK] PASSED -- 92/92 steps in 180959ms

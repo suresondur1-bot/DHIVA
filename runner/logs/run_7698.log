@@ -1,0 +1,105 @@
+[17:30:24] [INFO] >> [async_runner] Starting run #7698 — Type: ui, Browser: chrome
+[17:30:26] [INFO] [pool] Acquiring browser context from shared pool...
+[17:30:27] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[17:30:36] [PASS] [OK] navigate completed
+[17:30:36] [INFO] >> Step 2: Clicking: [ #username ]
+[17:30:37] [PASS] [OK] click completed
+[17:30:37] [INFO] >> Step 3: Typing '337800' into: [ #username ]
+[17:30:37] [PASS] [OK] type completed
+[17:30:37] [INFO] >> Step 4: Clicking: [ #password ]
+[17:30:38] [PASS] [OK] click completed
+[17:30:38] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[17:30:38] [PASS] [OK] type completed
+[17:30:38] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[17:30:38] [PASS] [OK] click completed
+[17:30:38] [INFO] >> Step 7: Waiting for element: [ body > app-root > div > section > div.app-content > header > jhi-navbar > nav > div.jh-logo-container.float-left.col-6.ps-0 > span ]
+[17:30:40] [PASS] [OK] wait_for_selector completed
+[17:30:41] [INFO] >> Step 8: Pressing key '.' on: [ body ]
+[17:30:41] [PASS] [OK] press completed
+[17:30:41] [INFO] >> Step 9: Typing 'indent' into: [ get_by_role("textbox", name="Search") ]
+[17:30:41] [PASS] [OK] type completed
+[17:30:41] [INFO] >> Step 10: Clicking: [ get_by_role("link", name="Indent Inventory") ]
+[17:30:42] [PASS] [OK] click completed
+[17:31:05] [INFO] >> Step 11: Waiting for element: [ body > jhi-main > div > section > div.app-content > header > jhi-navbar > nav > div.jh-logo-container.float-left.col-6.pl-0 > a.navbar-brand.logo.float-left > span.navbar-title ]
+[17:31:06] [PASS] [OK] wait_for_selector completed
+[17:31:07] [INFO] >> Step 12: Clicking: [ get_by_role("button", name="Create New") ]
+[17:31:07] [PASS] [OK] click completed
+[17:31:07] [INFO] >> Step 13: Waiting for element: [ #indentStoreInput ]
+[17:31:08] [PASS] [OK] wait_for_selector completed
+[17:31:08] [INFO] >> Step 14: Clicking: [ #indentStoreInput ]
+[17:31:08] [PASS] [OK] click completed
+[17:31:08] [INFO] >> Step 15: Clearing: [ #indentStoreInput ]
+[17:31:08] [PASS] [OK] clear completed
+[17:31:08] [INFO] >> Step 16: Search & Select: type 'IP Pharmacy-Raipur' -> pick 'IP Pharmacy-Raipur' in [ #indentStoreInput ]
+[17:31:08] [INFO] [search_select] typing='IP Pharmacy-Raipur' picking='IP Pharmacy-Raipur'
+[17:31:11] [PASS] [OK] Search & Select: selected 'IP Pharmacy-Raipur'
+[17:31:11] [PASS] [OK] search_select completed
+[17:31:11] [INFO] >> Step 17: Clicking: [ #issueStoreInput ]
+[17:31:11] [PASS] [OK] click completed
+[17:31:11] [INFO] >> Step 18: Clearing: [ #issueStoreInput ]
+[17:31:11] [PASS] [OK] clear completed
+[17:31:11] [INFO] >> Step 19: Search & Select: type '157-MS1' -> pick 'Main Store-Raipur' in [ #issueStoreInput ]
+[17:31:11] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'
+[17:31:13] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'
+[17:31:14] [PASS] [OK] search_select completed
+[17:31:14] [INFO] >> Step 20: Clicking: [ #btnNext ]
+[17:31:14] [PASS] [OK] click completed
+[17:31:14] [INFO] >> Step 21: Waiting for element: [ #itemInput ]
+[17:31:14] [PASS] [OK] wait_for_selector completed
+[17:31:14] [INFO] [DATA TABLE] 3 row(s), columns: ['Item_name', 'Qty']
+[17:31:14] [INFO] [DATA TABLE] Row 1/3: Item_name=PARACETAMOL-TABLET-750MG-P 750-, Qty=2
+[17:31:14] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[17:31:15] [PASS] [OK] click completed
+[17:31:15] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'PARACETAMOL-TABLET-750MG-P 750-' in [ #itemInput ]
+[17:31:15] [INFO] [search_select] typing='PARACETAMOL-TABLET-750MG-P 750-' picking='PARACETAMOL-TABLET-750MG-P 750-'
+[17:31:18] [PASS] [OK] Search & Select: selected 'PARACETAMOL-TABLET-750MG-P 750-'
+[17:31:18] [PASS] [OK] search_select completed
+[17:31:18] [INFO] >> Step 3: Clicking: [ #lImQty ]
+[17:31:19] [PASS] [OK] click completed
+[17:31:19] [INFO] >> Step 4: Typing '2' into: [ #lImQty ]
+[17:31:19] [PASS] [OK] type completed
+[17:31:19] [INFO] >> Step 5: Pressing key 'Enter' on: [ #lImQty ]
+[17:31:19] [PASS] [OK] press completed
+[17:31:19] [INFO] [DATA TABLE] Row 2/3: Item_name=FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-, Qty=4
+[17:31:19] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[17:31:19] [PASS] [OK] click completed
+[17:31:19] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' in [ #itemInput ]
+[17:31:19] [INFO] [search_select] typing='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' picking='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'
+[17:31:23] [PASS] [OK] Search & Select: selected 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'
+[17:31:23] [PASS] [OK] search_select completed
+[17:31:23] [INFO] >> Step 3: Clicking: [ #lImQty ]
+[17:31:23] [PASS] [OK] click completed
+[17:31:23] [INFO] >> Step 4: Typing '4' into: [ #lImQty ]
+[17:31:23] [PASS] [OK] type completed
+[17:31:23] [INFO] >> Step 5: Pressing key 'Enter' on: [ #lImQty ]
+[17:31:23] [PASS] [OK] press completed
+[17:31:23] [INFO] [DATA TABLE] Row 3/3: Item_name=PANTOPRAZOLE-TABLET-40MG-PAN-, Qty=6
+[17:31:23] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[17:31:24] [PASS] [OK] click completed
+[17:31:24] [INFO] >> Step 2: Search & Select: type '{{Item_name}}' -> pick 'PANTOPRAZOLE-TABLET-40MG-PAN-' in [ #itemInput ]
+[17:31:24] [INFO] [search_select] typing='PANTOPRAZOLE-TABLET-40MG-PAN-' picking='PANTOPRAZOLE-TABLET-40MG-PAN-'
+[17:31:27] [PASS] [OK] Search & Select: selected 'PANTOPRAZOLE-TABLET-40MG-PAN-'
+[17:31:27] [PASS] [OK] search_select completed
+[17:31:27] [INFO] >> Step 3: Clicking: [ #lImQty ]
+[17:31:28] [PASS] [OK] click completed
+[17:31:28] [INFO] >> Step 4: Typing '6' into: [ #lImQty ]
+[17:31:28] [PASS] [OK] type completed
+[17:31:28] [INFO] >> Step 5: Pressing key 'Enter' on: [ #lImQty ]
+[17:31:28] [PASS] [OK] press completed
+[17:31:28] [INFO] >> Step 29: Waiting 2000ms
+[17:31:30] [PASS] [OK] wait completed
+[17:31:30] [INFO] >> Step 30: Clicking: [ get_by_role("button", name="Save") ]
+[17:31:30] [PASS] [OK] click completed
+[17:31:30] [INFO] >> Step 31: Waiting for element: [ #btnDone ]
+[17:31:31] [PASS] [OK] wait_for_selector completed
+[17:31:31] [INFO] >> Step 32: Clicking: [ #btnDone ]
+[17:31:32] [PASS] [OK] click completed
+[17:31:32] [INFO] >> Step 33: store_text -- body > jhi-main > div > section > div.app-content > jhi-stock-indent-dialog > div > div > div.pl-0.athma-detail-form-panel > div > div.preview-form-header > h5 > span
+[17:31:32] [PASS] [OK] Stored 'DRAFT-225060' → {{Indent_Number}}
+[17:31:32] [INFO] >> Step 34: Waiting 2000ms
+[17:31:34] [PASS] [OK] wait completed
+[17:31:34] [INFO] >> Step 35: Clicking: [ get_by_role("button", name="Cancel") ]
+[17:31:34] [PASS] [OK] click completed
+[17:31:34] [INFO] >> Step 36: Waiting 2000ms
+[17:31:37] [PASS] [OK] wait completed
+[17:31:37] [INFO] [OK] PASSED -- 44/44 steps in 71083ms

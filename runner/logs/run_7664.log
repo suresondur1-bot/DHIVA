@@ -1,0 +1,10 @@
+[12:18:21] [INFO] >> [async_runner] Starting run #7664 — Type: ui, Browser: chrome
+[12:18:23] [INFO] [pool] Acquiring browser context from shared pool...
+[12:18:24] [INFO] Project variables loaded: Consumption, Direct_transfer, Ehr_MRN, PR_Reg, Password, Receipt_Number, Login_URL, UserID, Issue_Number, Indent_Number
+[12:18:24] [INFO] Test variables: Sure_str=10
+[12:18:24] [PASS] [OK] math_divide: 3.3333333333333335 → {{Sure_str}}
+[12:18:24] [PASS] [OK] math_round: 3.33 → {{Sure_str}}
+[12:18:24] [PASS] [OK] math_abs: 3.33 → {{Sure_str}}
+[12:18:24] [PASS] [OK] math_random: 7 → {{Sure_str}}
+[12:18:24] [INFO] [LOG] hi i am here
+[12:18:24] [INFO] [OK] PASSED -- 4/4 steps in 1379ms

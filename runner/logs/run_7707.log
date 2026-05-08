@@ -1,0 +1,127 @@
+[02:22:55] [INFO] >> [async_runner] Starting run #7707 — Type: ui, Browser: chrome
+[02:22:57] [INFO] [pool] Acquiring browser context from shared pool...
+[02:22:58] [INFO] Project variables loaded: Consumption, Direct_transfer, Ehr_MRN, PR_Reg, Password, Receipt_Number, Login_URL, UserID, Issue_Number, Indent_Number
+[02:22:58] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[02:23:07] [PASS] [OK] navigate completed
+[02:23:07] [INFO] >> Step 2: Typing '337800' into: [ #username ]
+[02:23:08] [PASS] [OK] type completed
+[02:23:08] [INFO] >> Step 3: Typing 'admin' into: [ #password ]
+[02:23:08] [PASS] [OK] type completed
+[02:23:08] [INFO] >> Step 4: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[02:23:09] [PASS] [OK] click completed
+[02:23:09] [INFO] >> Step 5: Waiting 1000ms
+[02:23:12] [PASS] [OK] wait completed
+[02:23:13] [INFO] >> Step 6: Asserting URL contains: 'https://sqa.narayanahealth.org/home-page'
+[02:23:13] [PASS] [OK] assert_url completed
+[02:23:13] [INFO] >> Step 7: Pressing key '.' on: [ body ]
+[02:23:14] [PASS] [OK] press completed
+[02:23:14] [INFO] >> Step 8: Typing 'purchase requisition' into: [ get_by_role("textbox", name="Search") ]
+[02:23:15] [PASS] [OK] type completed
+[02:23:15] [INFO] >> Step 9: Clicking: [ get_by_role("link", name="Purchase Requisition Purchase") ]
+[02:23:16] [PASS] [OK] click completed
+[02:23:17] [INFO] >> Step 10: Waiting for element: [ get_by_role("button", name="Create New") ]
+[02:23:21] [PASS] [OK] wait_for_selector completed
+[02:23:22] [INFO] >> Step 11: Clicking: [ button:has-text("Create New") ]
+[02:23:24] [INFO] >> Step 12: Search & Select: type 'IP Pharmacy-Raipur' -> pick 'IP Pharmacy-Raipur' in [ #storeInput ]
+[02:23:24] [INFO] [search_select] typing='IP Pharmacy-Raipur' picking='IP Pharmacy-Raipur'
+[02:23:27] [PASS] [OK] Search & Select: selected 'IP Pharmacy-Raipur'
+[02:23:27] [PASS] [OK] search_select completed
+[02:23:28] [INFO] >> Step 13: Clicking: [ #btnNext ]
+[02:23:28] [PASS] [OK] click completed
+[02:23:28] [INFO] >> Step 14: Waiting for element: [ #itemInput ]
+[02:23:29] [PASS] [OK] wait_for_selector completed
+[02:23:29] [INFO] [DATA TABLE] 3 row(s), columns: ['itemCode', 'itemName', 'Qty']
+[02:23:29] [INFO] [DATA TABLE] Row 1/3: itemCode=M-N-PH-M963-A037, itemName=GLOD WHEEL Plates-GOLD-100MG-SAMSUNG, Qty=7
+[02:23:29] [INFO] >> Step 1: Search & Select: type '{{itemCode}}' -> pick 'GLOD WHEEL Plates-GOLD-100MG-SAMSUNG' in [ #itemInput ]
+[02:23:29] [INFO] [search_select] typing='M-N-PH-M963-A037' picking='GLOD WHEEL Plates-GOLD-100MG-SAMSUNG'
+[02:23:32] [PASS] [OK] Search & Select: selected 'GLOD WHEEL Plates-GOLD-100MG-SAMSUNG'
+[02:23:32] [PASS] [OK] search_select completed
+[02:23:32] [INFO] >> Step 2: Typing '7' into: [ body > jhi-main > div > section > div.app-content > jhi-purchase-requisition-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-header > table > tbody > tr > td:nth-child(8) > div > input ]
+[02:23:33] [PASS] [OK] type completed
+[02:23:33] [INFO] >> Step 3: Clicking: [ td .athma-icon-button ]
+[02:23:34] [PASS] [OK] click completed
+[02:23:34] [INFO] [DATA TABLE] Row 2/3: itemCode=M-N-SG-M963-A036, itemName=CALCIUM-CAPSULES-100MG-DOLOPAR, Qty=5
+[02:23:34] [INFO] >> Step 1: Search & Select: type '{{itemCode}}' -> pick 'CALCIUM-CAPSULES-100MG-DOLOPAR' in [ #itemInput ]
+[02:23:34] [INFO] [search_select] typing='M-N-SG-M963-A036' picking='CALCIUM-CAPSULES-100MG-DOLOPAR'
+[02:23:37] [PASS] [OK] Search & Select: selected 'CALCIUM-CAPSULES-100MG-DOLOPAR'
+[02:23:37] [PASS] [OK] search_select completed
+[02:23:37] [INFO] >> Step 2: Typing '5' into: [ body > jhi-main > div > section > div.app-content > jhi-purchase-requisition-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-header > table > tbody > tr > td:nth-child(8) > div > input ]
+[02:23:37] [PASS] [OK] type completed
+[02:23:37] [INFO] >> Step 3: Clicking: [ td .athma-icon-button ]
+[02:23:38] [PASS] [OK] click completed
+[02:23:38] [INFO] [DATA TABLE] Row 3/3: itemCode=M-N-PH-M963-A035, itemName=CALCIUM-VITAMIN D-500MG+250IU-, Qty=6
+[02:23:38] [INFO] >> Step 1: Search & Select: type '{{itemCode}}' -> pick 'CALCIUM-VITAMIN D-500MG+250IU-' in [ #itemInput ]
+[02:23:38] [INFO] [search_select] typing='M-N-PH-M963-A035' picking='CALCIUM-VITAMIN D-500MG+250IU-'
+[02:23:41] [PASS] [OK] Search & Select: selected 'CALCIUM-VITAMIN D-500MG+250IU-'
+[02:23:41] [PASS] [OK] search_select completed
+[02:23:42] [INFO] >> Step 2: Typing '6' into: [ body > jhi-main > div > section > div.app-content > jhi-purchase-requisition-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header.grn-header > div.scroll-table-container > div.scroll-table-header > table > tbody > tr > td:nth-child(8) > div > input ]
+[02:23:42] [PASS] [OK] type completed
+[02:23:42] [INFO] >> Step 3: Clicking: [ td .athma-icon-button ]
+[02:23:42] [PASS] [OK] click completed
+[02:23:43] [INFO] >> Step 20: Clicking: [ [jhitranslate="entity.action.save"] ]
+[02:23:44] [PASS] [OK] click completed
+[02:23:45] [INFO] >> Step 21: Waiting for element: [ (//div[contains(@class,"toast")]//ngb-alert)[1]//pre ]
+[02:23:45] [PASS] [OK] wait_for_selector completed
+[02:23:45] [INFO] >> Step 22: store_text -- (//div[contains(@class,"toast")]//ngb-alert)[1]//pre
+[02:23:45] [PASS] [OK] Stored 'DRAFT-8472 saved successfully' → {{Purchase_PR}}
+[02:23:45] [PASS] [OK] str_split: 'DRAFT-8472' → {{Purchase_PR}}
+[02:23:45] [INFO] >> Step 24: Clicking: [ #inputDebounce ]
+[02:23:49] [PASS] [OK] click completed
+[02:23:50] [INFO] >> Step 25: press_sequentially -- #inputDebounce
+[02:23:51] [INFO] [press_sequentially] filled and waited for debounce: 'DRAFT-8472'
+[02:23:51] [PASS] [OK] press_sequentially completed
+[02:23:51] [INFO] >> Step 26: Clicking: [ get_by_text("DRAFT-8472") ]
+[02:23:52] [PASS] [OK] click completed
+[02:23:52] [INFO] >> Step 27: Clicking: [ get_by_role("button", name="Open") ]
+[02:23:53] [PASS] [OK] click completed
+[02:23:53] [INFO] >> Step 28: Clicking: [ get_by_role("button", name="Send for Approval") ]
+[02:23:54] [PASS] [OK] click completed
+[02:23:54] [INFO] >> Step 29: Waiting for element: [ get_by_role("button", name="Claim") ]
+[02:23:54] [PASS] [OK] wait_for_selector completed
+[02:23:54] [INFO] >> Step 30: Waiting 1000ms
+[02:23:56] [PASS] [OK] wait completed
+[02:23:56] [INFO] >> Step 31: store_text -- body > jhi-main > div > section > div.app-content > jhi-purchase-requisition-dialog > div > div > div.athma-detail-form-panel > div  > div.preview-form-header > h5 > span
+[02:23:56] [PASS] [OK] Stored 'PR175426001819' → {{Purchase_PR}}
+[02:23:56] [INFO] >> Step 32: Clicking: [ get_by_role("button", name="Claim") ]
+[02:23:57] [PASS] [OK] click completed
+[02:23:57] [INFO] >> Step 33: Clicking: [ get_by_role("button", name="Approve") ]
+[02:23:58] [PASS] [OK] click completed
+[02:23:59] [INFO] >> Step 34: Clicking: [ div.sidebar-logo-container ]
+[02:24:00] [PASS] [OK] click completed
+[02:24:01] [INFO] >> Step 35: Waiting 2000ms
+[02:24:03] [PASS] [OK] wait completed
+[02:24:03] [INFO] >> Step 36: Waiting for URL to contain: 'https://sqa.narayanahealth.org/home-page'
+[02:24:03] [PASS] [OK] wait_for_url completed
+[02:24:04] [INFO] >> Step 37: Pressing key '.' on: [ body ]
+[02:24:04] [PASS] [OK] press completed
+[02:24:04] [INFO] >> Step 38: Typing 'Purchase Order' into: [ get_by_role("textbox", name="Search") ]
+[02:24:42] [INFO]   [RETRY] Step failed with: Locator.type: Timeout 30000ms exceeded.
+Call log:
+  - waiting for get_by_role("textbox", name="Searc -- trying AI heal...
+[02:24:42] [INFO]   [AI Heal] Step 38 failed -- asking AI to find element...
+[02:24:47] [INFO]   [AI Heal] AI suggested 5 selector(s) -- trying each...
+[02:24:47] [INFO]   [AI Heal] Trying [1] get_by_placeholder("Search") (high) -- Search input field likely has a placeholder attribute with 'Search' text
+[02:24:52] [INFO]   [AI Heal] [1] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_plac
+[02:24:52] [INFO]   [AI Heal] Trying [2] [data-testid="search-input"] (medium) -- Common test ID naming convention for search inputs
+[02:24:57] [INFO]   [AI Heal] [2] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("[d
+[02:24:57] [INFO]   [AI Heal] Trying [3] get_by_role("searchbox") (medium) -- Search inputs are typically marked as searchbox role rather than generic textbox
+[02:25:02] [INFO]   [AI Heal] [3] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for get_by_role
+[02:25:02] [INFO]   [AI Heal] Trying [4] .search-input (low) -- Possible CSS class name for search input element
+[02:25:07] [INFO]   [AI Heal] [4] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator(".s
+[02:25:07] [INFO]   [AI Heal] Trying [5] input[type="search"] (low) -- HTML5 search input type selector
+[02:25:12] [INFO]   [AI Heal] [5] failed: Locator.wait_for: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("in
+[02:25:12] [INFO]   [AI Heal] All suggestions failed -- step cannot be auto-healed
+[02:25:12] [FAIL] Locator.type: Timeout 30000ms exceeded.
+[02:25:12] [FAIL] Call log:
+[02:25:13] [FAIL]   - waiting for get_by_role("textbox", name="Search")
+[02:25:13] [INFO] [FAIL] FAILED -- 41/42 steps in 136406ms

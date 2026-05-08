@@ -1,0 +1,124 @@
+[17:38:13] [INFO] >> [async_runner] Starting run #7702 — Type: ui, Browser: chrome
+[17:38:15] [INFO] [pool] Acquiring browser context from shared pool...
+[17:38:16] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[17:38:28] [PASS] [OK] navigate completed
+[17:38:28] [INFO] >> Step 2: Clicking: [ #username ]
+[17:38:28] [PASS] [OK] click completed
+[17:38:28] [INFO] >> Step 3: Typing '337800' into: [ #username ]
+[17:38:28] [PASS] [OK] type completed
+[17:38:28] [INFO] >> Step 4: Clicking: [ #password ]
+[17:38:29] [PASS] [OK] click completed
+[17:38:29] [INFO] >> Step 5: Typing 'admin' into: [ #password ]
+[17:38:29] [PASS] [OK] type completed
+[17:38:29] [INFO] >> Step 6: Clicking: [ body > app-root > div > section > div.app-content > jhi-home > div > div > form:nth-child(2) > div.col-12 > button ]
+[17:38:29] [PASS] [OK] click completed
+[17:38:29] [INFO] >> Step 7: Waiting 2000ms
+[17:38:31] [PASS] [OK] wait completed
+[17:38:31] [INFO] >> Step 8: Pressing key '.' on: [ body ]
+[17:38:31] [PASS] [OK] press completed
+[17:38:31] [INFO] >> Step 9: Typing 'indent' into: [ get_by_role("textbox", name="Search") ]
+[17:38:32] [PASS] [OK] type completed
+[17:38:32] [INFO] >> Step 10: Clicking: [ get_by_role("link", name="Indent Inventory") ]
+[17:38:32] [PASS] [OK] click completed
+[17:38:33] [INFO] >> Step 11: Waiting 4000ms
+[17:38:37] [PASS] [OK] wait completed
+[17:38:38] [INFO] >> Step 12: Clicking: [ get_by_role("button", name="Create New") ]
+[17:38:41] [PASS] [OK] click completed
+[17:38:41] [INFO] >> Step 13: Clicking: [ #indentStoreInput ]
+[17:38:42] [PASS] [OK] click completed
+[17:38:42] [INFO] >> Step 14: Clearing: [ #indentStoreInput ]
+[17:38:42] [PASS] [OK] clear completed
+[17:38:42] [INFO] >> Step 15: Search & Select: type 'IP Pharmacy-Raipur' -> pick 'IP Pharmacy-Raipur' in [ #indentStoreInput ]
+[17:38:42] [INFO] [search_select] typing='IP Pharmacy-Raipur' picking='IP Pharmacy-Raipur'
+[17:38:44] [PASS] [OK] Search & Select: selected 'IP Pharmacy-Raipur'
+[17:38:44] [PASS] [OK] search_select completed
+[17:38:44] [INFO] >> Step 16: Clicking: [ #issueStoreInput ]
+[17:38:45] [PASS] [OK] click completed
+[17:38:45] [INFO] >> Step 17: Clearing: [ #issueStoreInput ]
+[17:38:45] [PASS] [OK] clear completed
+[17:38:45] [INFO] >> Step 18: Search & Select: type '157-MS1' -> pick 'Main Store-Raipur' in [ #issueStoreInput ]
+[17:38:45] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'
+[17:38:47] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'
+[17:38:47] [PASS] [OK] search_select completed
+[17:38:47] [INFO] >> Step 19: Clicking: [ #btnNext ]
+[17:38:47] [PASS] [OK] click completed
+[17:38:47] [INFO] >> Step 20: Waiting 1000ms
+[17:38:48] [PASS] [OK] wait completed
+[17:38:49] [INFO] >> ForEach: 3 item(s) -> {{current_item}}
+[17:38:49] [INFO]    ForEach item 1/3: PARACETAMOL-TABLET-750MG-P 750-
+[17:38:49] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[17:38:49] [PASS] [OK] click completed
+[17:38:49] [INFO] >> Step 2: Search & Select: type '{{current_item}}' -> pick 'PARACETAMOL-TABLET-750MG-P 750-' in [ #itemInput ]
+[17:38:49] [INFO] [search_select] typing='PARACETAMOL-TABLET-750MG-P 750-' picking='PARACETAMOL-TABLET-750MG-P 750-'
+[17:38:52] [PASS] [OK] Search & Select: selected 'PARACETAMOL-TABLET-750MG-P 750-'
+[17:38:52] [PASS] [OK] search_select completed
+[17:38:52] [INFO] >> Step 3: Clicking: [ #lImQty ]
+[17:38:52] [PASS] [OK] click completed
+[17:38:52] [INFO] >> Step 4: Typing '4' into: [ #lImQty ]
+[17:38:53] [PASS] [OK] type completed
+[17:38:53] [INFO] >> Step 5: Pressing key 'Enter' on: [ #lImQty ]
+[17:38:53] [PASS] [OK] press completed
+[17:38:53] [INFO]    ForEach item 2/3: FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-
+[17:38:53] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[17:38:53] [PASS] [OK] click completed
+[17:38:53] [INFO] >> Step 2: Search & Select: type '{{current_item}}' -> pick 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' in [ #itemInput ]
+[17:38:53] [INFO] [search_select] typing='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-' picking='FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'
+[17:38:57] [PASS] [OK] Search & Select: selected 'FUROSEMIDE-INJECTION-10MG/ML(4ML)-LASIX-'
+[17:38:57] [PASS] [OK] search_select completed
+[17:38:57] [INFO] >> Step 3: Clicking: [ #lImQty ]
+[17:38:57] [PASS] [OK] click completed
+[17:38:57] [INFO] >> Step 4: Typing '4' into: [ #lImQty ]
+[17:38:57] [PASS] [OK] type completed
+[17:38:57] [INFO] >> Step 5: Pressing key 'Enter' on: [ #lImQty ]
+[17:38:57] [PASS] [OK] press completed
+[17:38:57] [INFO]    ForEach item 3/3: PANTOPRAZOLE-TABLET-40MG-PAN-
+[17:38:57] [INFO] >> Step 1: Clicking: [ #itemInput ]
+[17:38:58] [PASS] [OK] click completed
+[17:38:58] [INFO] >> Step 2: Search & Select: type '{{current_item}}' -> pick 'PANTOPRAZOLE-TABLET-40MG-PAN-' in [ #itemInput ]
+[17:38:58] [INFO] [search_select] typing='PANTOPRAZOLE-TABLET-40MG-PAN-' picking='PANTOPRAZOLE-TABLET-40MG-PAN-'
+[17:39:01] [PASS] [OK] Search & Select: selected 'PANTOPRAZOLE-TABLET-40MG-PAN-'
+[17:39:01] [PASS] [OK] search_select completed
+[17:39:01] [INFO] >> Step 3: Clicking: [ #lImQty ]
+[17:39:01] [PASS] [OK] click completed
+[17:39:01] [INFO] >> Step 4: Typing '4' into: [ #lImQty ]
+[17:39:01] [PASS] [OK] type completed
+[17:39:01] [INFO] >> Step 5: Pressing key 'Enter' on: [ #lImQty ]
+[17:39:02] [PASS] [OK] press completed
+[17:39:02] [INFO] >> Step 28: Waiting 2000ms
+[17:39:04] [PASS] [OK] wait completed
+[17:39:04] [INFO] >> Step 29: Clicking: [ get_by_role("button", name="Save") ]
+[17:39:04] [PASS] [OK] click completed
+[17:39:04] [INFO] >> Step 30: Waiting 2000ms
+[17:39:06] [PASS] [OK] wait completed
+[17:39:06] [INFO] >> Step 31: Clicking: [ #btnDone ]
+[17:39:07] [PASS] [OK] click completed
+[17:39:07] [INFO] >> Step 32: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-indent-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > stock-indent-button > div > div.col-sm-8.text-right.pr-0 > button.athma-btn.athma-btn-priamry ]
+[17:39:07] [PASS] [OK] click completed
+[17:39:07] [INFO] >> Step 33: Waiting 2000ms
+[17:39:09] [PASS] [OK] wait completed
+[17:39:10] [INFO] >> Step 34: store_text -- body > jhi-main > div > section > div.app-content > jhi-stock-indent-dialog > div > div > div.pl-0.athma-detail-form-panel > div > div.preview-form-header > h5 > span
+[17:39:10] [PASS] [OK] Stored 'SRQ-1754-2601598' → {{Indent_test}}
+[17:39:10] [INFO] >> Step 35: Clicking: [ #btnDone ]
+[17:39:10] [PASS] [OK] click completed
+[17:39:10] [INFO] >> Step 36: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-indent-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > stock-indent-button > div > div.col-sm-8.text-right.pr-0 > button.athma-btn.athma-btn-priamry ]
+[17:39:10] [PASS] [OK] click completed
+[17:39:11] [INFO] >> Step 37: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-indent-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > stock-indent-button > div > div.col-sm-8.text-right.pr-0 > button.pull-right.athma-btn.athma-btn-priamry ]
+[17:39:11] [PASS] [OK] click completed
+[17:39:11] [INFO] >> Step 38: Waiting 2000ms
+[17:39:13] [PASS] [OK] wait completed
+[17:39:14] [INFO] >> Step 39: Clicking: [ #btnDone ]
+[17:39:14] [PASS] [OK] click completed
+[17:39:14] [INFO] >> Step 40: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-indent-dialog > div > div > div.pr-0.athma-detail-list-panel.fixed-height-without-header > stock-indent-button > div > div.col-sm-8.text-right.pr-0 > button ]
+[17:39:15] [PASS] [OK] click completed
+[17:39:15] [INFO] >> Step 41: Waiting 2000ms
+[17:39:17] [PASS] [OK] wait completed
+[17:39:17] [INFO] >> Step 42: Clicking: [ body > jhi-main > div > section > div.app-content > jhi-stock-indent > athma-page-header > div > athma-tabs-header > section > div.row.align-items-center > div.col-sm-8 > ul > li:nth-child(1) > a > span ]
+[17:39:18] [PASS] [OK] click completed
+[17:39:18] [INFO] >> Step 43: Clicking: [ #inputDebounce ]
+[17:39:18] [PASS] [OK] click completed
+[17:39:18] [INFO] >> Step 44: press_sequentially -- #inputDebounce
+[17:39:19] [INFO] [press_sequentially] filled and waited for debounce: '{{Indent_test}}'
+[17:39:19] [PASS] [OK] press_sequentially completed
+[17:39:19] [INFO] >> Step 45: Waiting 2000ms
+[17:39:21] [PASS] [OK] wait completed
+[17:39:22] [INFO] [OK] PASSED -- 53/53 steps in 66642ms

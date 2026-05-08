@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Suite Report — Inventory_Suit</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#f5f5f5; color:#333; }
+  .header { background:#1a2332; color:#fff; padding:24px 32px; }
+  .header h1 { font-size:22px; margin-bottom:4px; }
+  .header .sub { font-size:13px; color:#94a3b8; }
+  .section { background:#fff; margin:16px 32px; border-radius:8px;
+             box-shadow:0 1px 4px rgba(0,0,0,0.08); overflow:hidden; }
+  .section-title { padding:12px 16px; background:#f8f9fc;
+                   border-bottom:1px solid #e2e6ed; font-weight:700;
+                   font-size:13px; color:#1a2332; }
+  .env-grid { display:grid; grid-template-columns:140px 1fr; gap:6px 0;
+              padding:14px 16px; font-size:13px; }
+  .env-grid .lbl { color:#888; font-weight:600; }
+  .summary { display:flex; gap:0; }
+  .stat { flex:1; padding:20px; text-align:center; border-right:1px solid #e2e6ed; }
+  .stat:last-child { border-right:none; }
+  .stat .num { font-size:32px; font-weight:800; }
+  .stat .lbl { font-size:12px; color:#888; margin-top:4px; text-transform:uppercase; letter-spacing:0.05em; }
+  .total  .num { color:#1a2332; }
+  .passed .num { color:#00a86b; }
+  .failed .num { color:#e53935; }
+  .skipped .num{ color:#f59e0b; }
+  table.cases { width:100%; border-collapse:collapse; }
+  table.cases thead th { padding:10px 12px; background:#f0f2f5; font-size:12px;
+    text-align:left; color:#666; border-bottom:2px solid #e2e6ed; }
+  table.cases tbody tr:hover { background:#f8f9fc; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:12px;
+           font-size:11px; font-weight:700; }
+  .badge.passed { background:#e8f8f0; color:#00a86b; }
+  .badge.failed { background:#fce8e8; color:#e53935; }
+</style>
+<script>
+function toggle(idx) {
+  const el = document.getElementById("detail-"+idx);
+  el.style.display = el.style.display==="none" ? "table-row" : "none";
+}
+function expandAll() { document.querySelectorAll('[id^="detail-"]').forEach(e=>e.style.display="table-row"); }
+function collapseAll() { document.querySelectorAll('[id^="detail-"]').forEach(e=>e.style.display="none"); }
+</script>
+</head>
+<body>
+
+<div class="header">
+  <h1>📋 Test Suite Execution Report</h1>
+  <div class="sub">Generated: 2026-05-07 09:10:52.210 UTC</div>
+</div>
+
+<div class="section">
+  <div class="section-title">Execution Environment</div>
+  <div class="env-grid">
+    <span class="lbl">Host name:</span>    <span>CORPLPW000153</span>
+    <span class="lbl">Local OS:</span>     <span>Windows</span>
+    <span class="lbl">Suite:</span>        <span>Inventory_Suit</span>
+    <span class="lbl">Browser:</span>      <span>chrome</span>
+    <span class="lbl">Start:</span>        <span>2026-05-07 06:26:23.422</span>
+    <span class="lbl">End:</span>          <span>2026-05-07 06:26:52.354</span>
+    <span class="lbl">Elapsed:</span>      <span>0h 0m 28s</span>
+    <span class="lbl">Suite Run #:</span>  <span>428</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Summary</div>
+  <div class="summary">
+    <div class="stat total">
+      <div class="num">35</div>
+      <div class="lbl">Total</div>
+    </div>
+    <div class="stat passed">
+      <div class="num">0</div>
+      <div class="lbl">Passed</div>
+    </div>
+    <div class="stat failed">
+      <div class="num">0</div>
+      <div class="lbl">Failed</div>
+    </div>
+    <div class="stat skipped">
+      <div class="num">35</div>
+      <div class="lbl">Skipped</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+    <span>Test Execution Log — <strong>Inventory_Suit</strong></span>
+    <span>
+      <button onclick="expandAll()" style="margin-right:8px;padding:4px 12px;cursor:pointer;
+        border:1px solid #ccc;border-radius:4px;font-size:12px;background:#fff">Expand All</button>
+      <button onclick="collapseAll()" style="padding:4px 12px;cursor:pointer;
+        border:1px solid #ccc;border-radius:4px;font-size:12px;background:#fff">Collapse All</button>
+    </span>
+  </div>
+  <table class="cases">
+    <thead><tr>
+      <th>Test Case</th>
+      <th>Status</th>
+      <th>Duration</th>
+      <th>Steps</th>
+      <th>Logs</th>
+    </tr></thead>
+    <tbody>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(0)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_Both_Positive_Negative</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-0" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        
+        <table style="width:100%;border-collapse:collapse;margin-top:6px;font-family:monospace">
+          <thead><tr style="background:#f0f0f0">
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Time</th>
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Status</th>
+            <th style="padding:4px 8px;text-align:left;font-size:11px;color:#666">Message</th>
+          </tr></thead>
+          <tbody><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:23] [INFO] &gt;&gt; [async_runner] Starting run #7440 — Type: ui, Browser: chrome</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:25] [INFO] [pool] Acquiring browser context from shared pool...</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:26] [INFO] &gt;&gt; Step 1: Navigating to URL: https://sqa.narayanahealth.org/</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:32] [PASS] [OK] navigate completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:32] [INFO] &gt;&gt; Step 2: Clicking: [ #username ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:33] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:33] [INFO] &gt;&gt; Step 3: Typing '337800' into: [ #username ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:33] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:33] [INFO] &gt;&gt; Step 4: Clicking: [ #password ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:33] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:33] [INFO] &gt;&gt; Step 5: Typing 'admin' into: [ #password ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:33] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:33] [INFO] &gt;&gt; Step 6: Clicking: [ body &gt; app-root &gt; div &gt; section &gt; div.app-content &gt; jhi-home &gt; div &gt; div &gt; form:nth-child(2) &gt; div.col-12 &gt; button ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:34] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:34] [INFO] &gt;&gt; Step 7: Waiting 2000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:36] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:36] [INFO] &gt;&gt; Step 8: Pressing key '.' on: [ body ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:36] [PASS] [OK] press completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:36] [INFO] &gt;&gt; Step 9: Typing 'Inventory Adjustment' into: [ get_by_role("textbox", name="Search") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:36] [PASS] [OK] type completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:36] [INFO] &gt;&gt; Step 10: Clicking: [ get_by_role("link", name="Inventory Adjustment Inventory") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:37] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:37] [INFO] &gt;&gt; Step 11: Waiting 4000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:41] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:41] [INFO] &gt;&gt; Step 12: Clicking: [ get_by_role("button", name="Create New") ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:42] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:42] [INFO] &gt;&gt; Step 13: Clicking: [ #adjustmentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:42] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:42] [INFO] &gt;&gt; Step 14: Clearing: [ #adjustmentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:42] [PASS] [OK] clear completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:42] [INFO] &gt;&gt; Step 15: Search & Select: type '157-MS1' -&gt; pick 'Main Store-Raipur' in [ #adjustmentStoreInput ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:42] [INFO] [search_select] typing='157-MS1' picking='Main Store-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:44] [PASS] [OK] Search & Select: selected 'Main Store-Raipur'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:44] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:44] [INFO] &gt;&gt; Step 16: Clicking: [ #continueBtn ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:45] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:45] [INFO] &gt;&gt; Step 17: Waiting 1000ms</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:46] [PASS] [OK] wait completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:46] [INFO] [DATA TABLE] 5 row(s), columns: ['Item_Name', 'Batch_no', 'Qty', 'Reason', 'Type']</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:46] [INFO] [DATA TABLE] Row 1/5: Item_Name=FEBUXOSTAT-TABLET-40MG-FABULON-, Batch_no=DT1811048A, Qty=10, Reason=Qty more, Type=Positive</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:46] [INFO] &gt;&gt; Step 1: Clicking: [ #add-item-searchbox ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:46] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:46] [INFO] &gt;&gt; Step 2: Search & Select: type '{{Item_Name}}' -&gt; pick 'FEBUXOSTAT-TABLET-40MG-FABULON-' in [ #add-item-searchbox ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:46] [INFO] [search_select] typing='FEBUXOSTAT-TABLET-40MG-FABULON-' picking='FEBUXOSTAT-TABLET-40MG-FABULON-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:49] [PASS] [OK] Search & Select: selected 'FEBUXOSTAT-TABLET-40MG-FABULON-'</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:49] [PASS] [OK] search_select completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:49] [INFO] &gt;&gt; Step 3: Clicking: [ body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-inventory-adjustment-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; jhi-inventory-adjustment-dialog-items &gt; div &gt; div.scroll-table-header &gt; table:nth-child(2) &gt; thead &gt; tr:nth-child(2) &gt; th:nth-child(2) &gt; ng-select ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:50] [PASS] [OK] click completed</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:50] [INFO] &gt;&gt; Step 4: Search & Select: type '{{Batch_no}}' -&gt; pick 'DT1811048A' in [ body &gt; jhi-main &gt; div &gt; section &gt; div.app-content &gt; jhi-inventory-adjustment-dialog &gt; div &gt; div &gt; div.pr-0.athma-detail-list-panel.fixed-height-without-header &gt; jhi-inventory-adjustment-dialog-items &gt; div &gt; div.scroll-table-header &gt; table:nth-child(2) &gt; thead &gt; tr:nth-child(2) &gt; th:nth-child(2) &gt; ng-select ]</td>
+      </tr><tr>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap"></td>
+        <td style="padding:3px 8px;color:#555;font-size:11px">ℹ</td>
+        <td style="padding:3px 8px;font-size:12px;color:#333">[06:26:50] [INFO] [search_select] typing='DT1811048A' picking='DT1811048A'</td>
+      </tr></tbody>
+        </table>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(1)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_All_Negative</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-1" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(2)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_All_Positive</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-2" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(3)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_Save_Delete</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-3" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(4)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_Save</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-4" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(5)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Consumption_Department_Patient</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-5" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(6)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Consumption_Department</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-6" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(7)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Consumption_HSC</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-7" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(8)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Full_Qty_Reject_Reversal</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-8" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(9)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Partially_Qty_Reject_Reversal</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-9" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(10)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Full_Qty_Reject</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-10" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(11)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Partially_Qty_Reject</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-11" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(12)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Partially_Qty_Accepted</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-12" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(13)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Full_Qty_Accepted</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-13" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(14)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Direct_Transfer</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-14" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(15)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Full_Qty_Reject_Reversal</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-15" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(16)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Partially_Qty_Reject_Reversal</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-16" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(17)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Full_Qty_Reject</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-17" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(18)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Partially_Qty_Reject</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-18" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(19)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Partially_Qty_Accepted</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-19" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(20)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Draft_Delete</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-20" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(21)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Draft</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-21" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(22)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Partially_Item</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-22" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(23)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Full_Qty</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-23" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(24)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Draft_Delete</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-24" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(25)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Draft</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-25" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(26)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Indent_Draft_Qty_Modify</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-26" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(27)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Indent_Draft_Delete</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-27" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(28)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Indent_Draft</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-28" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(29)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Full_Qty_Accepted</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-29" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(30)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Partially_Qty</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-30" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(31)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">SAI_Indent_ForLoop</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-31" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(32)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">SAI_Indent</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-32" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(33)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">purchase_requisition</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-33" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(34)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Patient_Reg</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#f59e0b;font-weight:700;text-transform:uppercase">ABORTED</td>
+      <td style="padding:10px 12px;color:#555">—</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">0✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-34" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr></tbody>
+  </table>
+</div>
+
+<div style="text-align:center;padding:20px;font-size:11px;color:#aaa">
+  Generated by Narayana Automation Tool (NAT) • Suite Run #428
+</div>
+</body>
+</html>

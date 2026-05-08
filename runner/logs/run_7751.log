@@ -1,0 +1,34 @@
+[09:52:32] [INFO] >> [async_runner] Starting run #7751 — Type: ui, Browser: chrome
+[09:52:34] [INFO] [pool] Acquiring browser context from shared pool...
+[09:52:35] [INFO] Project variables loaded: Consumption, Direct_transfer, Ehr_MRN, PR_Reg, Password, Receipt_Number, Login_URL, UserID, Issue_Number, Indent_Number
+[09:52:35] [INFO] >> Step 1: Navigating to URL: https://sqa.narayanahealth.org/
+[09:52:42] [PASS] [OK] navigate completed
+[09:52:42] [INFO] >> Step 2: Typing '337800' into: [ #username ]
+[09:52:42] [PASS] [OK] type completed
+[09:52:42] [INFO] >> Step 3: Typing 'admin' into: [ #password ]
+[09:52:42] [PASS] [OK] type completed
+[09:52:42] [INFO] >> Step 4: Clicking: [ button:has-text("Sign in") ]
+[09:52:44] [INFO] >> Step 5: Pressing key '.' on: [ body ]
+[09:52:44] [PASS] [OK] press completed
+[09:52:44] [INFO] >> Step 6: Typing 'service purchase Requisition' into: [ #menuSearch ]
+[09:52:44] [PASS] [OK] type completed
+[09:52:44] [INFO] >> Step 7: Clicking: [ get_by_role("link", name="Service Purchase Requisition SPM") ]
+[09:52:45] [PASS] [OK] click completed
+[09:52:45] [INFO] >> Step 8: Clicking: [ button:has-text("Create New") ]
+[09:52:49] [INFO] >> Step 9: Typing 'gree' into: [ #supplierInput ]
+[09:52:49] [PASS] [OK] type completed
+[09:52:49] [INFO] >> Step 10: Clicking: [ ngb-typeahead-window > button > ngb-highlight ]
+[09:52:49] [PASS] [OK] click completed
+[09:52:49] [INFO] >> Step 11: Search & Select: type 'Digi Workbook' -> pick 'Digi Workbook' in [ #serviceCategoryList ]
+[09:52:49] [INFO] [search_select] typing='Digi Workbook' picking='Digi Workbook'
+[09:52:52] [PASS] [OK] Search & Select: selected 'Digi Workbook'
+[09:52:52] [PASS] [OK] search_select completed
+[09:52:52] [INFO] [SKIP] Step 12 (click) is disabled — skipping
+[09:52:52] [INFO] >> Step 13: Clicking: [ #btnNext ]
+[09:52:52] [PASS] [OK] click completed
+[09:52:52] [INFO] >> Step 14: Typing 'testing with automation' into: [ #prDescription ]
+[09:52:52] [PASS] [OK] type completed
+[09:52:52] [INFO] [DATA TABLE] 4 row(s), columns: ['serviceName', 'longDisc', 'qty', 'startDate', 'endDate', 'budget']
+[09:52:52] [INFO] [DATA TABLE] Row 1/4: serviceName=S-D-AE02-MARKETING-00001, longDisc=SAI YOUTUBE, qty=1, startDate=, endDate=, budget=Digital marketing
+[09:52:52] [INFO] >> Step 1: Search & Select: type '{{serviceName}}' -> pick 'S-D-AE02-MARKETING-00001' in [ #itemInput ]
+[09:52:52] [INFO] [search_select] typing='S-D-AE02-MARKETING-00001' picking='S-D-AE02-MARKETING-00001'
