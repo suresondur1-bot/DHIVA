@@ -113,7 +113,7 @@ function Login({ onLogin }) {
               display:"flex", alignItems:"center", justifyContent:"center",
               fontSize:16, fontWeight:900, color:"#fff", boxShadow:"0 4px 12px rgba(139,0,0,0.3)" }}>D</div>
             <div>
-              <div style={{ fontSize:20, fontWeight:900, color:"#8B0000", letterSpacing:"0.04em" }}>daiva health</div>
+              <div style={{ fontSize:20, fontWeight:900, color:"#8B0000", letterSpacing:"0.04em" }}>QAVYA</div>
               <div style={{ fontSize:8, color:"#cc5500", letterSpacing:"0.18em",
                 textTransform:"uppercase" }}>AI-POWERED TEST AUTOMATION</div>
             </div>
@@ -152,7 +152,7 @@ function Login({ onLogin }) {
         <div style={{ flexShrink:0, marginTop:20, paddingTop:16,
           borderTop:"1px solid rgba(139,0,0,0.15)" }}>
           <div style={{ fontSize:9, color:"#cc5500", letterSpacing:"0.14em",
-            textTransform:"uppercase" }}>DAIVA HEALTH © 2025 — AI-POWERED TESTING</div>
+            textTransform:"uppercase" }}>QAVYA © 2025 — AI-POWERED TESTING</div>
         </div>
       </div>
 
@@ -171,7 +171,7 @@ function Login({ onLogin }) {
               <div style={{ fontSize:26, fontWeight:800, color:"#1e3a5f",
                 marginBottom:6, letterSpacing:"-0.01em" }}>Welcome Back {"\uD83D\uDC4B"}</div>
               <div style={{ fontSize:12, color:"#94a3b8", lineHeight:1.6 }}>
-                Sign in to your ATHMA workspace
+                Sign in to your QAVYA workspace
               </div>
             </div>
 
@@ -431,14 +431,11 @@ function Dashboard({ projects, suites }) {
   const [scriptDetail, setScriptDetail] = useState(false);
   const [liveSessions, setLiveSessions] = useState([]);
 
-  // Live sessions — loaded once on mount, refreshed manually
   useEffect(() => {
     api('/api/runs/live')
       .then(data => setLiveSessions(data || []))
       .catch(() => {});
   }, []);
-
-  const navy = "#1a6fc4";
 
   const getDateRange = (filter) => {
     const now = new Date(), pad = n=>String(n).padStart(2,"0");
@@ -472,8 +469,8 @@ function Dashboard({ projects, suites }) {
     {key:"month",label:"Month"},{key:"custom",label:"Custom"},
   ];
 
-  const SC  = { passed:"#16a34a", failed:"#dc2626", running:"#2563eb", queued:"#d97706", error:"#ea580c" };
-  const SBG = { passed:"#dcfce7", failed:"#fee2e2", running:"#dbeafe", queued:"#fef3c7", error:"#ffedd5" };
+  const SC  = { passed:"#0F6E56", failed:"#A32D2D", running:"#185FA5", queued:"#854F0B", error:"#7e3a00" };
+  const SBG = { passed:"#E1F5EE", failed:"#FCEBEB", running:"#E6F1FB", queued:"#FAEEDA", error:"#fff0e6" };
 
   const todayRuns       = data?.today_runs || 0;
   const passRateOverall = data?.pass_rate_by_project?.length
@@ -482,266 +479,204 @@ function Dashboard({ projects, suites }) {
   const filterLabel = DATE_TABS.find(t=>t.key===dateFilter)?.label || "Today";
   const scriptsByProject = data?.scripts_by_project || [];
   const maxScripts = Math.max(...scriptsByProject.map(p=>+p.total||0), 1);
+  const scoreColor = pct => pct>=80?"#1D9E75":pct>=50?"#BA7517":"#E24B4A";
 
-  const Donut = ({pct, color, size=72, stroke=8}) => {
+  const Donut = ({pct, color, size=64, stroke=7}) => {
     const r = (size-stroke*2)/2, circ = 2*Math.PI*r;
     const dash = (pct/100)*circ;
     return (
       <svg width={size} height={size} style={{transform:"rotate(-90deg)"}}>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#e5e7eb" strokeWidth={stroke}/>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
-          strokeDasharray={`${dash} ${circ-dash}`} strokeLinecap="round"
-          style={{transition:"stroke-dasharray 0.8s ease"}}/>
+          strokeDasharray={`${dash} ${circ-dash}`} strokeLinecap="round"/>
       </svg>
     );
   };
 
-  const cardStyle = {background:"#fff", borderRadius:14, padding:"20px",
-    border:"1px solid #e8eaf0", boxShadow:"0 2px 12px rgba(26,39,68,0.06)"};
+  // Shared styles
+  const CARD = {
+    background:"#fff",
+    border:"1px solid #e2e8f0",
+    borderRadius:12,
+    overflow:"hidden"
+  };
+  const CARD_HEADER = {
+    padding:"10px 16px",
+    borderBottom:"1px solid #e2e8f0",
+    display:"flex", alignItems:"center", justifyContent:"space-between",
+    background:"#f8fafc"
+  };
 
   return (
-    <div style={{padding:"0"}}>
+    <div style={{padding:"0 0 24px", background:"#f1f5f9", minHeight:"100vh"}}>
 
-      {/* ── TOP BAR ─────────────────────────────────────────────────── */}
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",
-        marginBottom:20,flexWrap:"wrap",gap:12}}>
-        <div>
-          <div style={{fontSize:26,fontWeight:900,color:"#8B0000",letterSpacing:"-0.02em"}}>
-            Dashboard
-          </div>
-          <div style={{fontSize:12,color:"#9ca3af",marginTop:2,display:"flex",
-            alignItems:"center",gap:6}}>
-            <span style={{width:8,height:8,borderRadius:"50%",background:"#22c55e",
-              display:"inline-block"}}/>
-            All systems operational · Last sync just now
+      {/* ── HEADER BAR ───────────────────────────────────────────────── */}
+      {/* Header */}
+      <div style={{background:"#fff",borderBottom:"2px solid #e2e8f0",
+        padding:"0 20px",display:"flex",alignItems:"center",
+        justifyContent:"space-between",marginBottom:20,
+        borderLeft:"4px solid #3b82f6"}}>
+        <div style={{padding:"14px 0"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <div style={{width:32,height:32,borderRadius:8,background:"#eff6ff",
+              display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <span style={{fontSize:16}}>📊</span>
+            </div>
+            <div>
+              <div style={{fontSize:16,fontWeight:700,color:"#0f172a",lineHeight:1.2}}>Dashboard</div>
+              <div style={{fontSize:11,color:"#64748b",marginTop:2,display:"flex",alignItems:"center",gap:5}}>
+                <span style={{width:6,height:6,borderRadius:"50%",background:"#22c55e",display:"inline-block"}}/>
+                All systems operational
+              </div>
+            </div>
           </div>
         </div>
-        <div style={{display:"flex",gap:4,position:"relative"}}>
+        <div style={{display:"flex",gap:2,background:"#f1f5f9",padding:3,borderRadius:8,
+          border:"1px solid #e2e8f0"}}>
           {DATE_TABS.map(t=>(
             <button key={t.key} onClick={()=>handleFilter(t.key)}
-              style={{padding:"7px 16px",borderRadius:8,border:"1.5px solid",
-                fontSize:13,fontWeight:600,cursor:"pointer",transition:"all 0.12s",
-                background:dateFilter===t.key?navy:"#fff",
-                borderColor:dateFilter===t.key?navy:"#e5e7eb",
-                color:dateFilter===t.key?"#fff":"#6b7280"}}>
+              style={{padding:"6px 14px",borderRadius:6,border:"none",
+                fontSize:12,fontWeight:dateFilter===t.key?600:400,cursor:"pointer",
+                background:dateFilter===t.key?"#fff":"transparent",
+                color:dateFilter===t.key?"#3b82f6":"#64748b",
+                boxShadow:dateFilter===t.key?"0 1px 3px rgba(0,0,0,0.08)":"none"}}>
               {t.label}
             </button>
           ))}
-          {showCustom && (
-            <div style={{position:"absolute",top:"calc(100% + 8px)",right:0,zIndex:200,
-              background:"#fff",border:"1px solid #e5e7eb",borderRadius:12,
-              padding:"16px",boxShadow:"0 12px 32px rgba(0,0,0,0.15)",
-              display:"flex",gap:12,alignItems:"flex-end"}}>
-              <div>
-                <div style={{fontSize:11,color:"#6b7280",marginBottom:4,fontWeight:600}}>FROM</div>
-                <input type="date" value={customFrom} onChange={e=>setCustomFrom(e.target.value)}
-                  style={{...s.input,margin:0,fontSize:13}} />
-              </div>
-              <div>
-                <div style={{fontSize:11,color:"#6b7280",marginBottom:4,fontWeight:600}}>TO</div>
-                <input type="date" value={customTo} onChange={e=>setCustomTo(e.target.value)}
-                  style={{...s.input,margin:0,fontSize:13}} />
-              </div>
-              <button onClick={()=>{setShowCustom(false);loadData("custom");}}
-                style={{...s.btn("primary"),padding:"8px 16px",fontSize:13,
-                  background:navy,borderColor:navy}}>Apply</button>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Live Sessions — always visible, outside the loading gate */}
+      <div style={{padding:"0 20px"}}>
+
+      {/* Live Sessions */}
       {liveSessions.length > 0 && (
-        <div style={{background:"#fff",borderRadius:14,border:"1px solid #fecaca",
-          boxShadow:"0 2px 12px rgba(229,57,53,0.08)",overflow:"hidden",marginBottom:18}}>
-          <div style={{padding:"12px 20px",borderBottom:"1px solid #fee2e2",
-            display:"flex",justifyContent:"space-between",alignItems:"center",
-            background:"#fff8f8"}}>
-            <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <div style={{width:10,height:10,borderRadius:"50%",background:"#e53935",
-                boxShadow:"0 0 0 3px rgba(229,57,53,0.25)"}} />
-              <span style={{fontWeight:800,fontSize:15,color:"#c62828"}}>Live Sessions</span>
-              <span style={{background:"#e53935",color:"#fff",borderRadius:20,
-                fontSize:11,fontWeight:700,padding:"2px 9px"}}>
-                {liveSessions.length} running
-              </span>
-            </div>
-            <span style={{fontSize:11,color:"#9ca3af"}}>Click ↻ Refresh to update</span>
+        <div style={{...CARD,border:"1px solid #fca5a5",marginBottom:16}}>
+          <div style={{padding:"10px 16px",borderBottom:"1px solid #fca5a5",
+            display:"flex",alignItems:"center",gap:10,background:"#fef2f2"}}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:"#ef4444",
+              boxShadow:"0 0 0 3px rgba(239,68,68,0.2)"}} />
+            <span style={{fontWeight:700,fontSize:13,color:"#991b1b"}}>Live Sessions</span>
+            <span style={{background:"#ef4444",color:"#fff",borderRadius:20,
+              fontSize:10,fontWeight:700,padding:"2px 8px"}}>{liveSessions.length} running</span>
           </div>
+          <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
             <thead>
-              <tr style={{background:"#fff8f8"}}>
+              <tr style={{background:"#fef2f2"}}>
                 {["Test Case","Project","Triggered By","User","Browser","Running For"].map(h=>(
-                  <th key={h} style={{padding:"8px 16px",textAlign:"left",fontSize:10,
-                    fontWeight:700,color:"#9ca3af",letterSpacing:"0.08em",
-                    borderBottom:"1px solid #fee2e2",whiteSpace:"nowrap"}}>{h}</th>
+                  <th key={h} style={{padding:"8px 14px",textAlign:"left",fontSize:11,
+                    fontWeight:600,color:"#64748b",borderBottom:"1px solid #fca5a5",
+                    whiteSpace:"nowrap"}}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {liveSessions.map(s => {
-                const mins   = Math.floor((s.elapsed_seconds||0)/60);
-                const secs   = (s.elapsed_seconds||0)%60;
-                const dur    = mins>0 ? mins+"m "+secs+"s" : secs+"s";
-                const isLong = (s.elapsed_seconds||0)>300;
+              {liveSessions.map(sess => {
+                const mins = Math.floor((sess.elapsed_seconds||0)/60);
+                const secs = (sess.elapsed_seconds||0)%60;
+                const dur  = mins>0 ? mins+"m "+secs+"s" : secs+"s";
+                const isLong = (sess.elapsed_seconds||0)>300;
                 return (
-                  <tr key={s.id}
-                    onMouseEnter={e=>e.currentTarget.style.background="#fff5f5"}
-                    onMouseLeave={e=>e.currentTarget.style.background=""}
-                    style={{borderBottom:"1px solid #fff5f5"}}>
-                    <td style={{padding:"10px 16px"}}>
-                      <div style={{fontSize:13,fontWeight:700,color:"#1a6fc4"}}>{s.test_name}</div>
-                      {s.suite_name&&<div style={{fontSize:10,color:"#9ca3af",marginTop:2}}>🗂️ {s.suite_name}</div>}
-                    </td>
-                    <td style={{padding:"10px 16px",fontSize:12,color:"#6b7280"}}>{s.project_name}</td>
-                    <td style={{padding:"10px 16px"}}>
-                      <span style={{fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:4,
-                        background:s.triggered_by==="suite"?"#f5f0ff":"#eff6ff",
-                        color:s.triggered_by==="suite"?"#6b46c1":"#1a6fc4"}}>
-                        {s.triggered_by==="suite"?"🗂️ Suite":"▶ Manual"}
-                      </span>
-                    </td>
-                    <td style={{padding:"10px 16px",fontSize:12,color:"#6b7280"}}>{s.run_by_name||s.run_by||"System"}</td>
-                    <td style={{padding:"10px 16px",fontSize:12,color:"#6b7280",textTransform:"capitalize"}}>{s.browser}</td>
-                    <td style={{padding:"10px 16px"}}>
-                      <span style={{fontSize:12,fontWeight:700,padding:"3px 9px",borderRadius:20,
-                        color:isLong?"#dc2626":"#e53935",
-                        background:isLong?"#fee2e2":"#fff1f0",
-                        border:"1px solid "+(isLong?"#fca5a5":"#fecaca")}}>
-                        ⏱ {dur}{isLong?" ⚠️":""}
-                      </span>
-                    </td>
+                  <tr key={sess.id} style={{borderBottom:"1px solid #fee2e2"}}>
+                    <td style={{padding:"9px 14px",fontSize:13,fontWeight:600,color:"#0f172a",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{sess.test_name||"—"}</td>
+                    <td style={{padding:"9px 14px",fontSize:12,color:"#64748b"}}>{sess.project_name||"—"}</td>
+                    <td style={{padding:"9px 14px",fontSize:12,color:"#64748b",textTransform:"capitalize"}}>{sess.trigger||"manual"}</td>
+                    <td style={{padding:"9px 14px",fontSize:12,color:"#64748b"}}>{sess.run_by_name||"—"}</td>
+                    <td style={{padding:"9px 14px",fontSize:12,color:"#64748b",textTransform:"capitalize"}}>{sess.browser||"chrome"}</td>
+                    <td style={{padding:"9px 14px",fontSize:12,fontWeight:600,color:isLong?"#d97706":"#64748b"}}>{dur}</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
-      {loading && (
-        <div style={{textAlign:"center",padding:"60px 0",color:"#9ca3af"}}>
-          <div style={{width:36,height:36,border:"3px solid #e5e7eb",
-            borderTop:`3px solid ${navy}`,borderRadius:"50%",
-            animation:"spin 0.8s linear infinite",margin:"0 auto 12px"}}/>
+      {loading ? (
+        <div style={{background:"#fff",borderRadius:12,border:"1px solid #e2e8f0",
+          padding:60,textAlign:"center",color:"#94a3b8",fontSize:13}}>
           Loading dashboard...
         </div>
-      )}
-
-      {!loading && (
+      ) : (
         <>
-          {/* ── HERO STAT CARDS ─────────────────────────────────────── */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:18}}>
+          {/* ── METRIC CARDS ─────────────────────────────────────────── */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}}>
 
-            {/* Card 1 — Total Scripts */}
-            <div style={cardStyle}>
-              <div style={{display:"flex",justifyContent:"space-between",
-                alignItems:"flex-start",marginBottom:14}}>
-                <div>
-                  <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",
-                    letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4}}>
-                    Total Scripts
-                  </div>
-                  <div style={{fontSize:38,fontWeight:900,color:navy,
-                    fontFamily:"'IBM Plex Mono',monospace",lineHeight:1}}>
-                    {data?.scripts_by_type?.total||0}
-                  </div>
+            {/* Total Scripts */}
+            <div style={{...CARD,borderTop:"3px solid #3b82f6"}}>
+              <div style={{padding:"16px"}}>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748b",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>Total scripts</div>
+                <div style={{fontSize:32,fontWeight:800,color:"#0f172a",lineHeight:1,marginBottom:10}}>{data?.scripts_by_type?.total||0}</div>
+                <div style={{display:"flex",gap:2,height:4,borderRadius:3,overflow:"hidden",marginBottom:8}}>
+                  {[
+                    {c:"#22c55e",v:data?.scripts_by_type?.ai||0},
+                    {c:"#3b82f6",v:data?.scripts_by_type?.recorded||0},
+                    {c:"#f97316",v:data?.scripts_by_type?.manual||0},
+                  ].map(({c,v},i)=>(
+                    <div key={i} style={{flex:Math.max(v,0.1),height:"100%",background:c}}/>
+                  ))}
                 </div>
-                <div style={{width:36,height:36,background:"#eff6ff",borderRadius:10,
-                  display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{"\uD83E\uDDEA"}</div>
-              </div>
-              {[
-                {val:data?.scripts_by_type?.ai||0,       label:"AI Gen",   color:"#22c55e"},
-                {val:data?.scripts_by_type?.recorded||0, label:"Recorded", color:"#3b82f6"},
-                {val:data?.scripts_by_type?.manual||0,   label:"Manual",   color:"#f97316"},
-              ].map(item=>(
-                <div key={item.label} style={{marginBottom:7}}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                    <span style={{fontSize:11,color:"#6b7280"}}>{item.label}</span>
-                    <span style={{fontSize:11,fontWeight:700,color:item.color}}>{item.val}</span>
-                  </div>
-                  <div style={{height:5,background:"#f3f4f6",borderRadius:4,overflow:"hidden"}}>
-                    <div style={{height:"100%",
-                      width:`${(data?.scripts_by_type?.total||0)>0?(item.val/(data?.scripts_by_type?.total||1))*100:0}%`,
-                      background:item.color,borderRadius:4,transition:"width 0.8s ease"}}/>
-                  </div>
+                <div style={{display:"flex",gap:10}}>
+                  <span style={{fontSize:10,color:"#16a34a",fontWeight:600}}>{data?.scripts_by_type?.ai||0} AI</span>
+                  <span style={{fontSize:10,color:"#2563eb",fontWeight:600}}>{data?.scripts_by_type?.recorded||0} Recorded</span>
+                  <span style={{fontSize:10,color:"#ea580c",fontWeight:600}}>{data?.scripts_by_type?.manual||0} Manual</span>
                 </div>
-              ))}
-            </div>
-
-            {/* Card 2 — Active Projects */}
-            <div style={cardStyle}>
-              <div style={{display:"flex",justifyContent:"space-between",
-                alignItems:"flex-start",marginBottom:14}}>
-                <div>
-                  <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",
-                    letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4}}>
-                    Active Projects
-                  </div>
-                  <div style={{fontSize:38,fontWeight:900,color:navy,
-                    fontFamily:"'IBM Plex Mono',monospace",lineHeight:1}}>
-                    {projects.length}
-                  </div>
-                </div>
-                <div style={{width:36,height:36,background:"#f0fdf4",borderRadius:10,
-                  display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{"\uD83D\uDCC1"}</div>
-              </div>
-              <div style={{display:"flex",alignItems:"flex-end",gap:4,height:72}}>
-                {scriptsByProject.slice(0,7).map((p,i)=>{
-                  const total = +p.total||0;
-                  const h = total>0 ? Math.max((total/maxScripts)*60,8) : 4;
-                  return (
-                    <div key={i} style={{flex:1,display:"flex",flexDirection:"column",
-                      alignItems:"center",gap:3}}>
-                      <div style={{fontSize:9,fontWeight:700,color:"#6b7280"}}>{total||""}</div>
-                      <div style={{width:"100%",height:h,background:"#C4C7C9",borderRadius:"3px 3px 0 0",
-                        transition:"height 0.8s ease"}} title={`${p.project}: ${total} scripts`}/>
-                      <div style={{fontSize:7,color:"#9ca3af",textAlign:"center",
-                        overflow:"hidden",whiteSpace:"nowrap",maxWidth:28,
-                        textOverflow:"ellipsis"}}>
-                        {(p.project||"").slice(0,5)}
-                      </div>
-                    </div>
-                  );
-                })}
-                {scriptsByProject.length===0 && (
-                  <div style={{flex:1,textAlign:"center",color:"#d1d5db",fontSize:11,
-                    alignSelf:"center"}}>No data</div>
-                )}
               </div>
             </div>
 
-            {/* Card 3 — Pass Rate */}
-            <div style={cardStyle}>
-              <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",
-                letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:14}}>
-                Pass Rate
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:14}}>
-                <div style={{position:"relative",flexShrink:0}}>
-                  <Donut pct={passRateOverall}
-                    color={passRateOverall>=80?"#22c55e":passRateOverall>=50?"#f59e0b":"#ef4444"}
-                    size={76} stroke={8}/>
-                  <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",
-                    alignItems:"center",justifyContent:"center"}}>
-                    <span style={{fontSize:18,fontWeight:900,color:navy,
-                      fontFamily:"'IBM Plex Mono',monospace"}}>{passRateOverall}%</span>
-                  </div>
-                </div>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:13,color:"#6b7280",marginBottom:8,lineHeight:1.5}}>
-                    Avg stability · {filterLabel}
-                  </div>
-                  <div style={{display:"flex",flexDirection:"column",gap:4}}>
-                    {(data?.pass_rate_by_project||[]).slice(0,3).map((p,i)=>(
-                      <div key={i} style={{display:"flex",alignItems:"center",gap:6}}>
-                        <div style={{height:4,flex:1,background:"#f3f4f6",borderRadius:4,overflow:"hidden"}}>
-                          <div style={{height:"100%",width:`${p.rate||0}%`,borderRadius:4,
-                            background:p.rate>=80?"#22c55e":p.rate>=50?"#f59e0b":"#ef4444",
-                            transition:"width 0.8s ease"}}/>
+            {/* Active Projects */}
+            <div style={{...CARD,borderTop:"3px solid #22c55e"}}>
+              <div style={{padding:"16px"}}>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748b",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>Active projects</div>
+                <div style={{fontSize:32,fontWeight:800,color:"#0f172a",lineHeight:1,marginBottom:10}}>{projects.length}</div>
+                <div style={{display:"flex",alignItems:"flex-end",gap:4,height:72}}>
+                  {scriptsByProject.slice(0,7).map((p,i)=>{
+                    const total = +p.total||0;
+                    const h = total>0 ? Math.max((total/maxScripts)*60,8) : 4;
+                    return (
+                      <div key={i} style={{flex:1,display:"flex",flexDirection:"column",
+                        alignItems:"center",gap:3}}>
+                        <div style={{fontSize:9,fontWeight:700,color:"#64748b"}}>{total||""}</div>
+                        <div style={{width:"100%",height:h,background:"#93c5fd",
+                          borderRadius:"3px 3px 0 0"}}
+                          title={`${p.project}: ${total} scripts`}/>
+                        <div style={{fontSize:7,color:"#94a3b8",textAlign:"center",
+                          overflow:"hidden",whiteSpace:"nowrap",maxWidth:28,
+                          textOverflow:"ellipsis"}}>
+                          {(p.project||"").slice(0,5)}
                         </div>
-                        <span style={{fontSize:10,color:"#9ca3af",width:28,textAlign:"right",
-                          fontWeight:600}}>{p.rate}%</span>
+                      </div>
+                    );
+                  })}
+                  {scriptsByProject.length===0 && (
+                    <div style={{flex:1,textAlign:"center",color:"#d1d5db",fontSize:11,alignSelf:"center"}}>No data</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Pass Rate */}
+            <div style={{...CARD,borderTop:`3px solid ${scoreColor(passRateOverall)}`}}>
+              <div style={{padding:"16px"}}>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748b",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>Pass rate</div>
+                <div style={{display:"flex",alignItems:"center",gap:12}}>
+                  <div style={{position:"relative",flexShrink:0}}>
+                    <Donut pct={passRateOverall} color={scoreColor(passRateOverall)}/>
+                    <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      <span style={{fontSize:14,fontWeight:800,color:"#0f172a"}}>{passRateOverall}%</span>
+                    </div>
+                  </div>
+                  <div style={{flex:1}}>
+                    {(data?.pass_rate_by_project||[]).slice(0,3).map((p,i)=>(
+                      <div key={i} style={{marginBottom:5}}>
+                        <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}>
+                          <span style={{fontSize:10,color:"#64748b",maxWidth:80,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.project_name||p.project}</span>
+                          <span style={{fontSize:10,fontWeight:700,color:scoreColor(+p.rate||0)}}>{p.rate}%</span>
+                        </div>
+                        <div style={{height:4,background:"#f1f5f9",borderRadius:2,overflow:"hidden"}}>
+                          <div style={{height:"100%",width:`${p.rate||0}%`,background:scoreColor(+p.rate||0),borderRadius:2}}/>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -749,165 +684,117 @@ function Dashboard({ projects, suites }) {
               </div>
             </div>
 
-            {/* Card 4 — Runs Today */}
-            <div style={cardStyle}>
-              <div style={{display:"flex",justifyContent:"space-between",
-                alignItems:"flex-start",marginBottom:14}}>
-                <div>
-                  <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",
-                    letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4}}>
-                    Runs Today
-                  </div>
-                  <div style={{fontSize:38,fontWeight:900,color:navy,
-                    fontFamily:"'IBM Plex Mono',monospace",lineHeight:1}}>
-                    {todayRuns}
-                  </div>
+            {/* Runs */}
+            <div style={{...CARD,borderTop:"3px solid #8b5cf6"}}>
+              <div style={{padding:"16px"}}>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748b",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>Runs · {filterLabel.toLowerCase()}</div>
+                <div style={{fontSize:32,fontWeight:800,color:"#0f172a",lineHeight:1,marginBottom:10}}>{todayRuns}</div>
+                <div style={{display:"flex",gap:2,height:6,borderRadius:4,overflow:"hidden",marginBottom:8}}>
+                  {(()=>{
+                    const passed = data?.runs_passed_today||0;
+                    const failed = data?.runs_failed_today||0;
+                    const other  = Math.max(0,todayRuns-passed-failed);
+                    const segments = [
+                      {c:"#22c55e",v:passed},{c:"#ef4444",v:failed},{c:"#f59e0b",v:other}
+                    ].filter(s=>s.v>0);
+                    if (segments.length===0) return <div style={{flex:1,height:"100%",background:"#e2e8f0",borderRadius:2}}/>;
+                    return segments.map(({c,v},i)=>(
+                      <div key={i} style={{flex:v,height:"100%",background:c,borderRadius:2}}/>
+                    ));
+                  })()}
                 </div>
-                <div style={{width:36,height:36,background:"#eff6ff",borderRadius:10,
-                  display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{"\u25B6"}</div>
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-                <div style={{width:8,height:8,borderRadius:"50%",background:"#22c55e",
-                  boxShadow:"0 0 0 3px rgba(34,197,94,0.25)"}}/>
-                <span style={{fontSize:12,color:"#6b7280"}}>
-                  {data?.running_now||0} Live Session{(data?.running_now||0)!==1?"s":""} Active
-                </span>
-              </div>
-              <div style={{display:"flex",gap:3,height:6,borderRadius:4,overflow:"hidden",marginBottom:8}}>
-                {(()=>{
-                  const passed = data?.runs_passed_today||0;
-                  const failed = data?.runs_failed_today||0;
-                  const other  = Math.max(0,todayRuns-passed-failed);
-                  return [
-                    {c:"#22c55e",v:passed},{c:"#ef4444",v:failed},{c:"#f59e0b",v:other}
-                  ].map(({c,v},i)=>(
-                    <div key={i} style={{flex:Math.max(v,0.1),height:"100%",background:c,borderRadius:2}}/>
-                  ));
-                })()}
-              </div>
-              <div style={{display:"flex",gap:14}}>
-                {[
-                  {c:"#22c55e",l:`${data?.runs_passed_today||0} Passed`},
-                  {c:"#ef4444",l:`${data?.runs_failed_today||0} Failed`},
-                ].map(({c,l})=>(
-                  <div key={l} style={{display:"flex",alignItems:"center",gap:4}}>
-                    <div style={{width:7,height:7,borderRadius:2,background:c}}/>
-                    <span style={{fontSize:11,color:"#6b7280",fontWeight:600}}>{l}</span>
-                  </div>
-                ))}
+                <div style={{display:"flex",gap:12}}>
+                  <span style={{fontSize:10,color:"#16a34a",fontWeight:700}}>✓ {data?.runs_passed_today||0} passed</span>
+                  <span style={{fontSize:10,color:"#dc2626",fontWeight:700}}>✕ {data?.runs_failed_today||0} failed</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* ── BOTTOM SECTION ───────────────────────────────────────── */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1.6fr",gap:14}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1.6fr",gap:12,alignItems:"start"}}>
 
             {/* Script History */}
-            <div style={{background:"#fff",borderRadius:14,border:"1px solid #e8eaf0",
-              boxShadow:"0 2px 12px rgba(26,39,68,0.06)",overflow:"hidden"}}>
-              <div style={{padding:"16px 20px",borderBottom:"1px solid #f3f4f6",
-                display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <div>
-                  <div style={{fontWeight:800,fontSize:15,color:navy}}>Script History</div>
-                  <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{filterLabel}</div>
-                </div>
+            <div style={{...CARD,display:"flex",flexDirection:"column"}}>
+              <div style={CARD_HEADER}>
+                <span style={{fontSize:13,fontWeight:600,color:"#0f172a"}}>Script history</span>
                 <button onClick={()=>setScriptDetail(v=>!v)}
-                  style={{fontSize:12,color:"#1d4ed8",fontWeight:600,cursor:"pointer",
+                  style={{fontSize:12,color:"#2563eb",fontWeight:600,cursor:"pointer",
                     background:"none",border:"none",padding:0}}>
-                  {scriptDetail?"\u2191 Summary":"View All \u2192"}
+                  {scriptDetail?"↑ Summary":"View all →"}
                 </button>
               </div>
 
               {!scriptDetail ? (
-                <div style={{padding:"8px 0"}}>
-                  {(data?.script_history||[]).slice(0,5).map((row,i)=>{
-                    const icons=["\uD83D\uDCCB","\u270F\uFE0F","\uD83D\uDD04","\uD83D\uDCE6","\uD83D\uDDC2\uFE0F"];
-                    const colors=["#eff6ff","#f0fdf4","#fff7ed","#f5f3ff","#f9fafb"];
-                    const tcolors=["#1d4ed8","#16a34a","#d97706","#7c3aed","#6b7280"];
-                    const hasNew = +row.new_scripts>0;
-                    const hasUpd = +row.updated_scripts>0;
-                    if (!hasNew && !hasUpd) return null;
-                    return (
-                      <div key={i} style={{display:"flex",alignItems:"center",gap:12,
-                        padding:"10px 20px",borderBottom:"1px solid #f9fafb"}}>
-                        <div style={{width:34,height:34,borderRadius:9,
-                          background:colors[i%colors.length],display:"flex",
-                          alignItems:"center",justifyContent:"center",
-                          fontSize:16,flexShrink:0}}>{icons[i%icons.length]}</div>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:13,fontWeight:700,color:navy,
-                            overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                            {row.project}
-                          </div>
-                          <div style={{fontSize:11,color:"#9ca3af",marginTop:1}}>
-                            {hasNew?`${row.new_scripts} new`:""}{hasNew&&hasUpd?" · ":""}{hasUpd?`${row.updated_scripts} updated`:""}
-                          </div>
-                        </div>
-                        <span style={{fontSize:10,color:tcolors[i%tcolors.length],
-                          background:colors[i%colors.length],padding:"2px 8px",
-                          borderRadius:20,fontWeight:600,flexShrink:0}}>{filterLabel}</span>
-                      </div>
-                    );
-                  })}
-                  {!(data?.script_history?.filter(r=>+r.new_scripts>0||+r.updated_scripts>0).length) && (
-                    <div style={{padding:"28px",textAlign:"center",color:"#9ca3af",fontSize:13}}>
-                      No scripts in this period
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{overflowX:"auto",maxHeight:320,overflowY:"auto"}}>
-                  <table style={{width:"100%",borderCollapse:"collapse",minWidth:400}}>
-                    <thead>
-                      <tr style={{background:"#f9fafb",position:"sticky",top:0}}>
-                        {["PROJECT","SCRIPT NAME","ACTION","DATE"].map(h=>(
-                          <th key={h} style={{padding:"9px 14px",textAlign:"left",fontSize:10,
-                            fontWeight:700,color:"#6b7280",letterSpacing:"0.08em",
-                            borderBottom:"1px solid #f0f2f5",whiteSpace:"nowrap"}}>{h}</th>
+                <div style={{maxHeight:400,overflowY:"auto"}}>
+                  <table style={{width:"100%",borderCollapse:"collapse"}}>
+                    <thead style={{position:"sticky",top:0}}>
+                      <tr style={{background:"#f8fafc"}}>
+                        {["Project","Total","Changes"].map(h=>(
+                          <th key={h} style={{padding:"9px 14px",textAlign:"left",fontSize:11,
+                            fontWeight:600,color:"#64748b",letterSpacing:"0.06em",
+                            borderBottom:"1px solid #e2e8f0",whiteSpace:"nowrap",
+                            background:"#f8fafc"}}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {(data?.script_history_detail?.length
-                        ? data.script_history_detail
-                        : []
-                      ).map((r,i)=>(
-                        <tr key={i} style={{borderBottom:"1px solid #f9fafb"}}
-                          onMouseEnter={e=>e.currentTarget.style.background="#f9fafb"}
-                          onMouseLeave={e=>e.currentTarget.style.background=""}>
-                          <td style={{padding:"9px 14px",fontSize:12,fontWeight:600,
-                            color:"#6b7280",maxWidth:130,overflow:"hidden",
-                            textOverflow:"ellipsis",whiteSpace:"nowrap"}}
-                            title={r.project_name}>
-                            {r.project_name}
-                          </td>
-                          <td style={{padding:"9px 14px",fontSize:13,fontWeight:700,
-                            color:navy,maxWidth:180,overflow:"hidden",
-                            textOverflow:"ellipsis",whiteSpace:"nowrap"}}
-                            title={r.script_name}>
-                            {r.script_name}
-                          </td>
+                      {(data?.script_history||[]).slice(0,10).map((row,i)=>{
+                        const hasNew = +row.new_scripts>0;
+                        const hasUpd = +row.updated_scripts>0;
+                        if (!hasNew && !hasUpd) return null;
+                        return (
+                          <tr key={i} style={{borderBottom:"1px solid #f1f5f9"}}>
+                            <td style={{padding:"10px 14px",fontSize:12,color:"#64748b",maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.project}</td>
+                            <td style={{padding:"10px 14px",fontSize:13,fontWeight:600,color:"#0f172a"}}>{(+row.new_scripts||0)+(+row.updated_scripts||0)}</td>
+                            <td style={{padding:"10px 14px"}}>
+                              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                                {hasNew && <span style={{fontSize:10,fontWeight:700,color:"#16a34a",background:"#dcfce7",padding:"3px 8px",borderRadius:20}}>{row.new_scripts} new</span>}
+                                {hasUpd && <span style={{fontSize:10,fontWeight:700,color:"#2563eb",background:"#dbeafe",padding:"3px 8px",borderRadius:20}}>{row.updated_scripts} updated</span>}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {!(data?.script_history?.filter(r=>+r.new_scripts>0||+r.updated_scripts>0).length) && (
+                        <tr><td colSpan={3} style={{padding:32,textAlign:"center",color:"#94a3b8",fontSize:13}}>No scripts in this period</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div style={{overflowX:"auto",maxHeight:400,overflowY:"auto"}}>
+                  <table style={{width:"100%",borderCollapse:"collapse",minWidth:400}}>
+                    <thead>
+                      <tr style={{background:"#f8fafc",position:"sticky",top:0}}>
+                        {["Project","Script name","Action","Date"].map(h=>(
+                          <th key={h} style={{padding:"9px 14px",textAlign:"left",fontSize:11,
+                            fontWeight:600,color:"#64748b",letterSpacing:"0.06em",
+                            borderBottom:"1px solid #e2e8f0",whiteSpace:"nowrap",
+                            background:"#f8fafc"}}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(data?.script_history_detail?.length?data.script_history_detail:[]).map((r,i)=>(
+                        <tr key={i} style={{borderBottom:"1px solid #f8fafc"}}>
+                          <td style={{padding:"10px 14px",fontSize:12,color:"#64748b",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.project_name}</td>
+                          <td style={{padding:"10px 14px",fontSize:13,fontWeight:600,color:"#0f172a",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.script_name}</td>
                           <td style={{padding:"9px 14px"}}>
-                            <span style={{fontSize:11,fontWeight:700,
+                            <span style={{fontSize:10,fontWeight:700,
                               color:r.action==="Created"?"#16a34a":"#2563eb",
                               background:r.action==="Created"?"#dcfce7":"#dbeafe",
                               padding:"3px 10px",borderRadius:20}}>
-                              {r.action==="Created"?"\u2705 Created":"\u270F\uFE0F Updated"}
+                              {r.action==="Created"?"Created":"Updated"}
                             </span>
                           </td>
-                          <td style={{padding:"9px 14px",fontSize:11,color:"#9ca3af",
-                            whiteSpace:"nowrap"}}>
-                            {new Date(r.action==="Created"?r.created_at:r.updated_at)
-                              .toLocaleString("en-IN",{
-                                day:"2-digit",month:"short",year:"numeric",
-                                hour:"2-digit",minute:"2-digit"
-                              })}
+                          <td style={{padding:"9px 14px",fontSize:11,color:"#64748b",whiteSpace:"nowrap"}}>
+                            {new Date(r.action==="Created"?r.created_at:r.updated_at).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}
                           </td>
                         </tr>
                       ))}
                       {!(data?.script_history_detail?.length) && (
-                        <tr><td colSpan={4} style={{padding:"24px",textAlign:"center",
-                          color:"#9ca3af",fontSize:13}}>No scripts changed in this period</td></tr>
+                        <tr><td colSpan={4} style={{padding:24,textAlign:"center",color:"#94a3b8",fontSize:13}}>No scripts changed</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -916,85 +803,62 @@ function Dashboard({ projects, suites }) {
             </div>
 
             {/* Recent Runs */}
-            <div style={{background:"#fff",borderRadius:14,border:"1px solid #e8eaf0",
-              boxShadow:"0 2px 12px rgba(26,39,68,0.06)",overflow:"hidden"}}>
-              <div style={{padding:"16px 20px",borderBottom:"1px solid #f3f4f6",
-                display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <div>
-                  <div style={{fontWeight:800,fontSize:15,color:navy}}>Recent Runs</div>
-                  <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{filterLabel}</div>
+            <div style={CARD}>
+              <div style={CARD_HEADER}>
+                <span style={{fontSize:13,fontWeight:600,color:"#0f172a"}}>Recent runs</span>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontSize:11,color:"#94a3b8"}}>{filterLabel}</span>
+                  <span style={{fontSize:10,color:"#475569",background:"#e2e8f0",
+                    padding:"2px 8px",borderRadius:10,border:"1px solid #cbd5e1",fontWeight:500}}>
+                    Last 10 records
+                  </span>
                 </div>
               </div>
-              <div style={{overflowX:"auto"}}>
-                <table style={{width:"100%",borderCollapse:"collapse",minWidth:560}}>
+              <div style={{overflowX:"auto",maxHeight:400,overflowY:"auto"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",minWidth:520}}>
                   <thead>
-                    <tr style={{background:"#f9fafb"}}>
-                      {["SCRIPT NAME","USER","BROWSER","STATUS","TESTS","TIME"].map(h=>(
+                    <tr style={{background:"#f8fafc"}}>
+                      {["Script name","User","Browser","Status","Tests","Time"].map(h=>(
                         <th key={h} style={{padding:"9px 14px",textAlign:"left",fontSize:11,
-                          fontWeight:700,color:"#6b7280",letterSpacing:"0.08em",
-                          borderBottom:"1px solid #f0f2f5",whiteSpace:"nowrap"}}>{h}</th>
+                          fontWeight:600,color:"#64748b",letterSpacing:"0.06em",
+                          borderBottom:"1px solid #e2e8f0",whiteSpace:"nowrap"}}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {(data?.recent_runs||[]).map((r,i)=>(
-                      <tr key={r.id}
-                        style={{borderBottom:"1px solid #f9fafb",cursor:"default",
-                          transition:"background 0.1s"}}
-                        onMouseEnter={e=>e.currentTarget.style.background="#f9fafb"}
-                        onMouseLeave={e=>e.currentTarget.style.background=""}>
-                        <td style={{padding:"11px 14px",fontSize:13,fontWeight:700,
-                          color:navy,maxWidth:140,overflow:"hidden",
-                          textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                          {r.test_name||"\u2014"}
-                        </td>
-                        <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280"}}>
-                          {r.run_by_name||"Daiva"}
-                        </td>
-                        <td style={{padding:"11px 14px",fontSize:12,color:"#6b7280",
-                          textTransform:"capitalize"}}>
-                          {r.browser||"chrome"}
-                        </td>
-                        <td style={{padding:"11px 14px"}}>
-                          <span style={{fontSize:11,fontWeight:700,
-                            color:SC[r.status]||"#6b7280",
-                            background:SBG[r.status]||"#f3f4f6",
-                            padding:"3px 10px",borderRadius:20,
-                            textTransform:"uppercase",letterSpacing:"0.05em"}}>
+                    {(data?.recent_runs||[]).slice(0,10).map((r,i)=>(
+                      <tr key={r.id} style={{borderBottom:"1px solid #f1f5f9"}}>
+                        <td style={{padding:"10px 14px",fontSize:13,fontWeight:600,color:"#0f172a",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.test_name||"—"}</td>
+                        <td style={{padding:"10px 14px",fontSize:12,color:"#64748b"}}>{r.run_by_name||"Qavya"}</td>
+                        <td style={{padding:"10px 14px",fontSize:12,color:"#64748b",textTransform:"capitalize"}}>{r.browser||"chrome"}</td>
+                        <td style={{padding:"10px 14px"}}>
+                          <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,
+                            color:SC[r.status]||"#64748b",background:SBG[r.status]||"#f1f5f9",
+                            textTransform:"capitalize"}}>
                             {r.status}
                           </span>
                         </td>
-                        <td style={{padding:"11px 14px",fontSize:13,
-                          fontFamily:"'IBM Plex Mono',monospace",
-                          color:r.status==="failed"?"#dc2626":navy,fontWeight:700}}>
-                          {r.steps_passed!=null&&r.steps_total!=null
-                            ?`${r.steps_passed}/${r.steps_total}`:"\u2014"}
+                        <td style={{padding:"10px 14px",fontSize:12,fontFamily:"monospace",
+                          fontWeight:700,color:r.status==="failed"?"#dc2626":"#0f172a"}}>
+                          {r.steps_passed!=null&&r.steps_total!=null?`${r.steps_passed}/${r.steps_total}`:"—"}
                         </td>
-                        <td style={{padding:"11px 14px",fontSize:11,color:"#9ca3af",
-                          whiteSpace:"nowrap"}}>
-                          {r.created_at?new Date(r.created_at).toLocaleString("en-IN",
-                            {day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"\u2014"}
+                        <td style={{padding:"10px 14px",fontSize:11,color:"#64748b",whiteSpace:"nowrap"}}>
+                          {r.created_at?new Date(r.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"—"}
                         </td>
                       </tr>
                     ))}
                     {!(data?.recent_runs?.length) && (
-                      <tr><td colSpan={6} style={{padding:"28px",textAlign:"center",
-                        color:"#9ca3af",fontSize:13}}>No runs in this period</td></tr>
+                      <tr><td colSpan={6} style={{padding:32,textAlign:"center",color:"#94a3b8",fontSize:13}}>No runs in this period</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
-              {(data?.recent_runs?.length||0)>0 && (
-                <div style={{padding:"12px 20px",borderTop:"1px solid #f3f4f6"}}>
-                  <span style={{fontSize:12,color:"#9ca3af"}}>
-                    Showing {data.recent_runs.length} of {data.total_runs||data.recent_runs.length} executions
-                  </span>
-                </div>
-              )}
+
             </div>
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }
@@ -1064,7 +928,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
         setRecSuite('medium');
       }
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    } catch(e) { console.warn('[ATHMA] hash parse error:', e); }
+    } catch(e) { console.warn('[QAVYA] hash parse error:', e); }
   };
 
   useEffect(() => {
@@ -1080,7 +944,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
   // Live-poll extension for steps while recording modal is open
   useEffect(() => {
     if (recSession?.status !== 'recording') return;
-    const extId = window.__ATHMA_EXT_ID__ || localStorage.getItem('athma_ext_id');
+    const extId = window.__ATHMA_EXT_ID__ || localStorage.getItem('qavya_ext_id');
     if (!extId || !window.chrome?.runtime) return;
     const timer = setInterval(() => {
       try {
@@ -1314,7 +1178,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
     finally { setScriptSaving(false); }
   };
 
-  // ── ATHMA Recorder ──────────────────────────────────────────────────
+  // ── QAVYA Recorder ──────────────────────────────────────────────────
   const BOOKMARKLET_URL = atob("amF2YXNjcmlwdDooZnVuY3Rpb24oKXtpZih3aW5kb3cuX19OQVRfUkVDX18pe3ZhciBleD1KU09OLnBhcnNlKGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdfbmF0X3N0ZXBzJyl8fCdbXScpO2lmKGNvbmZpcm0oJ0NvcHkgJytleC5sZW5ndGgrJyByZWNvcmRlZCBzdGVwcz8nKSl7dHJ5e25hdmlnYXRvci5jbGlwYm9hcmQud3JpdGVUZXh0KEpTT04uc3RyaW5naWZ5KGV4KSk7fWNhdGNoKGUpe3ZhciB0YT1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCd0ZXh0YXJlYScpO3RhLnZhbHVlPUpTT04uc3RyaW5naWZ5KGV4KTtkb2N1bWVudC5ib2R5LmFwcGVuZENoaWxkKHRhKTt0YS5zZWxlY3QoKTtkb2N1bWVudC5leGVjQ29tbWFuZCgnY29weScpO3RhLnJlbW92ZSgpO31hbGVydCgnQ29waWVkICcrZXgubGVuZ3RoKycgc3RlcHMhIFBhc3RlIGluIE5BVCByZWNvcmRlci4nKTt9cmV0dXJuO313aW5kb3cuX19OQVRfUkVDX189dHJ1ZTtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgnX25hdF9zdGVwcycsJ1tdJyk7dmFyIFc9J3dzOi8vMTAuOC43LjE3Njo2MDAxJyx3cz1udWxsLHNpZD0ncmVjXycrRGF0ZS5ub3coKTtmdW5jdGlvbiBsZCgpe3RyeXtyZXR1cm4gSlNPTi5wYXJzZShsb2NhbFN0b3JhZ2UuZ2V0SXRlbSgnX25hdF9zdGVwcycpfHwnW10nKTt9Y2F0Y2goZSl7cmV0dXJuW107fX1mdW5jdGlvbiB1cGQoKXt2YXIgZT1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnX25jJyk7aWYoZSl7dmFyIHN0PWxkKCk7ZS50ZXh0Q29udGVudD1zdC5sZW5ndGgrJyBzdGVwJysoc3QubGVuZ3RoIT09MT8ncyc6JycpO319ZnVuY3Rpb24gc25kKHN0ZXApe3ZhciBzdD1sZCgpO3N0LnB1c2goc3RlcCk7bG9jYWxTdG9yYWdlLnNldEl0ZW0oJ19uYXRfc3RlcHMnLEpTT04uc3RyaW5naWZ5KHN0KSk7dXBkKCk7aWYod3MmJndzLnJlYWR5U3RhdGU9PT0xKXdzLnNlbmQoSlNPTi5zdHJpbmdpZnkoe3R5cGU6J05BVF9TVEVQJyxzdGVwOnN0ZXAsc2Vzc2lvbklkOnNpZH0pKTt9ZnVuY3Rpb24gZ3MoZWwpe2lmKCFlbHx8ZWw9PT1kb2N1bWVudC5ib2R5KXJldHVybiAnYm9keSc7aWYoZWwuaWQpcmV0dXJuICcjJytlbC5pZDt2YXIgYT1lbC5nZXRBdHRyaWJ1dGUoJ2RhdGEtdGVzdGlkJyk7aWYoYSlyZXR1cm4gJ1tkYXRhLXRlc3RpZD0iJythKyciXSc7dmFyIGI9ZWwuZ2V0QXR0cmlidXRlKCduYW1lJyk7aWYoYilyZXR1cm4gJ1tuYW1lPSInK2IrJyJdJzt2YXIgYz1lbC5nZXRBdHRyaWJ1dGUoJ3BsYWNlaG9sZGVyJyk7aWYoYylyZXR1cm4gJ1twbGFjZWhvbGRlcj0iJytjKyciXSc7dmFyIGZjPWVsLmdldEF0dHJpYnV0ZSgnZm9ybWNvbnRyb2xuYW1lJyk7aWYoZmMpcmV0dXJuICdbZm9ybWNvbnRyb2xuYW1lPSInK2ZjKyciXSc7dmFyIGFsPWVsLmdldEF0dHJpYnV0ZSgnYXJpYS1sYWJlbCcpO2lmKGFsJiZkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCdbYXJpYS1sYWJlbD0iJythbCsnIl0nKS5sZW5ndGg9PT0xKXJldHVybiAnW2FyaWEtbGFiZWw9IicrYWwrJyJdJzt2YXIgdHh0PShlbC50ZXh0Q29udGVudHx8JycpLnRyaW0oKS5yZXBsYWNlKC9ccysvZywnICcpLnNsaWNlKDAsNDApO3ZhciB0YWc9ZWwudGFnTmFtZS50b0xvd2VyQ2FzZSgpO2lmKCh0YWc9PT0nYnV0dG9uJ3x8dGFnPT09J2EnKSYmdHh0JiZ0eHQubGVuZ3RoPjEmJnR4dC5sZW5ndGg8NTApe3ZhciBieD10YWcrJzpoYXMtdGV4dCgiJyt0eHQrJyIpJzt0cnl7aWYoZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCh0YWcpLmxlbmd0aDwyMClyZXR1cm4gYng7fWNhdGNoKGUpe319dmFyIGNsPUFycmF5LmZyb20oZWwuY2xhc3NMaXN0KS5maWx0ZXIoZnVuY3Rpb24oeCl7cmV0dXJuIHgmJnguaW5kZXhPZignbmctJykhPT0wJiZ4LmluZGV4T2YoJ21hdC0nKSE9PTAmJnguaW5kZXhPZignY2RrLScpIT09MCYmeC5pbmRleE9mKCdfbmcnKSE9PTA7fSk7dmFyIGF0aG1hPWNsLmZpbmQoZnVuY3Rpb24oeCl7cmV0dXJuIHguaW5kZXhPZignYXRobWEtJyk9PT0wJiZ4LmluZGV4T2YoJy1tb2R1bGUtaWNvbicpPjA7fSk7aWYoYXRobWEpcmV0dXJuICcuJythdGhtYTt2YXIgc2I9Y2wuZmluZChmdW5jdGlvbih4KXtyZXR1cm4geC5pbmRleE9mKCdzYi1pY29uJyk9PT0wfHx4LmluZGV4T2YoJ2ljb24tYXRobWEnKT09PTA7fSk7aWYoc2IpcmV0dXJuICcuJytzYjt2YXIgc3RhYmxlQ2w9Y2wuZmlsdGVyKGZ1bmN0aW9uKHgpe3JldHVybiB4Lmxlbmd0aD4zJiYheC5tYXRjaCgvYWN0aXZlfHNlbGVjdGVkfG9wZW58c2hvd3xmb2N1c3xob3Zlci8pO30pLnNsaWNlKDAsMikuam9pbignLicpO2lmKHN0YWJsZUNsKXt2YXIgc3g9dGFnKycuJytzdGFibGVDbDt0cnl7aWYoZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbChzeCkubGVuZ3RoPT09MSlyZXR1cm4gc3g7fWNhdGNoKGUpe319dmFyIHBhcj1lbC5wYXJlbnRFbGVtZW50O2lmKCFwYXIpcmV0dXJuIHRhZzt2YXIgaWM9ZWwuY2xvc2VzdCgnLmF0aG1hLXBoYXJtYWN5LW1vZHVsZS1pY29uLC5zaWRlYmFyLW1haW5tZW51LWl0ZW0nKTtpZighaWMmJmVsLmNsb3Nlc3QoJ2poaS1zaWRlYmFyJykpe3ZhciBzcD1lbC5xdWVyeVNlbGVjdG9yKCcuYXRobWEtbW9kdWxlLWljb24sLnNiLWljb24sW2NsYXNzKj0iLW1vZHVsZS1pY29uIl0nKTtpZihzcCl7dmFyIG1jPUFycmF5LmZyb20oc3AuY2xhc3NMaXN0KS5maW5kKGZ1bmN0aW9uKHgpe3JldHVybiB4LmluZGV4T2YoJ2F0aG1hLScpPT09MDt9KTtpZihtYylyZXR1cm4gJy4nK21jO312YXIgc2liPUFycmF5LmZyb20ocGFyLmNoaWxkcmVuKTt2YXIgaWR4PXNpYi5pbmRleE9mKGVsKSsxO3ZhciBwc2VsPWdzKHBhcik7cmV0dXJuIHBzZWwrJz4nK3RhZysnOm50aC1jaGlsZCgnK2lkeCsnKSc7fXZhciBpPUFycmF5LmZyb20ocGFyLmNoaWxkcmVuKS5pbmRleE9mKGVsKSsxO3JldHVybiBncyhwYXIpKyc+Jyt0YWcrJzpudGgtY2hpbGQoJytpKycpJzt9ZnVuY3Rpb24gb2MoZSl7dmFyIGVsPWUudGFyZ2V0O2lmKCFlbHx8ZWw9PT1kb2N1bWVudC5ib2R5fHxlbC5jbG9zZXN0KCcjX19uYXRfXycpKXJldHVybjtpZihbJ2lucHV0JywndGV4dGFyZWEnLCdzZWxlY3QnXS5pbmRleE9mKGVsLnRhZ05hbWUudG9Mb3dlckNhc2UoKSk+PTApcmV0dXJuO3NuZCh7YWN0aW9uOidjbGljaycsaGlnaGxpZ2h0OnRydWUsc2VsZWN0b3I6Z3MoZWwpLHZhbHVlOicnfSk7fWZ1bmN0aW9uIG9jaChlKXt2YXIgZWw9ZS50YXJnZXQ7aWYoIWVsfHxlbC5jbG9zZXN0KCcjX19uYXRfXycpKXJldHVybjtlbC5zdHlsZS5vdXRsaW5lPSc0cHggc29saWQgIzIyZDNhMCc7c2V0VGltZW91dChmdW5jdGlvbigpe2VsLnN0eWxlLm91dGxpbmU9Jyc7fSw0MDApO3ZhciBzPWdzKGVsKSx0PWVsLnRhZ05hbWUudG9Mb3dlckNhc2UoKTtpZih0PT09J3NlbGVjdCcpc25kKHthY3Rpb246J3NlbGVjdCcsc2VsZWN0b3I6cyx2YWx1ZTplbC52YWx1ZX0pO2Vsc2UgaWYodD09PSdpbnB1dCcmJmVsLnR5cGU9PT0nY2hlY2tib3gnKXNuZCh7YWN0aW9uOmVsLmNoZWNrZWQ/J2NoZWNrJzondW5jaGVjaycsaGlnaGxpZ2h0OnRydWUsc2VsZWN0b3I6cyx2YWx1ZTonJ30pO2Vsc2UgaWYodD09PSdpbnB1dCd8fHQ9PT0ndGV4dGFyZWEnKXNuZCh7YWN0aW9uOid0eXBlJyxzZWxlY3RvcjpzLHZhbHVlOmVsLnZhbHVlfSk7fWRvY3VtZW50LmFkZEV2ZW50TGlzdGVuZXIoJ2NsaWNrJyxvYyx0cnVlKTtkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCdjaGFuZ2UnLG9jaCx0cnVlKTtzbmQoe2FjdGlvbjonbmF2aWdhdGUnLHNlbGVjdG9yOicnLHZhbHVlOmxvY2F0aW9uLmhyZWZ9KTtmdW5jdGlvbiBjcHkoKXt2YXIgc3Q9bGQoKTt0cnl7bmF2aWdhdG9yLmNsaXBib2FyZC53cml0ZVRleHQoSlNPTi5zdHJpbmdpZnkoc3QpKS50aGVuKGZ1bmN0aW9uKCl7YWxlcnQoJ0NvcGllZCAnK3N0Lmxlbmd0aCsnIHN0ZXBzISBQYXN0ZSBpbiBOQVQgcmVjb3JkZXIuJyk7fSk7fWNhdGNoKGV4KXt2YXIgdGE9ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgndGV4dGFyZWEnKTt0YS52YWx1ZT1KU09OLnN0cmluZ2lmeShzdCk7ZG9jdW1lbnQuYm9keS5hcHBlbmRDaGlsZCh0YSk7dGEuc2VsZWN0KCk7ZG9jdW1lbnQuZXhlY0NvbW1hbmQoJ2NvcHknKTt0YS5yZW1vdmUoKTthbGVydCgnQ29waWVkICcrc3QubGVuZ3RoKycgc3RlcHMhJyk7fX1mdW5jdGlvbiBzdG9wKCl7ZG9jdW1lbnQucmVtb3ZlRXZlbnRMaXN0ZW5lcignY2xpY2snLG9jLHRydWUpO2RvY3VtZW50LnJlbW92ZUV2ZW50TGlzdGVuZXIoJ2NoYW5nZScsb2NoLHRydWUpO2lmKHdzKXt3cy5jbG9zZSgpO3dzPW51bGw7fXZhciB0Yj1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnX19uYXRfXycpO2lmKHRiKXRiLnJlbW92ZSgpO2RvY3VtZW50LmJvZHkuc3R5bGUubWFyZ2luVG9wPScnO3dpbmRvdy5fX05BVF9SRUNfXz1mYWxzZTtjcHkoKTt9dHJ5e3dzPW5ldyBXZWJTb2NrZXQoVysnP2Jvb2ttYXJrUmVjb3JkZXI9JytzaWQpO3dzLm9ub3Blbj1mdW5jdGlvbigpe3ZhciBlPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdfbnMnKTtpZihlKWUudGV4dENvbnRlbnQ9J0Nvbm5lY3RlZCc7fTt3cy5vbmNsb3NlPWZ1bmN0aW9uKCl7dmFyIGU9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ19ucycpO2lmKGUpZS50ZXh0Q29udGVudD0nRGlzY29ubmVjdGVkJzt9O31jYXRjaChlKXt9dmFyIHN0PWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ3N0eWxlJyk7c3QudGV4dENvbnRlbnQ9J0BrZXlmcmFtZXMgbmF0cHswJSwxMDAle29wYWNpdHk6MX01MCV7b3BhY2l0eTowLjN9fSc7ZG9jdW1lbnQuaGVhZC5hcHBlbmRDaGlsZChzdCk7dmFyIHRiPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO3RiLmlkPSdfX25hdF9fJzt0Yi5zdHlsZS5jc3NUZXh0PSdwb3NpdGlvbjpmaXhlZDt0b3A6MDtsZWZ0OjA7cmlnaHQ6MDt6LWluZGV4OjIxNDc0ODM2NDc7YmFja2dyb3VuZDojMWUyOTNiO2JvcmRlci1ib3R0b206M3B4IHNvbGlkICNlNTM5MzU7ZGlzcGxheTpmbGV4O2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6OHB4O3BhZGRpbmc6NnB4IDEycHg7Zm9udC1mYW1pbHk6QXJpYWwsc2Fucy1zZXJpZjtmb250LXNpemU6MTNweDtjb2xvcjojZTJlOGYwJzt0Yi5pbm5lckhUTUw9JzxzcGFuIHN0eWxlPSJ3aWR0aDoxMHB4O2hlaWdodDoxMHB4O2JvcmRlci1yYWRpdXM6NTAlO2JhY2tncm91bmQ6I2U1MzkzNTtkaXNwbGF5OmlubGluZS1ibG9jaztmbGV4LXNocmluazowO2FuaW1hdGlvbjpuYXRwIDFzIGluZmluaXRlIj48L3NwYW4+PGIgc3R5bGU9ImNvbG9yOiNmZmY7ZmxleC1zaHJpbms6MCI+TkFUIFJlY29yZGVyPC9iPjxzcGFuIGlkPSJfbmMiIHN0eWxlPSJiYWNrZ3JvdW5kOiMwZjE3MmE7Y29sb3I6IzIyZDNhMDtib3JkZXItcmFkaXVzOjEwcHg7cGFkZGluZzoycHggMTBweDtmb250LXNpemU6MTJweDtmb250LWZhbWlseTptb25vc3BhY2U7Zm9udC13ZWlnaHQ6NzAwO3doaXRlLXNwYWNlOm5vd3JhcCI+MCBzdGVwczwvc3Bhbj48c3BhbiBpZD0iX25zIiBzdHlsZT0iZm9udC1zaXplOjExcHg7Y29sb3I6Izk0YTNiODtmbGV4OjEiPkNvbm5lY3RpbmcuLi48L3NwYW4+PGJ1dHRvbiBvbmNsaWNrPSJ3aW5kb3cuX05BVENQWSgpIiBzdHlsZT0iYmFja2dyb3VuZDojMjU2M2ViO2NvbG9yOiNmZmY7Ym9yZGVyOm5vbmU7Ym9yZGVyLXJhZGl1czo1cHg7cGFkZGluZzo0cHggMTJweDtjdXJzb3I6cG9pbnRlcjtmb250LXNpemU6MTJweDtmb250LXdlaWdodDo3MDA7d2hpdGUtc3BhY2U6bm93cmFwIj5Db3B5IFN0ZXBzPC9idXR0b24+PGJ1dHRvbiBvbmNsaWNrPSJ3aW5kb3cuX19OQVRfU1RPUF9fKCkiIHN0eWxlPSJiYWNrZ3JvdW5kOiNlNTM5MzU7Y29sb3I6I2ZmZjtib3JkZXI6bm9uZTtib3JkZXItcmFkaXVzOjVweDtwYWRkaW5nOjRweCAxMnB4O2N1cnNvcjpwb2ludGVyO2ZvbnQtc2l6ZToxMnB4O2ZvbnQtd2VpZ2h0OjcwMDt3aGl0ZS1zcGFjZTpub3dyYXAiPlN0b3AgJmFtcDsgQ29weTwvYnV0dG9uPic7ZG9jdW1lbnQuYm9keS5zdHlsZS5tYXJnaW5Ub3A9JzQ2cHgnO2RvY3VtZW50LmJvZHkuaW5zZXJ0QmVmb3JlKHRiLGRvY3VtZW50LmJvZHkuZmlyc3RDaGlsZCk7d2luZG93Ll9fTkFUX1NUT1BfXz1zdG9wO3dpbmRvdy5fTkFUQ1BZPWNweTt1cGQoKTt9KSgpOw==");
 
 
@@ -1395,7 +1259,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
     try {
       await api('/api/tests', { method:'POST', body:{
         name:        recName,
-        description: `Recorded via ATHMA on ${new Date().toLocaleDateString('en-IN')}`,
+        description: `Recorded via QAVYA on ${new Date().toLocaleDateString('en-IN')}`,
         type: 'ui', browser: 'chrome',
         project_id: recProject, suite_id: null,
         priority:   recSuite || 'medium',
@@ -1471,12 +1335,12 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
           )}
           {canEdit && (
             <button
-              title="Download ATHMA Chrome Extension — install it in Chrome to start recording"
+              title="Download QAVYA Chrome Extension — install it in Chrome to start recording"
               onClick={() => {
                 const token = localStorage.getItem('autoqa_token');
                 const a = document.createElement('a');
                 a.href = `${window.location.protocol}//${window.location.hostname}:6001/api/extension/download?token=${token}`;
-                a.download = 'ATHMA-Extension.zip';
+                a.download = 'QAVYA-Extension.zip';
                 a.click();
               }}
               style={{ ...s.btn('ghost'), border:'1px solid #e53935', color:'#e53935',
@@ -1710,7 +1574,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
                   boxShadow: recSession?.status==='recording' ? '0 0 0 4px #e5393530' : 'none' }} />
                 <div>
                   <div style={{ fontSize:16, fontWeight:700, color:'#1a2332' }}>
-                    {"🔴"} ATHMA Recorder
+                    {"🔴"} QAVYA Recorder
                   </div>
                   <div style={{ fontSize:12, color:'#8a96a8' }}>
                     {!recSession
@@ -1751,7 +1615,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
                           ? recStartUrl.trim() : 'https://' + recStartUrl.trim();
                         recStepsRef.current = []; setRecSteps([]);
                         setRecSession({ status:'recording', url });
-                        const extId = window.__ATHMA_EXT_ID__ || localStorage.getItem('athma_ext_id');
+                        const extId = window.__ATHMA_EXT_ID__ || localStorage.getItem('qavya_ext_id');
                         if (extId) {
                           try {
                             window.chrome.runtime.sendMessage(extId,
@@ -1776,7 +1640,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
                       recStepsRef.current = []; setRecSteps([]);
                       setRecSession({ status:'recording', url });
                       // Try to tell extension to open URL and auto-start recording
-                      const extId = window.__ATHMA_EXT_ID__ || localStorage.getItem('athma_ext_id');
+                      const extId = window.__ATHMA_EXT_ID__ || localStorage.getItem('qavya_ext_id');
                       if (extId && window.chrome?.runtime?.sendMessage) {
                         window.chrome.runtime.sendMessage(extId,
                           { type: 'nat_start_recording', url },
@@ -1798,7 +1662,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
                     1. Enter URL → click <b>Start Recording</b><br/>
                     2. Browser opens your app automatically<br/>
                     3. Perform your actions<br/>
-                    4. Click <b>⏹ Stop</b> in the ATHMA extension<br/>
+                    4. Click <b>⏹ Stop</b> in the QAVYA extension<br/>
                     5. Click <b>💾 Save to NAT</b> — steps load here
                   </div>
                   {/* Show accumulated steps count when user clicks Record More */}
@@ -1830,7 +1694,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
                     borderRadius:8, padding:'10px 12px', fontSize:12,
                     color:'#166534', lineHeight:1.7 }}>
                     Do your actions in the browser.<br/>
-                    When done → click <b>⏹ Stop</b> in the ATHMA extension → click <b>💾 Save to NAT</b>.
+                    When done → click <b>⏹ Stop</b> in the QAVYA extension → click <b>💾 Save to NAT</b>.
                   </div>
                 </>)}
 

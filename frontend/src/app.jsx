@@ -9,6 +9,7 @@ import JiraConfig   from "./JiraConfig.jsx";
 import { ModuleMaster, QueryBuilder, QueryPreview, OrgMaster, UserMaster, ChangePasswordModal, AccessRequests } from "./Admin.jsx";
 import { KeywordAdvisorButton } from "./KeywordAdvisor.jsx";
 import SmartPageStudy from "./SmartPageStudy.jsx";
+import MultilingualTest from "./MultilingualTest.jsx";
 
 
 const NAV_SECTIONS = [
@@ -31,6 +32,7 @@ const NAV_SECTIONS = [
       { key:"ai-gen",     label:"AI Generator",   icon:"🤖" },
       { key:"jira-bugs",  label:"Bug Board",       icon:"🐛" },
       { key:"smart-study",label:"Smart Study",     icon:"🧠" },
+      { key:"multilingual",label:"Multilingual",    icon:"🌐" },
     ]
   },
   {
@@ -131,19 +133,8 @@ export default function App() {
       <GlobalStyle />
       {/* Sidebar */}
       <div style={s.sidebar}>
-        <div style={s.logo}>
-          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:2 }}>
-            <div style={{ width:34, height:34,
-              background:"linear-gradient(135deg,#8B0000,#cc5500)",
-              borderRadius:9, display:"flex", alignItems:"center",
-              justifyContent:"center", fontSize:16, fontWeight:900, flexShrink:0,
-              color:"#fff",
-              boxShadow:"0 3px 10px rgba(139,0,0,0.35)" }}>D</div>
-            <div>
-              <div style={s.logoText}>daiva health</div>
-              <div style={s.logoSub}>AI-POWERED TEST AUTOMATION</div>
-            </div>
-          </div>
+        <div style={{ width:240, height:60, borderBottom:"1px solid #e2e8f0", overflow:"hidden", flexShrink:0, background:"#fff", display:"flex", alignItems:"center", paddingLeft:12 }}>
+          <img src="/qavya.png" alt="QAVYA" style={{ width:200, height:"auto", display:"block", objectFit:"contain" }} />
         </div>
         <div style={{ flex:1, overflowY:"auto", overflowX:"hidden", minHeight:0, padding:"8px 0" }}>
           {NAV_SECTIONS.map(section => {
@@ -177,35 +168,13 @@ export default function App() {
       </div>
       {/* Main */}
       <div style={s.main}>
-        <div style={s.topbar}>
-          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ color:"#8a96a8", fontSize:13 }}>Daiva Health</span>
+        <div style={{...s.topbar, padding:"0 24px 0 0"}}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, paddingLeft:0 }}>
+            <span style={{ color:"#8B0000", fontSize:13, fontWeight:700 }}>QAVYA</span>
             <span style={{ color:"#cdd3dc" }}>›</span>
             <span style={{ fontWeight:700, fontSize:14, color:"#8B0000" }}>{NAV.find(n=>n.key===tab)?.label}</span>
           </div>
-          {/* Powered by Daiva Health — centre of topbar with logo glow background */}
-          <div style={{ position:"absolute", left:"50%", transform:"translateX(-50%)",
-            display:"flex", alignItems:"center", gap:6, pointerEvents:"none",
-            background:"radial-gradient(ellipse at 50% 50%, rgba(230,140,30,0.18) 0%, rgba(255,200,100,0.10) 40%, transparent 75%)",
-            padding:"5px 18px", borderRadius:20 }}>
-            <div style={{ fontSize:10, color:"#8B0000", letterSpacing:"0.12em",
-              textTransform:"uppercase", fontWeight:800,
-              animation:"poweredBlink 2s ease-in-out infinite" }}>Powered by</div>
-            <div style={{ width:18, height:18,
-              background:"linear-gradient(135deg,#8B0000,#cc5500)",
-              borderRadius:5, display:"flex", alignItems:"center",
-              justifyContent:"center", fontSize:10, fontWeight:900, color:"#fff" }}>D</div>
-            <div style={{ display:"flex", alignItems:"baseline", gap:2 }}>
-              <span style={{ fontSize:12, fontWeight:900, color:"#8B0000",
-                fontFamily:"'Segoe UI',Arial,sans-serif",
-                letterSpacing:"-0.02em" }}>daiva</span>
-              <span style={{ fontSize:12, fontWeight:400,
-                background:"linear-gradient(90deg,#cc5500,#e8820c)",
-                WebkitBackgroundClip:"text",
-                WebkitTextFillColor:"transparent",
-                fontFamily:"'Segoe UI',Arial,sans-serif" }}>health</span>
-            </div>
-          </div>
+          
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <span style={{ fontSize:12, color:"#8a96a8" }}>
               {new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})}
@@ -325,6 +294,7 @@ export default function App() {
               {tab==="jira-bugs" && <JiraBugBoard user={user} />}
               {tab==="ai-gen"    && <AiGenerator projects={projects} suites={suites} tests={tests} setTab={setTab} />}
               {tab==="smart-study" && <SmartPageStudy user={user} projects={projects} />}
+              {tab==="multilingual" && <MultilingualTest user={user} projects={projects} />}
               {tab==="orgs"  && (user?.id===1||user?.uid===1||user?.role==="superadmin") && <OrgMaster user={user} />}
               {tab==="users"      && (user?.role==="admin"||user?.role==="superadmin"||user?.id===1||user?.uid===1) && <UserMaster user={user} projects={projects} />}
               {tab==="access-req" && (user?.id===1||user?.uid===1) && <AccessRequests />}

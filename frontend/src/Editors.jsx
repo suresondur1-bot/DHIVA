@@ -141,6 +141,8 @@ const ACTIONS = [
   { value: "db_validate",          label: "🗄️ DB Validate Query",       group: "Misc" },
   { value: "db_extract_multi",      label: "🗄️ DB Extract Multi Columns", group: "Misc" },
   { value: "log_message",           label: "🖨️ Log / Print variable",     group: "Misc" },
+  { value: "set_language",          label: "🌐 Set Language (translate mode)", group: "Misc" },
+  { value: "capture_page_text",     label: "🌐 Capture Page Text (Multilingual)", group: "Misc" },
   ...JSON_ACTION_DEFS,
 ];
 
@@ -3680,6 +3682,20 @@ function StepEditor({ steps, onChange, variables, projectId }) {
                 outline:"none", fontFamily:"inherit",
                 resize:"vertical", lineHeight:1.5 }}
             />
+
+            {/* ── Skip Translation ── */}
+            {(step.action === "type" || step.action === "search_select") && (
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:6 }}>
+                <input type="checkbox"
+                  checked={!!step.no_translate}
+                  onChange={e => updateStep(i, "no_translate", e.target.checked ? true : undefined)}
+                  style={{ cursor:"pointer" }}
+                />
+                <span style={{ fontSize:11, fontWeight:600, color:"#6b7280", cursor:"pointer" }}>
+                  🚫 Skip translation (use original value)
+                </span>
+              </div>
+            )}
 
             {/* ── Retry on fail (all steps) ── */}
             {!isElseTag && !isBreak && !isCont && (

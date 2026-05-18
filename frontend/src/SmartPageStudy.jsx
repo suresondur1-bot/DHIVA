@@ -6,31 +6,94 @@ const EXT_ID = "pjnhkoeckhddakkeadpdgmliconkebak";
 // ─── EXISTING Quick Scan prompt (unchanged) ───────────────────────────────────
 function buildPrompt(pm) {
   const branches = (pm.buttons||[]).filter(b => b.isBranchTrigger||b.isBranch).map(b => b.text);
-  return `You are an ATHMA test automation expert. ATHMA is Angular + ng-select.
+  const reqFields = (pm.fields||[]).filter(f => f.required).map(f => f.label);
+  const dateFields = (pm.fields||[]).filter(f => f.isDate).map(f => f.label);
+  const radioGroups = (pm.radioGroups||[]);
+  const tabs = (pm.tabs||[]);
+
+  // Group fields by section
+  const sections = {};
+  (pm.fields||[]).forEach(f => {
+    const sec = f.section || 'General';
+    if (!sections[sec]) sections[sec] = [];
+    sections[sec].push(f);
+  });
+
+  const fieldLines = (pm.fields||[]).map((f,i) =>
+    `${i+1}. "${f.label}"${f.required?' [REQUIRED]':''} sel:"${f.selector}" action:${f.action}${f.isDate?' [DATE:DD/MM/YYYY]':''}${f.options?.length?` opts:[${f.options.slice(0,4).join(',')}]`:''}`
+  ).join('\n');
+
+  const radioLines = radioGroups.map(g =>
+    `RADIO "${g.label}" options:[${g.options.join(',')}] sel:"${g.selector}"`
+  ).join('\n');
+
+  const tabLines = tabs.map(t => `TAB "${t.label}"${t.active?' [ACTIVE]':''}`).join(' | ');
+
+  return `You are an ATHMA test automation expert. ATHMA uses Angular + ng-select components.
 
 PAGE: ${pm.url}
 TITLE: ${pm.title}
 TYPE: ${pm.pageType}
+${tabs.length ? `TABS: ${tabLines}` : ''}
 
 FIELDS (${(pm.fields||[]).length}):
-${(pm.fields||[]).map((f,i)=>`${i+1}. "${f.label}" sel:"${f.selector}" action:${f.action}${f.options?.length?` opts:[${f.options.slice(0,3).join(',')}]`:''}`).join('\n')}
+${fieldLines}
 
-BUTTONS: ${(pm.buttons||[]).map(b=>`"${b.text}"${(b.isBranchTrigger||b.isBranch)?' BRANCH':''}`).join(' | ')}
-TABLES: ${(pm.tableColumns||[]).map(t=>`[${t.headers?.join('|')}] inp:${t.hasInputs} ng:${t.hasNgSelect}`).join(' | ')||'none'}
-BRANCHES: ${branches.join(', ')||'none'}
+${radioGroups.length ? `RADIO GROUPS:
+${radioLines}
+` : ''}
+BUTTONS: ${(pm.buttons||[]).map(b => `"${b.text}"${(b.isBranchTrigger||b.isBranch)?' [BRANCH]':''}`).join(' | ')}
+TABLES: ${(pm.tableColumns||[]).map(t => `[${t.headers?.join('|')}] inp:${t.hasInputs} ng:${t.hasNgSelect}`).join(' | ')||'none'}
+REQUIRED FIELDS: ${reqFields.join(', ')||'none'}
+DATE FIELDS: ${dateFields.join(', ')||'none'} (format: DD/MM/YYYY)
+BRANCH TRIGGERS: ${branches.join(', ')||'none'}
 
-RULES: search_select=ng-select+value, select=native+value, type=input+sample, navigate=first step+URL, wait=ms string, assert_text after save.
+RULES:
+- search_select: for ng-select dropdowns — use value from options list
+- select: for native dropdowns
+- type: for text inputs — use realistic sample data
+- check/uncheck: for checkboxes
+- click: for radio options — use selector like input[name="x"][value="y"]
+- navigate: ALWAYS first step with full URL
+- wait_for_selector: add after navigate and after each tab click (use first required field selector)
+- assert_text: MANDATORY — always add as the LAST step after save/submit button click
+  Use selector: ".toast-message" or ".alert-success" or ".ng-trigger" or "div.toast"
+  Use value: "" (empty — just check element appears, don't match exact text)
+  Example: {"action":"assert_text","selector":".toast-message","value":"","timeout":10000}
+- For DATE fields: use format DD/MM/YYYY with realistic dates
+- For REQUIRED fields: always include in happy path script
+- For RADIO groups: click one option per group
+- Generate variable names like {{patient_name}}, {{date_of_birth}} for dynamic data
 
-Return ONLY valid JSON array:
+Return ONLY valid JSON array of script objects:
 [{"name":"${pm.pageType}_HappyPath","description":"...","branchType":"happy_path","steps":[
   {"action":"navigate","selector":"","value":"${pm.url}","timeout":30000},
+  {"action":"wait_for_selector","selector":"FIRST_REQUIRED_FIELD","value":"","timeout":10000},
   {"action":"search_select","selector":"ng-select[formcontrolname='x']","value":"Option","timeout":30000},
-  {"action":"click","selector":"button:has-text('Save')","value":"","timeout":30000},
-  {"action":"assert_text","selector":".toast-message","value":"success","timeout":10000}
+  {"action":"type","selector":"#field","value":"{{variable_name}}","timeout":10000},
+  {"action":"click","selector":"button:has-text('Save')","value":"","timeout":10000},
+  {"action":"assert_text","selector":".toast-message","value":"","timeout":10000}
 ]}]
 
-Scripts: HappyPath, Validation${branches.some(b=>/cancel/i.test(b))?', CancelFlow':''}${branches.some(b=>/delete/i.test(b))?', DeleteFlow':''}${(pm.tableColumns||[]).some(t=>t.hasInputs||t.hasNgSelect)?', MultipleRows':''}.
-branchType: happy_path|cancel|validation|delete|variation. ONLY JSON ARRAY.`;
+Generate scripts: HappyPath${branches.some(b=>/cancel/i.test(b))?', CancelFlow':''}${branches.some(b=>/delete/i.test(b))?', DeleteFlow':''}${(pm.tableColumns||[]).some(t=>t.hasInputs||t.hasNgSelect)?', MultipleRows':''}.
+branchType values: happy_path|cancel|validation|delete|variation.
+RESPOND WITH ONLY THE JSON ARRAY — NO OTHER TEXT.`;
+}
+
+function buildPromptWithAnswers(pm, questions, answers, extraContext) {
+  const answerContext = questions.map((q, i) => {
+    const ans = answers[i];
+    if (!ans) return null;
+    return 'Q: ' + q.question + '\nA: ' + ans;
+  }).filter(Boolean).join('\n');
+
+  const base = buildPrompt(pm);
+  if (!answerContext) return base;
+  let extra = '';
+  if (extraContext && extraContext.trim()) {
+    extra = '\n\nADDITIONAL USER CONTEXT:\n' + extraContext.trim() + '\n(Use this information directly in the script — e.g. hardcode credentials, URLs, expected values as specified)';
+  }
+  return base + '\n\nUSER PREFERENCES & CONTEXT (incorporate these into the script):\n' + answerContext + extra + '\n\nIMPORTANT: Use ALL the above information to generate a more accurate script.';
 }
 
 // ─── PROCESSING PIPELINE ─────────────────────────────────────────────────────
@@ -174,6 +237,11 @@ export default function SmartPageStudy({ user, projects }) {
   const [pageMap,   setPageMap]   = useState(null);
   const [qsScripts, setQsScripts] = useState([]);
   const [qsExpanded,setQsExpanded]= useState(null);
+  const [qsQuestions, setQsQuestions] = useState([]); // AI-generated questions
+  const [qsAnswers,   setQsAnswers]   = useState({}); // user answers
+  const [qsCurQ,      setQsCurQ]      = useState(0);  // current question index
+  const [qsExtraContext, setQsExtraContext] = useState(''); // free text extra info
+  const [qsEditNames, setQsEditNames] = useState({}); // edited script names
   const [qsSaving,  setQsSaving]  = useState({});
   const [qsSaved,   setQsSaved]   = useState({});
   const [qsError,   setQsError]   = useState('');
@@ -253,21 +321,47 @@ export default function SmartPageStudy({ user, projects }) {
   async function stopSmartRecord() {
     if (!srSessionId) return;
     setSrPhase('processing');
-    disconnectSmartStudyWS();
+    // DON'T disconnect WS yet — extension may still send events via WS after stop
     try {
-      // Call server stop — this broadcasts stop to extension via WebSocket
-      // Extension will call stopSmartStudy() which pushes all events to /push-events
-      const resp = await api(`/api/smart-study/session/${srSessionId}/stop`, { method: 'POST', body: {} });
-      
-      // Wait 1 second for extension to push events after receiving stop signal
+      // Step 1: Tell extension directly to stop (removes banner + pushes events)
+      await new Promise((resolve) => {
+        try {
+          chrome.runtime.sendMessage(EXT_ID, { type: 'smart_study_stop' }, (r) => {
+            if (chrome.runtime.lastError) console.warn('Ext stop:', chrome.runtime.lastError.message);
+            resolve(r);
+          });
+          setTimeout(resolve, 2000);
+        } catch(e) { resolve(); }
+      });
+
+      // Step 2: Wait for extension to push events to server
       await new Promise(r => setTimeout(r, 1000));
+
+      // Step 3: Tell server session is done (no WS broadcast needed)
+      const resp = await api(`/api/smart-study/session/${srSessionId}/stop`, { method: 'POST', body: {} });
+
+      // Step 4: Disconnect WS
+      disconnectSmartStudyWS();
       
-      // Now fetch events from server (extension pushed them during the wait)
+      // Fetch events from server
       const evResp = await api(`/api/smart-study/session/${srSessionId}/events`, { method: 'GET' });
       const serverEvents = evResp?.events || resp?.events || [];
 
-      // Merge with any events received via WebSocket during recording
-      const allEvents = [...serverEvents, ...srEvents];
+      // Also try getting events directly from extension as final fallback
+      let extEvents = [];
+      try {
+        await new Promise((resolve) => {
+          chrome.runtime.sendMessage(EXT_ID, { type: 'smart_study_get_events' }, (r) => {
+            if (!chrome.runtime.lastError && r?.events?.length) extEvents = r.events;
+            resolve();
+          });
+          setTimeout(resolve, 2000);
+        });
+      } catch(e) {}
+      console.log(`[SmartStudy] Sources — server:${serverEvents.length} ws:${srEvents.length} ext:${extEvents.length}`);
+
+      // Merge all sources
+      const allEvents = [...serverEvents, ...srEvents, ...extEvents];
       const seen = new Set();
       const deduped = allEvents
         .filter(e => {
@@ -394,11 +488,22 @@ export default function SmartPageStudy({ user, projects }) {
     }
   }
 
+  async function askQuestions() {
+    if (!pageMap) return;
+    setQsPhase('questioning'); setQsError('');
+    setQsAnswers({}); setQsCurQ(0);
+    try {
+      const resp = await api('/api/ai/quick-scan-questions', { method: 'POST', body: { pageMap } });
+      if (!resp?.ok) throw new Error(resp?.error || 'Failed to generate questions');
+      setQsQuestions(resp.questions || []);
+    } catch(e) { setQsError(e.message); setQsPhase('studied'); }
+  }
+
   async function generateQsScripts() {
     if (!pageMap) return;
     setQsPhase('generating'); setQsError('');
     try {
-      const resp = await api('/api/ai/generate-scripts', { method: 'POST', body: { prompt: buildPrompt(pageMap) } });
+      const resp = await api('/api/ai/generate-scripts', { method: 'POST', body: { prompt: buildPromptWithAnswers(pageMap, qsQuestions, qsAnswers, qsExtraContext) } });
       let parsed = [];
       if (resp?.scripts?.length) { parsed = resp.scripts; }
       else if (resp?.raw) {
@@ -407,6 +512,17 @@ export default function SmartPageStudy({ user, projects }) {
         if (si !== -1 && ei !== -1) parsed = JSON.parse(clean.slice(si, ei+1));
       }
       if (!parsed.length) throw new Error('AI returned no scripts');
+      // Post-process: ensure every script has assert_text as last step after save/submit
+      parsed = parsed.map(script => {
+        const steps = script.steps || [];
+        const lastStep = steps[steps.length - 1];
+        const hasAssert = steps.some(s => s.action === 'assert_text' || s.action === 'assert_visible');
+        const hasSave = steps.some(s => s.action === 'click' && /save|submit|register|create|add|confirm/i.test(s.value || s.selector || ''));
+        if (!hasAssert && hasSave) {
+          steps.push({ action: 'assert_text', selector: '.toast-message,.alert-success,.ng-trigger,.cdk-overlay-container', value: '', timeout: 10000 });
+        }
+        return { ...script, steps };
+      });
       setQsScripts(parsed);
       setQsPhase('done');
     } catch(e) { setQsError('Generation failed: ' + e.message); setQsPhase('studied'); }
@@ -414,10 +530,11 @@ export default function SmartPageStudy({ user, projects }) {
 
   async function saveQsScript(script, idx) {
     if (!selProj) { setQsError('Select a project first'); return; }
+    const scriptName = qsEditNames[idx] || script.name;
     setQsSaving(p => ({...p,[idx]:true}));
     try {
       await api('/api/tests', { method:'POST', body: {
-        project_id: parseInt(selProj), name: script.name,
+        project_id: parseInt(selProj), name: scriptName,
         description: script.description||'Smart Page Study',
         type:'ui', browser:'chrome', base_url: pageMap?.url||'',
         steps: script.steps||[], variables:[],
@@ -425,7 +542,14 @@ export default function SmartPageStudy({ user, projects }) {
         priority: script.branchType==='happy_path'?'high':'medium',
       }});
       setQsSaved(p => ({...p,[idx]:true}));
-    } catch(e) { setQsError('Save failed: '+e.message); }
+    } catch(e) {
+      const msg = e.message || '';
+      if (msg.includes('already exists')) {
+        setQsError(`Name "${scriptName}" already exists — click the name above to rename it, then save again.`);
+      } else {
+        setQsError('Save failed: ' + msg);
+      }
+    }
     setQsSaving(p => ({...p,[idx]:false}));
   }
 
@@ -513,6 +637,140 @@ export default function SmartPageStudy({ user, projects }) {
               {qsScanLog.map((l,i)=><div key={i} style={{ fontSize:11,color:'#4a5568',padding:'2px 0' }}>{l}</div>)}
             </div>
           )}
+          {/* ── QUESTIONING PHASE ─────────────────────────────────────── */}
+          {qsPhase === 'questioning' && (
+            <div style={{ background:'#fff', border:'1px solid #e2e6ed', borderRadius:12, padding:24 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:20 }}>
+                <div style={{ fontSize:28 }}>🤖</div>
+                <div>
+                  <div style={{ fontSize:16, fontWeight:700, color:'#1a2332' }}>AI is asking you a few questions</div>
+                  <div style={{ fontSize:12, color:'#64748b' }}>Your answers will make the script much more accurate</div>
+                </div>
+                <div style={{ marginLeft:'auto', fontSize:12, color:'#64748b', fontWeight:600 }}>
+                  {qsCurQ + 1} / {qsQuestions.length}
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div style={{ height:4, background:'#f1f5f9', borderRadius:2, marginBottom:24, overflow:'hidden' }}>
+                <div style={{ height:'100%', width:`${((qsCurQ+1)/Math.max(qsQuestions.length,1))*100}%`,
+                  background:'linear-gradient(90deg,#1a6fc4,#6c5ce7)', borderRadius:2, transition:'width 0.3s' }} />
+              </div>
+
+              {qsQuestions[qsCurQ] && (
+                <div>
+                  <div style={{ background:'#f8fafc', borderRadius:10, padding:16, marginBottom:16, borderLeft:'3px solid #1a6fc4' }}>
+                    <div style={{ fontSize:14, fontWeight:600, color:'#1a2332', marginBottom:4 }}>
+                      {qsQuestions[qsCurQ].question}
+                    </div>
+                    {qsQuestions[qsCurQ].hint && (
+                      <div style={{ fontSize:11, color:'#64748b', marginTop:4 }}>💡 {qsQuestions[qsCurQ].hint}</div>
+                    )}
+                  </div>
+
+                  {qsQuestions[qsCurQ].options?.length > 0 ? (
+                    <div>
+                      {qsQuestions[qsCurQ].multi && (
+                        <div style={{ fontSize:11, color:'#64748b', marginBottom:8 }}>✅ Select all that apply</div>
+                      )}
+                      <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:12 }}>
+                        {qsQuestions[qsCurQ].options.map((opt, oi) => {
+                          const isMulti = qsQuestions[qsCurQ].multi;
+                          const curAns = qsAnswers[qsCurQ] || '';
+                          const selected = isMulti
+                            ? (curAns ? curAns.split('|') : []).includes(opt)
+                            : curAns === opt;
+                          return (
+                            <button key={oi}
+                              onClick={() => {
+                                if (isMulti) {
+                                  const prev = qsAnswers[qsCurQ] ? qsAnswers[qsCurQ].split('|') : [];
+                                  const next = selected ? prev.filter(x => x !== opt) : [...prev, opt];
+                                  setQsAnswers(a => ({ ...a, [qsCurQ]: next.join('|') }));
+                                } else {
+                                  setQsAnswers(a => ({ ...a, [qsCurQ]: opt }));
+                                  if (qsCurQ < qsQuestions.length - 1) setQsCurQ(q => q + 1);
+                                }
+                              }}
+                              style={{ padding:'8px 18px', borderRadius:20, border:'1px solid', cursor:'pointer',
+                                fontSize:13, transition:'all 0.15s',
+                                background: selected ? '#1a6fc4' : '#fff',
+                                color: selected ? '#fff' : '#1a2332',
+                                borderColor: selected ? '#1a6fc4' : '#e2e6ed',
+                                fontWeight: selected ? 600 : 400 }}>
+                              {isMulti && selected ? '✓ ' : ''}{opt}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom:20 }}>
+                      <input type="text"
+                        placeholder={qsQuestions[qsCurQ].placeholder || 'Type your answer...'}
+                        value={qsAnswers[qsCurQ] || ''}
+                        onChange={e => setQsAnswers(a => ({ ...a, [qsCurQ]: e.target.value }))}
+                        onKeyDown={e => { if (e.key === 'Enter' && qsCurQ < qsQuestions.length - 1) setQsCurQ(q => q + 1); }}
+                        style={{ width:'100%', padding:'10px 14px', borderRadius:8, border:'1px solid #e2e6ed', fontSize:13, outline:'none' }}
+                        autoFocus />
+                    </div>
+                  )}
+
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <button onClick={() => setQsCurQ(q => Math.max(0, q-1))}
+                      disabled={qsCurQ === 0}
+                      style={{ ...s.btn('ghost'), opacity: qsCurQ === 0 ? 0.4 : 1 }}>← Back</button>
+                    <div style={{ display:'flex', gap:8 }}>
+                      <button onClick={() => { if (qsCurQ < qsQuestions.length - 1) setQsCurQ(q => q + 1); else generateQsScripts(); }}
+                        style={{ ...s.btn('ghost'), fontSize:12 }}>Skip →</button>
+                      {qsCurQ < qsQuestions.length - 1 ? (
+                        <button onClick={() => setQsCurQ(q => q + 1)} style={s.btn('primary')}>Next →</button>
+                      ) : (
+                        <button onClick={generateQsScripts}
+                          style={{ ...s.btn('primary'), background:'linear-gradient(135deg,#1a6fc4,#6c5ce7)' }}>
+                          🚀 Generate Script
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {Object.keys(qsAnswers).length > 0 && (
+                    <div style={{ marginTop:20, padding:'12px 16px', background:'#f8fafc', borderRadius:8, border:'1px solid #e2e6ed' }}>
+                      <div style={{ fontSize:11, fontWeight:600, color:'#64748b', marginBottom:8, textTransform:'uppercase' }}>Answers so far</div>
+                      {Object.entries(qsAnswers).map(([qi, ans]) => (
+                        <div key={qi} style={{ display:'flex', gap:8, fontSize:12, marginBottom:4, cursor:'pointer' }}
+                          onClick={() => setQsCurQ(parseInt(qi))}>
+                          <span style={{ color:'#94a3b8', minWidth:30 }}>Q{parseInt(qi)+1}.</span>
+                          <span style={{ color:'#64748b', flex:1 }}>{qsQuestions[qi]?.question?.slice(0,45)}...</span>
+                          <span style={{ color:'#1a6fc4', fontWeight:600 }}>{ans}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Extra context free text */}
+                  <div style={{ marginTop:16, paddingTop:16, borderTop:'1px solid #f1f5f9' }}>
+                    <div style={{ fontSize:12, fontWeight:600, color:'#1a2332', marginBottom:6 }}>
+                      📝 Any extra information? <span style={{ fontWeight:400, color:'#94a3b8' }}>(optional)</span>
+                    </div>
+                    <textarea
+                      rows={3}
+                      placeholder="e.g. username is admin, password is admin123, login URL is http://172.19.1.11, after save check toast says saved successfully..."
+                      value={qsExtraContext}
+                      onChange={e => setQsExtraContext(e.target.value)}
+                      style={{ width:'100%', padding:'10px 14px', borderRadius:8, border:'1px solid #e2e6ed',
+                        fontSize:12, resize:'vertical', outline:'none', lineHeight:1.5,
+                        color:'#1a2332', fontFamily:'inherit', boxSizing:'border-box' }}
+                    />
+                    <div style={{ fontSize:11, color:'#94a3b8', marginTop:4 }}>
+                      Write in plain English — credentials, URLs, expected results, anything that helps
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {(qsPhase === 'studied' || qsPhase === 'generating') && pageMap && (
             <div>
               <div style={{ background:'#fff',border:'1px solid #e2e6ed',borderRadius:10,padding:20,marginBottom:16 }}>
@@ -532,7 +790,7 @@ export default function SmartPageStudy({ user, projects }) {
               </div>
               <div style={{ textAlign:'center' }}>
                 {qsPhase === 'studied' ? (
-                  <button onClick={generateQsScripts} style={{ fontSize:14,padding:'11px 30px',borderRadius:10,border:'none',
+                  <button onClick={askQuestions} style={{ fontSize:14,padding:'11px 30px',borderRadius:10,border:'none',
                     cursor:'pointer',background:'linear-gradient(135deg,#6c5ce7,#1a6fc4)',color:'#fff',fontWeight:700 }}>
                     🚀 Generate Scripts
                   </button>
@@ -540,7 +798,7 @@ export default function SmartPageStudy({ user, projects }) {
                   <div style={{ color:C.textDim,fontSize:13 }}>🧠 AI generating...</div>
                 )}
                 <div style={{ marginTop:10 }}>
-                  <button onClick={()=>{setQsPhase('idle');setPageMap(null);setQsScripts([]);setQsError('');}} style={{ background:'none',border:'none',cursor:'pointer',color:C.textDim,fontSize:12 }}>← Scan again</button>
+                  <button onClick={()=>{setQsPhase('idle');setPageMap(null);setQsScripts([]);setQsExtraContext('');setQsError('');}} style={{ background:'none',border:'none',cursor:'pointer',color:C.textDim,fontSize:12 }}>← Scan again</button>
                 </div>
               </div>
             </div>
@@ -555,7 +813,7 @@ export default function SmartPageStudy({ user, projects }) {
                   {(projects||[]).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
                 <button onClick={async()=>{for(let i=0;i<qsScripts.length;i++)if(!qsSaved[i])await saveQsScript(qsScripts[i],i);}} disabled={!selProj} style={{ ...s.btn('success'),opacity:selProj?1:0.5 }}>💾 Save All</button>
-                <button onClick={()=>{setQsPhase('idle');setPageMap(null);setQsScripts([]);}} style={s.btn('ghost')}>← Scan Another</button>
+                <button onClick={()=>{setQsPhase('idle');setPageMap(null);setQsScripts([]);setQsExtraContext('');}} style={s.btn('ghost')}>← Scan Another</button>
               </div>
               {qsScripts.map((sc,idx)=>{
                 const bc=BC[sc.branchType]||BC.variation;
@@ -565,7 +823,18 @@ export default function SmartPageStudy({ user, projects }) {
                     <div style={{ display:'flex',alignItems:'center',gap:12,padding:'12px 16px',cursor:'pointer' }} onClick={()=>setQsExpanded(isExp?null:idx)}>
                       <span style={{ background:bc.bg,color:bc.color,padding:'3px 10px',borderRadius:20,fontSize:11,fontWeight:700 }}>{bc.label}</span>
                       <div style={{ flex:1 }}>
-                        <div style={{ fontSize:14,fontWeight:700,color:'#1a2332' }}>{sc.name}</div>
+                        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                          <input
+                            value={qsEditNames[idx] !== undefined ? qsEditNames[idx] : sc.name}
+                            onChange={e => setQsEditNames(p => ({ ...p, [idx]: e.target.value }))}
+                            onClick={e => e.stopPropagation()}
+                            style={{ fontSize:14, fontWeight:700, color:'#1a2332', border:'1px solid transparent',
+                              borderRadius:4, padding:'2px 6px', background:'transparent', outline:'none',
+                              cursor:'text', width: '100%' }}
+                            onFocus={e => { e.target.style.borderColor='#1a6fc4'; e.target.style.background='#fff'; }}
+                            onBlur={e => { e.target.style.borderColor='transparent'; e.target.style.background='transparent'; }}
+                          />
+                        </div>
                         <div style={{ fontSize:11,color:C.textDim }}>{sc.description} <span style={{ color:'#1a6fc4',fontWeight:600 }}>{sc.steps?.length} steps</span></div>
                       </div>
                       {qsSaved[idx]?<span style={{ color:'#00a86b',fontWeight:700,fontSize:12 }}>✅ Saved</span>:

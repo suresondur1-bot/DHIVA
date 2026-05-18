@@ -247,26 +247,40 @@
     });
     typing.clear();
     clearInterval(navPoll);
-    setTimeout(() => {
-      window.__athmaSmartStudyActive = false;
-      document.getElementById('__athma_ss_banner')?.remove();
-      console.log('[SmartStudy] Stopped. Events:', (window.__athmaSmartStudyLocalEvents||[]).length);
-    }, 200);
+    clearTimeout(bannerRetry1);
+    clearTimeout(bannerRetry2);
+    window.__athmaSmartStudyStopped = true;
+    window.__athmaSmartStudyActive = false;
+    document.getElementById('__athma_ss_banner')?.remove();
+    console.log('[SmartStudy] Stopped. Events:', (window.__athmaSmartStudyLocalEvents||[]).length);
   };
 
   try { chrome.runtime.onMessage.addListener(msg => { if (msg.type==='smart_study_stop'&&msg.sessionId===SESSION) window.__athmaSmartStudyStop?.(); }); } catch(e) {}
 
   // ── Banner ────────────────────────────────────────────────────────────────
   const sty = document.createElement('style');
-  sty.textContent = '@keyframes ss{0%,100%{opacity:1}50%{opacity:.3}}';
+  sty.textContent = '@keyframes ss{0%,100%{opacity:1}50%{opacity:.3}} #__athma_ss_banner{all:initial!important;position:fixed!important;top:10px!important;right:10px!important;z-index:2147483647!important;background:#6c5ce7!important;color:#fff!important;padding:8px 16px!important;border-radius:20px!important;font:700 13px/1 Arial,sans-serif!important;display:flex!important;align-items:center!important;gap:8px!important;box-shadow:0 4px 20px rgba(108,92,231,.6)!important;pointer-events:none!important;letter-spacing:0.5px!important;}';
   document.head.appendChild(sty);
+  // Remove any existing banner first
+  document.getElementById('__athma_ss_banner')?.remove();
   const b = document.createElement('div');
   b.id = '__athma_ss_banner';
-  b.style.cssText = 'position:fixed;top:10px;right:10px;z-index:2147483647;background:#6c5ce7;color:#fff;padding:6px 14px;border-radius:20px;font:700 12px/1 Arial;display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(108,92,231,.5);pointer-events:none';
   const dot = document.createElement('span');
-  dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#fff;animation:ss 1.2s ease-in-out infinite';
-  b.appendChild(dot); b.appendChild(document.createTextNode(' SMART RECORDING'));
-  document.body.appendChild(b);
+  dot.style.cssText = 'width:9px;height:9px;border-radius:50%;background:#fff;display:inline-block;animation:ss 1.2s ease-in-out infinite;flex-shrink:0';
+  const txt = document.createTextNode(' 🎬 SMART RECORDING');
+  b.appendChild(dot);
+  b.appendChild(txt);
+  // Append to body with retries (some SPAs replace body)
+  let bannerRetry1, bannerRetry2;
+  function attachBanner() {
+    if (window.__athmaSmartStudyStopped) return; // don't re-attach after stop
+    if (!document.getElementById('__athma_ss_banner') && document.body) {
+      document.body.appendChild(b);
+    }
+  }
+  attachBanner();
+  bannerRetry1 = setTimeout(attachBanner, 500);
+  bannerRetry2 = setTimeout(attachBanner, 1500);
 
   // Initial navigate
   send({ action:'navigate', selector:'', label:document.title, value:location.href, pageTitle:document.title, isStart:true });

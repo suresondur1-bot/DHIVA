@@ -137,7 +137,7 @@ const s = {
   }),
   main: { marginLeft: 240, flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh", background: "#f3f4f6" },
   topbar: {
-    height: 54, background: "#ffffff",
+    height: 60, background: "#ffffff",
     borderBottom: "1px solid #e2e6ed",
     display: "flex", alignItems: "center", justifyContent: "space-between",
     padding: "0 24px", position: "sticky", top: 0, zIndex: 50,

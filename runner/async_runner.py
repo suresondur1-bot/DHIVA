@@ -316,7 +316,6 @@ def apply_variables(value, resolved):
 _log_queue: list = []
 _log_timer = None
 _log_lock = threading.Lock()
-_log_seq   = 0  # global sequence counter
 
 def _flush_logs(run_id):
     global _log_queue, _log_timer
@@ -342,7 +341,6 @@ def _flush_logs(run_id):
 
 
 def log(run_id, level, message, step_index=None):
-    global _log_seq
     ts = datetime.utcnow().isoformat() + "+00:00"
     # Print to stdout so the backend's proc.stdout listener can broadcast to WebSocket
     print(f"[{level.upper()}] {message}", flush=True)
@@ -352,10 +350,7 @@ def log(run_id, level, message, step_index=None):
             f.write(f"[{ts[11:19]}] [{level.upper()}] {message}\n")
     except Exception:
         pass
-    with _log_lock:
-        _log_seq += 1
-        seq = _log_seq
-    payload = {"level": level, "message": message, "step_index": step_index, "timestamp": ts, "seq": seq}
+    payload = {"level": level, "message": message, "step_index": step_index, "timestamp": ts}
     global _log_queue, _log_timer
     with _log_lock:
         _log_queue.append(payload)
@@ -381,7 +376,7 @@ def log(run_id, level, message, step_index=None):
         else:
             # INFO logs — batch every 0.5s to reduce HTTP calls
             if _log_timer is None:
-                _log_timer = threading.Timer(0.1, _flush_logs, args=[run_id])
+                _log_timer = threading.Timer(0.5, _flush_logs, args=[run_id])
                 _log_timer.daemon = True
                 _log_timer.start()
 
@@ -658,7 +653,12 @@ async def ai_heal_step(page, step, run_id, idx, original_error, resolved_vars=No
                 except Exception:
                     await loc.click(timeout=10000, force=True)
             elif action == "type":
-                await loc.fill(value, timeout=10000)
+                _type_value = value
+                _lang = step.get("__lang__", resolved_vars.get("__lang__", ""))
+                if _lang and _lang != "en" and _type_value:
+                    _type_value = await translate_value(_type_value, _lang)
+                    log(run_id, "info", f"[type] Translated to {_lang}: {_type_value}", idx)
+                await loc.fill(_type_value, timeout=10000)
             elif action == "clear":
                 await loc.clear(timeout=10000)
             elif action == "hover":
@@ -736,6 +736,51 @@ def run_api_test(config, run_id):
 # ─────────────────────────────────────────────────────────────────────────────
 # Single step executor (async)
 # ─────────────────────────────────────────────────────────────────────────────
+
+
+async def translate_value(text_val, lang, run_id=None, idx=None, api_base=None):
+    """Translate a value to the target language using Claude API."""
+    if not text_val or not text_val.strip():
+        return text_val
+    lang_names = {"el":"Greek","ar":"Arabic","hi":"Hindi","fr":"French","de":"German","es":"Spanish"}
+    lang_name = lang_names.get(lang, lang)
+    import requests as _req
+    ai_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not ai_key:
+        try:
+            from dotenv import dotenv_values
+            import pathlib
+            env_path = pathlib.Path(__file__).parent.parent / "backend" / ".env"
+            vals = dotenv_values(env_path)
+            ai_key = vals.get("ANTHROPIC_API_KEY", "")
+        except Exception:
+            pass
+    if not ai_key:
+        print("[translate_value] No API key found")
+        return text_val
+    try:
+        print(f"[translate_value] Translating '{text_val}' to {lang_name}")
+        resp = _req.post("https://api.anthropic.com/v1/messages",
+            headers={"x-api-key": ai_key, "anthropic-version": "2023-06-01",
+                     "content-type": "application/json"},
+            json={"model": "claude-haiku-4-5-20251001", "max_tokens": 100,
+                  "messages": [{"role": "user", "content":
+                    f"Transliterate or translate '{text_val}' into {lang_name} script. "
+                    f"If it is a proper name, write it phonetically in {lang_name} characters. "
+                    f"If it is a common word, translate its meaning. "
+                    f"Return ONLY the {lang_name} text, nothing else. No explanation. No Latin characters."}]},
+            timeout=10)
+        rj = resp.json()
+        if "error" in rj:
+            log(run_id, "warn", f"[translate_value] API error: {rj['error']}", idx)
+            return text_val
+        result = rj["content"][0]["text"].strip()
+        log(run_id, "info", f"[translate_value] '{text_val}' → '{result}'", idx)
+        return result if result else text_val
+    except Exception as e:
+        log(run_id, "warn", f"[translate_value] Error: {e}", idx)
+        return text_val
+
 
 async def run_step(page, step, run_id, idx, resolved_vars=None):
     resolved_vars = resolved_vars or {}
@@ -844,7 +889,15 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
             loc = await get_locator_with_fallback(page, selector, timeout=min(timeout, 8000))
             # Re-apply variables so foreach/loop vars are resolved at execution time
             type_value = apply_variables(step.get("value", "") or "", resolved_vars)
-            await loc.type(type_value, timeout=timeout)
+            # Translate if language mode is set
+            _lang = step.get("__lang__", resolved_vars.get("__lang__", ""))
+            if _lang and _lang != "en" and type_value and not step.get("no_translate"):
+                type_value = await translate_value(type_value, _lang, run_id=run_id, idx=idx)
+                log(run_id, "info", f"[type] Translated to {_lang}: '{type_value}'", idx)
+                # Use fill() for translated text — loc.type() may not handle Unicode correctly
+                await loc.fill(type_value, timeout=timeout)
+            else:
+                await loc.type(type_value, timeout=timeout)
 
         # ── CLEAR ─────────────────────────────────────────────────────────────
         elif action == "clear":
@@ -862,6 +915,13 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
             raw_search_text = step.get("search_text", "") or ""
             search_text = apply_variables(raw_search_text if raw_search_text else raw_value, resolved_vars).strip()
             option_text = apply_variables(raw_value, resolved_vars).strip()
+            _lang = step.get("__lang__", resolved_vars.get("__lang__", ""))
+            if _lang and _lang != "en" and not step.get("no_translate"):
+                if search_text:
+                    search_text = await translate_value(search_text, _lang, run_id=run_id, idx=idx)
+                    log(run_id, "info", f"[search_select] Translated search to {_lang}: {search_text}", idx)
+                if option_text:
+                    option_text = await translate_value(option_text, _lang, run_id=run_id, idx=idx)
             loc         = get_locator(page, selector)
             wait_ms     = int(step.get("wait_ms", 2000))
             log(run_id, "info", f"[search_select] typing={search_text!r} picking={option_text!r}", idx)
@@ -1092,7 +1152,29 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
         elif action == "scroll":
             x = int(step.get("value2", 0) or 0)
             y = int(value or 0)
-            await page.evaluate(f"window.scrollTo({x}, {y})")
+            sel = step.get("value3", "").strip()
+            if sel:
+                # Scroll specific element into view
+                await page.evaluate(f"""() => {{
+                    const el = document.querySelector('{sel}');
+                    if (el) el.scrollIntoView({{behavior:'smooth', block:'center'}});
+                }}""")
+            else:
+                # Try Angular scroll container first, fallback to window
+                await page.evaluate(f"""() => {{
+                    const containers = [
+                        document.querySelector('.main-content'),
+                        document.querySelector('.content-wrapper'),
+                        document.querySelector('mat-sidenav-content'),
+                        document.querySelector('.page-content'),
+                        document.querySelector('main'),
+                        document.querySelector('#scrollBox'),
+                        document.body
+                    ];
+                    const container = containers.find(c => c && c.scrollHeight > c.clientHeight);
+                    if (container) container.scrollTop += {y};
+                    else window.scrollBy(0, {y});
+                }}""")
 
         elif action == "refresh":
             await page.reload(timeout=timeout)
@@ -1455,9 +1537,16 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                     except: return str(s).strip()
                 n1, n2 = _n(stored), _n(compare)
                 if isinstance(n1, float) and isinstance(n2, float):
-                    assert n1 == n2, f"Mismatch: '{label_v}' = {stored}, expected {compare}"
+                    match = n1 == n2
                 else:
-                    assert str(stored).strip() == str(compare).strip(), f"Mismatch: '{label_v}' = {stored!r}, expected {compare!r}"
+                    match = str(stored).strip() == str(compare).strip()
+                if not match:
+                    msg = f"Mismatch: '{label_v}' = {stored}, expected {compare}"
+                    if step.get("continue_on_fail") == False:
+                        raise Exception(msg)
+                    else:
+                        log(run_id, "fail", f"[FAIL] {msg}", idx)
+                        return {"status": "failed", "step": idx, "error": msg}
             log(run_id, "pass", f"[OK] get_table_value '{label_v}' = {stored}", idx)
             return {"status": "passed", "step": idx}
 
@@ -2335,9 +2424,70 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                     log(run_id, "pass",
                         f"[visual] PASSED — {summary} | Pixel diff: {diff_pct}% | Minor: {minor} | Cosmetic: {cosmetic}", idx)
 
-        elif action in ("log_message", "print_var", "debug"):
-            msg = apply_variables(step.get("value", ""), resolved_vars)
-            log(run_id, "info", f"[LOG] {msg}", idx)
+        elif action == "capture_page_text":
+            import json as _json, requests as _req
+            lang     = apply_variables(step.get("value", "en"), resolved_vars).strip()
+            store_as = apply_variables(step.get("store_as", "page_snapshot"), resolved_vars).strip()
+            log(run_id, "info", f"[capture_page_text] Scanning page lang={lang}...", idx)
+            try:
+                elements = await page.evaluate("""() => {
+                    const results = [], seen = new Set();
+                    function capture(el, type) {
+                        if (!el || el.offsetParent === null) return;
+                        const text = (el.innerText || el.textContent || '').trim();
+                        const ph = el.placeholder || '';
+                        if (!text && !ph) return;
+                        if (text.length < 2 && ph.length < 2) return;
+                        if (/^[0-9\\s\\-\\/]+$/.test(text)) return;
+                        let sel = '';
+                        if (el.id) sel = '#' + el.id;
+                        else if (el.getAttribute('formcontrolname')) sel = el.tagName.toLowerCase() + '[formcontrolname="' + el.getAttribute('formcontrolname') + '"]';
+                        else if (el.getAttribute('for')) sel = 'label[for="' + el.getAttribute('for') + '"]';
+                        else if (el.getAttribute('aria-label')) sel = '[aria-label="' + el.getAttribute('aria-label') + '"]';
+                        else sel = el.tagName.toLowerCase() + '.' + (el.className || '').split(' ')[0];
+                        if (seen.has(sel + text)) return;
+                        seen.add(sel + text);
+                        const rect = el.getBoundingClientRect();
+                        results.push({ selector: sel, tag: el.tagName.toLowerCase(), type: type, text: text, placeholder: ph || null, rect: { width: Math.round(rect.width), height: Math.round(rect.height) } });
+                    }
+                    document.querySelectorAll('label').forEach(el => capture(el, 'label'));
+                    document.querySelectorAll('button:not([disabled])').forEach(el => capture(el, 'button'));
+                    document.querySelectorAll('th').forEach(el => capture(el, 'th'));
+                    document.querySelectorAll('h1,h2,h3,h4').forEach(el => capture(el, 'heading'));
+                    document.querySelectorAll('ng-select .ng-value-label, ng-select .ng-placeholder').forEach(el => capture(el, 'select_value'));
+                    // Input placeholders
+                    document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(el => {
+                        const ph = el.placeholder || '';
+                        if (!ph || ph.length < 2) return;
+                        let sel = '';
+                        if (el.id) sel = '#' + el.id;
+                        else if (el.getAttribute('formcontrolname')) sel = el.tagName.toLowerCase() + '[formcontrolname="' + el.getAttribute('formcontrolname') + '"]';
+                        else sel = el.tagName.toLowerCase() + '.' + (el.className || '').split(' ')[0];
+                        if (seen.has(sel + ph)) return;
+                        seen.add(sel + ph);
+                        const rect = el.getBoundingClientRect();
+                        results.push({ selector: sel, tag: el.tagName.toLowerCase(), type: 'placeholder', text: ph, placeholder: ph, rect: { width: Math.round(rect.width), height: Math.round(rect.height) } });
+                    });
+                    document.querySelectorAll('.toast-message,.alert,.invalid-feedback').forEach(el => capture(el, 'message'));
+                    document.querySelectorAll('.modal-title').forEach(el => capture(el, 'modal'));
+                    return results;
+                }""")
+                snapshot = {"url": page.url, "title": await page.title(), "language": lang, "elements": elements}
+                resolved_vars[store_as] = _json.dumps(snapshot)
+                log(run_id, "info", f"[capture_page_text] Captured {len(elements)} elements", idx)
+                try:
+                    _req.post(f"{API_BASE}/api/multilingual/baseline",
+                        json={"run_id": run_id, "language": lang, "url": page.url, "page_title": snapshot['title'], "elements": elements},
+                        headers={"Authorization": f"Bearer {RUNNER_TOKEN}"}, timeout=5)
+                except Exception: pass
+            except Exception as e:
+                log(run_id, "fail", f"[capture_page_text] Error: {e}", idx)
+
+        elif action == "set_language":
+            lang = apply_variables(step.get("value", ""), resolved_vars).strip()
+            resolved_vars["__lang__"] = lang
+            log(run_id, "info", f"[set_language] Language set to: {lang}", idx)
+            return {"status": "passed", "action": "set_language", "__lang__": lang}
 
         else:
             log(run_id, "warn", f"[WARN] Unknown action '{action}' -- skipping", idx)
@@ -2389,6 +2539,20 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
     while i < len(steps):
         step   = steps[i]
         action = step.get("action", "")
+
+        # ── SET LANGUAGE ─── handle directly in flow so resolved_vars is shared
+        if action == "set_language":
+            lang = apply_variables(step.get("value", ""), resolved_vars).strip()
+            resolved_vars["__lang__"] = lang
+            log(run_id, "info", f"[set_language] Language set to: {lang}", i)
+            results.append({"status": "passed", "step": i})
+            i += 1
+            continue
+
+        # Inject __lang__ into step so run_step can access it
+        if "__lang__" in resolved_vars:
+            step = dict(step)
+            step["__lang__"] = resolved_vars["__lang__"]
 
         # ── Skip disabled steps ──────────────────────────────────────────
         if step.get("disabled", False):
@@ -2845,6 +3009,123 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
             log(run_id, "info", f"[LOG] {msg}", i)
             i += 1; continue
 
+        # ── CAPTURE PAGE TEXT (Multilingual Testing) ────────────────────────────
+        if action == "capture_page_text":
+            lang     = apply_variables(step.get("value",  "en"),       resolved_vars).strip()
+            store_as = apply_variables(step.get("store_as", "page_snapshot"), resolved_vars).strip()
+            log(run_id, "info", f"[capture_page_text] Scanning page in lang={lang}...", i)
+            try:
+                elements = await page.evaluate("""() => {
+                    const results = [];
+                    const seen    = new Set();
+
+                    function capture(el, type) {
+                        if (!el || el.offsetParent === null) return;  // skip hidden
+                        const text = (el.innerText || el.textContent || '').trim();
+                        const ph   = el.placeholder || '';
+                        if (!text && !ph) return;
+                        if (text.length < 2 && ph.length < 2) return;
+                        if (/^[0-9\s\-\/]+$/.test(text)) return; // skip pure numbers
+                        if (text.toLowerCase() === 'dummy') return;
+                        if (/^[0-9,]+\.[0-9]+$/.test(text)) return;
+                        // Build stable selector
+                        let sel = '';
+                        if (el.id)                          sel = '#' + el.id;
+                        else if (el.getAttribute('formcontrolname')) 
+                            sel = el.tagName.toLowerCase() + '[formcontrolname="' + el.getAttribute('formcontrolname') + '"]';
+                        else if (el.getAttribute('for'))    
+                            sel = 'label[for="' + el.getAttribute('for') + '"]';
+                        else if (el.getAttribute('aria-label')) 
+                            sel = '[aria-label="' + el.getAttribute('aria-label') + '"]';
+                        else                                
+                            sel = el.tagName.toLowerCase() + '.' + (el.className || '').split(' ')[0];
+                        
+                        // Make selector unique with counter if duplicate
+                        if (seen.has(sel)) {
+                            let counter = 1;
+                            while (seen.has(sel + '_' + counter)) counter++;
+                            sel = sel + '_' + counter;
+                        }
+                        seen.add(sel);
+
+                        const rect = el.getBoundingClientRect();
+                        results.push({
+                            selector: sel,
+                            tag:      el.tagName.toLowerCase(),
+                            type:     type,
+                            text:     text,
+                            placeholder: ph || null,
+                            rect:     { width: Math.round(rect.width), height: Math.round(rect.height) }
+                        });
+                    }
+
+                    // Labels
+                    document.querySelectorAll('label').forEach(el => capture(el, 'label'));
+                    // Buttons
+                    document.querySelectorAll('button:not([disabled])').forEach(el => capture(el, 'button'));
+                    // Table headers
+                    document.querySelectorAll('th').forEach(el => capture(el, 'th'));
+                    // Headings
+                    document.querySelectorAll('h1,h2,h3,h4').forEach(el => capture(el, 'heading'));
+                    // Nav/menu items
+                    document.querySelectorAll('a.nav-link, .sidebar-item, .menu-item, li.nav-item a').forEach(el => capture(el, 'nav'));
+                    // ng-select selected values
+                    document.querySelectorAll('ng-select .ng-value-label, ng-select .ng-placeholder').forEach(el => capture(el, 'select_value'));
+                    // Input placeholders
+                    document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(el => capture(el, 'placeholder'));
+                    // Toast / alerts
+                    document.querySelectorAll('.toast-message, .alert, .jhi-item-count, .invalid-feedback').forEach(el => capture(el, 'message'));
+                    // Modal titles
+                    document.querySelectorAll('.modal-title, .modal-header').forEach(el => capture(el, 'modal'));
+
+                    // Dropdown options (ng-select open panels)
+                    let _optCounter = 0;
+                    document.querySelectorAll('ng-dropdown-panel .ng-option').forEach(el => {
+                        const text = el.innerText.trim();
+                        if (!text || text.toLowerCase() === 'dummy') return;
+                        const ngSel = document.querySelector('ng-select.ng-select-opened');
+                        const fc = ngSel ? (ngSel.getAttribute('formcontrolname') || ngSel.getAttribute('name') || '') : '';
+                        const base = fc ? `ng-select[formcontrolname="${fc}"]` : 'ng-dropdown';
+                        const sel = base + '_opt_' + _optCounter;
+                        _optCounter++;
+                        if (seen.has(sel)) return;
+                        seen.add(sel);
+                        results.push({ selector: sel, tag: 'ng-option', type: 'dropdown_option', text: text, option_index: _optCounter - 1, rect: {} });
+                    });
+
+                    return results;
+                }""")
+
+                snapshot = {
+                    "url":       page.url,
+                    "title":     await page.title(),
+                    "language":  lang,
+                    "elements":  elements,
+                    "captured_at": __import__("datetime").datetime.utcnow().isoformat()
+                }
+                resolved_vars[store_as] = __import__("json").dumps(snapshot)
+                log(run_id, "info", f"[capture_page_text] Captured {len(elements)} elements → {{{{{store_as}}}}}", i)
+
+                # Auto-save to DB via API
+                import requests as _req
+                try:
+                    _req.post(f"{API_BASE}/api/multilingual/baseline", json={
+                        "run_id":     run_id,
+                        "language":   lang,
+                        "url":        page.url,
+                        "page_title": snapshot["title"],
+                        "elements":   elements
+                    }, headers={"Authorization": f"Bearer {RUNNER_TOKEN}"}, timeout=5)
+                except Exception:
+                    pass  # non-critical - data is in variable
+
+                results.append({"status": "passed", "step": i})
+            except Exception as e:
+                log(run_id, "fail", f"[capture_page_text] Error: {e}", i)
+                results.append({"status": "failed", "step": i, "error": str(e)})
+            i += 1
+            continue
+
         # ── BREAK / CONTINUE ─────────────────────────────────────────────────
         if action == "break":
             results.append({"status": "passed", "step": i, "__break__": True})
@@ -3090,21 +3371,10 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
 
         # ── REGULAR STEP ──────────────────────────────────────────────────────
         step_start_ms = int(time.time() * 1000)
-        # Per-step retry logic
-        _retry_count = int(step.get("retry_count", 0))
-        _retry_delay = int(step.get("retry_delay_ms", 1000))
-        for _attempt in range(_retry_count + 1):
-            result = await run_step(page, step, run_id, i, resolved_vars)
-            if result["status"] == "passed":
-                break
-            if _attempt < _retry_count:
-                log(run_id, "warn",
-                    f"[RETRY] Step {i+1} ({action}) failed — attempt {_attempt+1}/{_retry_count+1}, retrying in {_retry_delay}ms...", i)
-                await asyncio.sleep(_retry_delay / 1000.0)
-            else:
-                if _retry_count > 0:
-                    log(run_id, "fail",
-                        f"[RETRY] Step {i+1} ({action}) failed after {_retry_count+1} attempt(s)", i)
+        result = await run_step(page, step, run_id, i, resolved_vars)
+        # Propagate __lang__ back from run_step result
+        if isinstance(result, dict) and "__lang__" in result:
+            resolved_vars["__lang__"] = result["__lang__"]
         await take_live_screenshot(page, run_id, action)
         step_dur_ms = int(time.time() * 1000) - step_start_ms
         results.append(result)
@@ -3134,8 +3404,9 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                     "screenshot": screenshot_b64, "url": current_url, "variables": var_snapshot
                 })
 
-        if result["status"] == "failed" and not continue_on_fail:
-            return results
+        if result["status"] == "failed":
+            if not continue_on_fail and step.get("continue_on_fail") != True:
+                return results
         i += 1
     return results
 

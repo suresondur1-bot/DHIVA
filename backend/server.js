@@ -147,6 +147,8 @@ const MAX_RUNS_PER_SUITE   = parseInt(process.env.MAX_RUNS_PER_SUITE   || "1"); 
 const SUITE_RETRY_FAILED   = parseInt(process.env.SUITE_RETRY_FAILED   || "1");   // retry failed tests N times after suite completes (0 = no retry)
 const LOG_RETENTION_DAYS        = parseInt(process.env.LOG_RETENTION_DAYS        || "90");
 const SCREENSHOT_RETENTION_DAYS = parseInt(process.env.SCREENSHOT_RETENTION_DAYS || "90");
+const SUITE_RUN_RETENTION_DAYS  = parseInt(process.env.SUITE_RUN_RETENTION_DAYS  || "30");
+const TEST_RUN_RETENTION_DAYS   = parseInt(process.env.TEST_RUN_RETENTION_DAYS   || "30");
 const CLEANUP_INTERVAL_HOURS    = parseInt(process.env.CLEANUP_INTERVAL_HOURS    || "24");
 const PAGE_SIZE            = parseInt(process.env.PAGE_SIZE            || "5");   // default page size
 const DASHBOARD_CACHE_TTL  = parseInt(process.env.DASHBOARD_CACHE_TTL  || "30");  // seconds
@@ -3445,51 +3447,11 @@ function broadcastRecorder(sessionId, data) {
 app.post("/api/recorder/start", requireAuth, async (req, res) => {
   const { start_url } = req.body;
   const sessionId  = `rec_${Date.now()}`;
-  const outputFile = path.join(os.tmpdir(), `nat_codegen_${sessionId}.js`);
 
-  recorderSessions.set(sessionId, { status: "recording", script: "", outputFile, proc: null });
+  // Extension handles recording directly — no Playwright codegen needed
+  recorderSessions.set(sessionId, { status: "recording", script: "", proc: null });
 
-  // Use Python playwright codegen — opens browser with built-in recorder toolbar
-  // Generates a Python script saved to outputFile
-  // --window-size sets the browser window size (not the viewport)
-  const args = [
-    "-m", "playwright", "codegen",
-    "--output",        outputFile,
-    "--target",        "javascript", // generates getByRole/getByText modern API
-    "--viewport-size", "1280,700",
-    "--browser",       "chromium",
-  ];
-  if (start_url && start_url.trim()) args.push(start_url.trim());
-
-  console.log(`[codegen] Launching: ${PYTHON_CMD} ${args.join(" ")}`);
-
-  const proc = spawn(PYTHON_CMD, args, {
-    stdio: ["ignore", "pipe", "pipe"],
-    windowsHide: false,   // must be false so browser window appears
-    detached: false,
-    shell: false,
-  });
-
-  recorderSessions.get(sessionId).proc = proc;
-
-  proc.stdout.on("data", d => console.log(`[codegen] ${d.toString().trim()}`));
-  proc.stderr.on("data", d => console.error(`[codegen] ${d.toString().trim()}`));
-
-  proc.on("exit", (code) => {
-    const s = recorderSessions.get(sessionId);
-    if (!s) return;
-    s.status = "stopped";
-    s.proc   = null;
-    // Read the generated script file
-    try {
-      if (fs.existsSync(outputFile)) {
-        s.script = fs.readFileSync(outputFile, "utf-8");
-        console.log(`[codegen] Script saved: ${outputFile} (${s.script.length} chars)`);
-      }
-    } catch(e) { console.error("[codegen] Could not read output:", e.message); }
-    broadcastRecorder(sessionId, { type: "stopped", script: s.script });
-  });
-
+  console.log(`[recorder] Session started: ${sessionId} (extension mode)`);
   res.json({ session_id: sessionId });
 });
 
@@ -5883,6 +5845,53 @@ RULES:
 // ─── EXTENSION CONFIG (public - no auth) ─────────────────────────────────────
 
 // ─── SMART PAGE STUDY ────────────────────────────────────────────────────────
+// ── Quick Scan Q&A — AI generates smart questions from page map ─────────────
+app.post("/api/ai/quick-scan-questions", requireAuth, async (req, res) => {
+  try {
+    const { pageMap } = req.body;
+    if (!pageMap) return res.status(400).json({ error: "pageMap required" });
+
+    const fieldSummary = (pageMap.fields||[]).slice(0,20).map(f =>
+      `"${f.label}" (${f.type}${f.required?' required':''}${f.options?.length?' opts:['+f.options.slice(0,3).join(',')+']':''})`
+    ).join(', ');
+
+    const prompt = `You are a test automation expert analysing a web form to generate a test script.
+
+PAGE: ${pageMap.title} (${pageMap.pageType})
+URL: ${pageMap.url}
+FIELDS: ${fieldSummary}
+BUTTONS: ${(pageMap.buttons||[]).map(b=>b.text).join(', ')}
+TABS: ${(pageMap.tabs||[]).map(t=>t.label).join(', ')||'none'}
+RADIO GROUPS: ${(pageMap.radioGroups||[]).map(g=>g.label+': ['+g.options.join('/')+']').join(', ')||'none'}
+
+Generate 4-6 smart questions to ask the user BEFORE generating the test script.
+Return ONLY a JSON array:
+[{
+"question": "clear question text",
+"hint": "optional hint",
+"multi": true,
+"options": ["option1","option2"],
+  "placeholder": "placeholder for free text"
+}]
+    Set multi:true when user should be able to select multiple options (e.g. which scenarios to cover).
+    RESPOND ONLY WITH JSON ARRAY.`;
+
+    const result = await callClaude({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: prompt }]
+    });
+
+    const raw = result.content?.map(c => c.text || '').join('') || '[]';
+    const clean = raw.replace(/```json\n?|```\n?/g, '').trim();
+    const questions = JSON.parse(clean);
+    res.json({ ok: true, questions });
+  } catch(e) {
+    console.error('[QuickScanQ] Error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Text-only AI endpoint — no screenshots needed
 app.post("/api/ai/generate-scripts", requireAuth, async (req, res) => {
   try {
@@ -5991,8 +6000,8 @@ app.post('/api/smart-study/session/:id/stop', requireAuth, async (req, res) => {
   // Allow if session has no userId (created by extension push) or matches user
   if (sess.userId && sess.userId !== req.user.id) return res.status(403).json({ error: 'Not your session' });
 
-  // Tell extension to stop recording
-  broadcast('ext_runner', { type: 'smart_study_stop_ext', sessionId });
+  // Extension is stopped directly by frontend — no need to broadcast via WS
+  // broadcast('ext_runner', { type: 'smart_study_stop_ext', sessionId });
   sess.status = 'stopped';
   sess.lastActivity = Date.now();
 
@@ -6126,25 +6135,30 @@ wss.on('connection', (ws, req) => {
 
 app.post("/api/smart-study/scan", requireAuth, async (req, res) => {
   try {
-    const extClients = clients.get("ext_runner");
-    if (!extClients || extClients.size === 0) {
-      return res.status(503).json({ error: "Extension not connected to server. Make sure the extension is installed and ATHMA is running." });
-    }
     const scanId = "scan_" + Date.now();
     const result = await new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         pendingScans.delete(scanId);
-        reject(new Error("Scan timeout — extension did not respond in 15 seconds"));
-      }, 15000);
+        reject(new Error("Scan timeout — make sure the extension is active and the target page is open in Chrome."));
+      }, 20000);
       pendingScans.set(scanId, { resolve, reject, timer });
-      extClients.forEach(ws => {
-        if (ws.readyState === 1) ws.send(JSON.stringify({ type: "smart_study_scan", scanId }));
-      });
     });
     res.json({ ok: true, result });
   } catch(e) {
-    res.status(500).json({ error: e.message });
+    res.status(503).json({ ok: false, error: e.message });
   }
+});
+
+// Extension polls this endpoint to get pending scan requests
+app.get("/api/smart-study/poll", async (req, res) => {
+  // Find first pending scan that isn't already being processed
+  for (const [scanId, entry] of pendingScans.entries()) {
+    if (!entry.processing) {
+      entry.processing = true; // mark so it won't be returned again
+      return res.json({ pending: true, scanId });
+    }
+  }
+  res.json({ pending: false });
 });
 
 // Handle scan result from extension
@@ -6933,74 +6947,496 @@ console.log('✅ CI/CD plugin endpoints ready: /api/ci/keys, /api/ci/trigger, /a
 
 // ─── AUTO-CLEANUP EXPIRED SESSIONS ─────────────────────────────────────────────────
 // Runs every hour — deletes sessions that have passed their expires_at
-// ─── DATA RETENTION CLEANUP ───────────────────────────────────────────────────
-async function runRetentionCleanup() {
-  console.log(`🧹 [Retention] Starting — logs>${LOG_RETENTION_DAYS}d, screenshots>${SCREENSHOT_RETENTION_DAYS}d, every ${CLEANUP_INTERVAL_HOURS}h`);
+// ─── DATA RETENTION CLEANUP (runs daily at 2am + on server start) ────────────
+async function runDataRetentionCleanup() {
+  console.log(`🧹 [Retention] Starting cleanup — test_runs>${TEST_RUN_RETENTION_DAYS}d, suite_runs>${SUITE_RUN_RETENTION_DAYS}d`);
   try {
-    // 0 days = keep today only (delete runs finished before today midnight)
-    const _logCutoff = LOG_RETENTION_DAYS === 0
-      ? `DATE_TRUNC('day', NOW())`
-      : `NOW() - INTERVAL '${LOG_RETENTION_DAYS} days'`;
+    // Delete old test runs + their logs + screenshots
     const oldRuns = await pool.query(
-      `SELECT id FROM test_runs WHERE finished_at < ${_logCutoff}`
+      `SELECT id FROM test_runs WHERE created_at < NOW() - INTERVAL '${TEST_RUN_RETENTION_DAYS} days'`
     );
     if (oldRuns.rows.length > 0) {
       const ids = oldRuns.rows.map(r => r.id);
-      await pool.query(`DELETE FROM run_logs        WHERE run_id = ANY($1)`, [ids]);
-      await pool.query(`DELETE FROM run_screenshots WHERE run_id = ANY($1)`, [ids]);
-      await pool.query(`DELETE FROM test_runs       WHERE id     = ANY($1)`, [ids]);
-      console.log(`🧹 [Retention] Deleted ${ids.length} run(s) older than ${LOG_RETENTION_DAYS}d`);
+      // Delete child records first (ignore errors if tables don't exist)
+      for (const tbl of ['run_logs','run_screenshots','run_log','run_screenshot','test_run_logs','test_run_screenshots']) {
+        try { await pool.query(`DELETE FROM ${tbl} WHERE run_id = ANY($1)`, [ids]); } catch(e) {}
+      }
+      await pool.query(`DELETE FROM test_runs WHERE id = ANY($1)`, [ids]);
+      console.log(`🧹 [Retention] Deleted ${ids.length} test_run(s) older than ${TEST_RUN_RETENTION_DAYS} day(s)`);
     } else {
-      console.log(`🧹 [Retention] No runs older than ${LOG_RETENTION_DAYS}d to delete`);
+      console.log(`🧹 [Retention] No test_runs older than ${TEST_RUN_RETENTION_DAYS} day(s)`);
     }
-  } catch(e) { console.error('[Retention] DB error:', e.message); }
+  } catch(e) { console.error('[Retention] test_runs cleanup error:', e.message); }
 
   try {
+    // Delete old suite runs + their items
+    const oldSuiteRuns = await pool.query(
+      `SELECT id FROM suite_runs WHERE started_at < NOW() - INTERVAL '${SUITE_RUN_RETENTION_DAYS} days'`
+    );
+    if (oldSuiteRuns.rows.length > 0) {
+      const ids = oldSuiteRuns.rows.map(r => r.id);
+      for (const tbl of ['suite_run_items','suite_run_item']) {
+        try { await pool.query(`DELETE FROM ${tbl} WHERE suite_run_id = ANY($1)`, [ids]); } catch(e) {}
+      }
+      await pool.query(`DELETE FROM suite_runs WHERE id = ANY($1)`, [ids]);
+      console.log(`🧹 [Retention] Deleted ${ids.length} suite_run(s) older than ${SUITE_RUN_RETENTION_DAYS} day(s)`);
+    } else {
+      console.log(`🧹 [Retention] No suite_runs older than ${SUITE_RUN_RETENTION_DAYS} day(s)`);
+    }
+  } catch(e) { console.error('[Retention] suite_runs cleanup error:', e.message); }
+
+  try {
+    // Delete old screenshot files from disk
     const SCREENSHOTS_DIR = path.join(__dirname, '..', 'runner', 'screenshots');
-    // 0 days = keep today only (cutoff = start of today midnight)
-    const cutoff = SCREENSHOT_RETENTION_DAYS === 0
-      ? new Date().setHours(0,0,0,0)
-      : Date.now() - SCREENSHOT_RETENTION_DAYS * 86400000;
+    const cutoff = Date.now() - SCREENSHOT_RETENTION_DAYS * 24 * 60 * 60 * 1000;
     if (fs.existsSync(SCREENSHOTS_DIR)) {
+      const files = fs.readdirSync(SCREENSHOTS_DIR);
       let deleted = 0;
-      for (const file of fs.readdirSync(SCREENSHOTS_DIR)) {
-        const fp = path.join(SCREENSHOTS_DIR, file);
-        try { if (fs.statSync(fp).isFile() && fs.statSync(fp).mtimeMs < cutoff) { fs.unlinkSync(fp); deleted++; } } catch(e) {}
+      for (const file of files) {
+        const filePath = path.join(SCREENSHOTS_DIR, file);
+        try {
+          const stat = fs.statSync(filePath);
+          if (stat.isFile() && stat.mtimeMs < cutoff) {
+            fs.unlinkSync(filePath);
+            deleted++;
+          }
+        } catch(e) { /* skip */ }
       }
-      console.log(`🧹 [Retention] Deleted ${deleted} screenshot(s) older than ${SCREENSHOT_RETENTION_DAYS}d`);
+      console.log(`🧹 [Retention] Deleted ${deleted} screenshot file(s) older than ${SCREENSHOT_RETENTION_DAYS} day(s)`);
     }
-  } catch(e) { console.error('[Retention] Screenshot error:', e.message); }
+  } catch(e) { console.error('[Retention] Screenshot cleanup error:', e.message); }
 
   try {
+    // Delete old log files from disk
     const LOGS_DIR = path.join(__dirname, '..', 'runner', 'logs');
-    // 0 days = keep today only (cutoff = start of today midnight)
-    const logCutoff = LOG_RETENTION_DAYS === 0
-      ? new Date().setHours(0,0,0,0)
-      : Date.now() - LOG_RETENTION_DAYS * 86400000;
+    const logCutoff = Date.now() - LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000;
     if (fs.existsSync(LOGS_DIR)) {
+      const files = fs.readdirSync(LOGS_DIR);
       let deletedLogs = 0;
-      for (const file of fs.readdirSync(LOGS_DIR)) {
+      for (const file of files) {
         if (!file.startsWith('run_') || !file.endsWith('.log')) continue;
-        const fp = path.join(LOGS_DIR, file);
-        try { if (fs.statSync(fp).isFile() && fs.statSync(fp).mtimeMs < logCutoff) { fs.unlinkSync(fp); deletedLogs++; } } catch(e) {}
+        const filePath = path.join(LOGS_DIR, file);
+        try {
+          const stat = fs.statSync(filePath);
+          if (stat.isFile() && stat.mtimeMs < logCutoff) {
+            fs.unlinkSync(filePath);
+            deletedLogs++;
+          }
+        } catch(e) { /* skip */ }
       }
-      console.log(`🧹 [Retention] Deleted ${deletedLogs} log(s) older than ${LOG_RETENTION_DAYS}d`);
+      console.log(`🧹 [Retention] Deleted ${deletedLogs} log file(s) older than ${LOG_RETENTION_DAYS} day(s)`);
     }
-  } catch(e) { console.error('[Retention] Log error:', e.message); }
+  } catch(e) { console.error('[Retention] Log file cleanup error:', e.message); }
 }
 
-// Schedule based on CLEANUP_INTERVAL_HOURS from .env
-const _cleanupCron = CLEANUP_INTERVAL_HOURS >= 24 ? '0 2 * * *' : `0 */${CLEANUP_INTERVAL_HOURS} * * *`;
-cron.schedule(_cleanupCron, runRetentionCleanup);
-console.log(`🧹 Retention cleanup: every ${CLEANUP_INTERVAL_HOURS}h | logs=${LOG_RETENTION_DAYS}d | screenshots=${SCREENSHOT_RETENTION_DAYS}d`);
-// Run once on startup (10s delay to let DB connect first)
-setTimeout(runRetentionCleanup, 10000);
+// Run on server start
+setTimeout(() => runDataRetentionCleanup(), 5000);
+
+cron.schedule('0 2 * * *', async () => {
+  await runDataRetentionCleanup();
+
+  try {
+    // 2. Delete old screenshot files from disk
+    const SCREENSHOTS_DIR = path.join(__dirname, '..', 'runner', 'screenshots');
+    const cutoff = Date.now() - SCREENSHOT_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    if (fs.existsSync(SCREENSHOTS_DIR)) {
+      const files = fs.readdirSync(SCREENSHOTS_DIR);
+      let deleted = 0;
+      for (const file of files) {
+        const filePath = path.join(SCREENSHOTS_DIR, file);
+        try {
+          const stat = fs.statSync(filePath);
+          if (stat.isFile() && stat.mtimeMs < cutoff) {
+            fs.unlinkSync(filePath);
+            deleted++;
+          }
+        } catch(e) { /* skip locked/missing files */ }
+      }
+      console.log(`🧹 [Retention] Deleted ${deleted} screenshot file(s) older than ${SCREENSHOT_RETENTION_DAYS} day(s)`);
+    }
+  } catch(e) { console.error('[Retention] Screenshot file cleanup error:', e.message); }
+
+  try {
+    // 3. Delete old physical log files from disk (runner/logs/run_*.log)
+    const LOGS_DIR = path.join(__dirname, '..', 'runner', 'logs');
+    const logCutoff = Date.now() - LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    if (fs.existsSync(LOGS_DIR)) {
+      const files = fs.readdirSync(LOGS_DIR);
+      let deletedLogs = 0;
+      for (const file of files) {
+        if (!file.startsWith('run_') || !file.endsWith('.log')) continue;
+        const filePath = path.join(LOGS_DIR, file);
+        try {
+          const stat = fs.statSync(filePath);
+          if (stat.isFile() && stat.mtimeMs < logCutoff) {
+            fs.unlinkSync(filePath);
+            deletedLogs++;
+          }
+        } catch(e) { /* skip locked/missing files */ }
+      }
+      console.log(`🧹 [Retention] Deleted ${deletedLogs} log file(s) older than ${LOG_RETENTION_DAYS} day(s)`);
+    }
+  } catch(e) { console.error('[Retention] Log file cleanup error:', e.message); }
+});
 
 cron.schedule('0 * * * *', async () => {
   try {
     const r = await pool.query("DELETE FROM auto_sessions WHERE expires_at < NOW()");
     if (r.rowCount > 0) console.log(`🧹 Cleaned up ${r.rowCount} expired session(s)`);
   } catch(e) { console.error('[Session cleanup] Error:', e.message); }
+});
+
+
+// ─── MULTILINGUAL TESTING ROUTES ─────────────────────────────────────────────
+
+// Save baseline snapshot (called from runner after capture_page_text)
+app.post('/api/multilingual/baseline', async (req, res) => {
+  try {
+    const { run_id, language, url: rawUrl, page_title, elements } = req.body;
+
+    // Normalize URL - strip dynamic IDs and query params so same page always maps to same baseline
+    const url = rawUrl
+      .replace(/\?.*$/, '')           // remove query params
+      .replace(/#.*$/, '')            // remove hash
+      .replace(/\/\d{5,}/g, '/:id')  // replace long numeric IDs (5+ digits)
+      .replace(/\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '/:uuid') // remove UUIDs
+      .replace(/\/$/, '') || '/';     // remove trailing slash
+    // Accept runner secret OR user JWT
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace('Bearer ', '').trim();
+    const runnerSecret = process.env.RUNNER_SECRET || 'nat-internal-runner-2024';
+    let userId = null;
+    if (token === runnerSecret) {
+      userId = null; // runner call — no user
+    } else {
+      // Try JWT auth
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        userId = decoded.id;
+      } catch(e) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+    }
+    // Get test_case_id and project_id from run
+    const run = await pool.query('SELECT test_case_id FROM test_runs WHERE id=$1', [run_id]);
+    if (!run.rows.length) return res.json({ ok: true }); // run not found - ignore
+    const tc = await pool.query('SELECT project_id FROM test_cases WHERE id=$1', [run.rows[0].test_case_id]);
+    const project_id   = tc.rows[0]?.project_id;
+    const test_case_id = run.rows[0].test_case_id;
+
+    // Upsert baseline - replace if same test+language+url
+    // Get existing elements for this URL and MERGE (don't replace)
+    const existing = await pool.query(`
+      SELECT id, elements FROM multilingual_baselines
+      WHERE test_case_id=$1 AND language=$2 AND url=$3
+      ORDER BY captured_at DESC LIMIT 1
+    `, [test_case_id, language, url]);
+
+    if (existing.rows.length > 0) {
+      // Merge new elements into existing — keep old ones not in new capture
+      const oldElements  = existing.rows[0].elements || [];
+      const newSelectors = new Set(elements.map(e => e.selector + '||' + e.type));
+      const uniqueOld    = oldElements.filter(e => !newSelectors.has(e.selector + '||' + e.type));
+      const merged       = [...uniqueOld, ...elements];
+
+      await pool.query(`
+        UPDATE multilingual_baselines
+        SET elements=$1, captured_at=NOW()
+        WHERE id=$2
+      `, [JSON.stringify(merged), existing.rows[0].id]);
+
+      console.log(`[Multilingual] Merged baseline: ${uniqueOld.length} old + ${elements.length} new = ${merged.length} total`);
+    } else {
+      // No existing row — insert fresh
+      await pool.query(`
+        INSERT INTO multilingual_baselines
+          (project_id, test_case_id, language, url, page_title, elements, captured_by)
+        VALUES ($1,$2,$3,$4,$5,$6,$7)
+      `, [project_id, test_case_id, language, url, page_title, JSON.stringify(elements), userId]);
+
+      console.log(`[Multilingual] New baseline saved: ${elements.length} elements`);
+    }
+
+    res.json({ ok: true });
+  } catch(e) { console.error('[Multilingual] baseline save error:', e.message); res.json({ ok: true }); }
+});
+
+// Get all baselines for a test case
+app.get('/api/multilingual/baselines/:test_case_id', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`
+      SELECT id, language, url, page_title, captured_at,
+             jsonb_array_length(elements) as element_count
+      FROM multilingual_baselines
+      WHERE test_case_id = $1
+      ORDER BY language, captured_at DESC
+    `, [req.params.test_case_id]);
+    res.json(r.rows);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Get baseline elements for specific test+language
+app.get('/api/multilingual/baseline/:test_case_id/:language', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`
+      SELECT url, page_title, elements, captured_at
+      FROM multilingual_baselines
+      WHERE test_case_id=$1 AND language=$2
+      ORDER BY captured_at DESC
+    `, [req.params.test_case_id, req.params.language]);
+    res.json(r.rows);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Run comparison between two language baselines
+app.post('/api/multilingual/compare', requireAuth, async (req, res) => {
+  try {
+    const { test_case_id, base_language, target_language } = req.body;
+
+    // Get base (English) snapshots - latest per URL only
+    const base = await pool.query(`
+      SELECT DISTINCT ON (url) url, page_title, elements 
+      FROM multilingual_baselines
+      WHERE test_case_id=$1 AND language=$2
+      ORDER BY url, captured_at DESC
+    `, [test_case_id, base_language]);
+
+    // Get target (Greek/Arabic) snapshots - latest per URL only
+    const target = await pool.query(`
+      SELECT DISTINCT ON (url) url, page_title, elements
+      FROM multilingual_baselines
+      WHERE test_case_id=$1 AND language=$2
+      ORDER BY url, captured_at DESC
+    `, [test_case_id, target_language]);
+
+    if (!base.rows.length)   return res.status(400).json({ error: `No ${base_language} baseline found` });
+    if (!target.rows.length) return res.status(400).json({ error: `No ${target_language} baseline found` });
+
+    // Compare page by page
+    const pages = [];
+    let totalElements = 0, totalTranslated = 0, totalNotTranslated = 0, totalOverflow = 0;
+
+    for (const basePage of base.rows) {
+      // Find matching target page by URL (strip lang params)
+      const baseUrl   = basePage.url.replace(/[?&]lang=[^&]*/g, '');
+      const targetPage = target.rows.find(t => t.url.replace(/[?&]lang=[^&]*/g, '') === baseUrl);
+      if (!targetPage) continue;
+
+      const baseEls   = basePage.elements   || [];
+      const targetEls = targetPage.elements || [];
+
+      // Match elements by selector
+      const pageResults = [];
+      for (const baseEl of baseEls) {
+        const targetEl = targetEls.find(t => t.selector === baseEl.selector);
+        if (!targetEl) continue;
+
+        const baseText   = baseEl.text   || baseEl.placeholder || '';
+        const targetText  = targetEl.text  || targetEl.placeholder || '';
+
+        const isTranslated = baseText !== targetText && targetText.length > 0;
+        const isOverflow   = targetEl.rect?.width > 0 &&
+                             targetText.length > baseText.length * 1.5 &&
+                             targetEl.rect?.width >= (targetEl.rect?.width || 999);
+
+        totalElements++;
+        if (isTranslated)  totalTranslated++;
+        else               totalNotTranslated++;
+        if (isOverflow)    totalOverflow++;
+
+        pageResults.push({
+          selector:    baseEl.selector,
+          type:        baseEl.type,
+          base_text:   baseText,
+          target_text: targetText,
+          status:        isTranslated ? 'translated' : 'not_translated',
+          overflow:      isOverflow,
+          base_rect:     baseEl.rect,
+          target_rect:   targetEl.rect
+        });
+      }
+
+      const pageScore = pageResults.length > 0
+        ? Math.round((pageResults.filter(r => r.status === 'translated').length / pageResults.length) * 100)
+        : 0;
+
+      pages.push({
+        url:        basePage.url,
+        page_title: basePage.page_title,
+        score:      pageScore,
+        elements:   pageResults,
+        translated:     pageResults.filter(r => r.status === 'translated').length,
+        not_translated: pageResults.filter(r => r.status === 'not_translated').length,
+        overflow:       pageResults.filter(r => r.overflow).length
+      });
+    }
+
+    const overallScore = totalElements > 0
+      ? Math.round((totalTranslated / totalElements) * 100) : 0;
+
+    // Get project_id
+    const tc = await pool.query('SELECT project_id FROM test_cases WHERE id=$1', [test_case_id]);
+
+    // ── AI VERIFICATION ── Check if translations are correct using Claude
+    try {
+      const toVerify = [];
+      for (const page of pages) {
+        for (const el of page.elements || []) {
+          if (el.base_text && el.target_text) {
+            toVerify.push({ base: el.base_text, target: el.target_text, status: el.status, selector: el.selector });
+          }
+        }
+      }
+
+      if (toVerify.length > 0) {
+        const langName = { el: 'Greek', ar: 'Arabic', hi: 'Hindi', fr: 'French', de: 'German', es: 'Spanish' }[target_language] || target_language;
+
+        // Process in batches of 30
+        const batchSize = 30;
+        const allVerifications = [];
+        for (let b = 0; b < toVerify.length; b += batchSize) {
+          const batch = toVerify.slice(b, b + batchSize);
+          const prompt = `You are a ${langName} translator for medical software UI.
+For EACH item provide the correct ${langName} translation in "suggested" field.
+- status "not_translated": suggest correct ${langName} translation of base text
+- status "translated": verify if target is correct ${langName}, set correct true/false
+"suggested" must ALWAYS be correct ${langName} translation, never return English text as suggestion.
+Return ONLY a JSON array:
+[{"base":"...","target":"...","correct":true/false,"reason":"brief reason","suggested":"correct ${langName} translation"}]
+
+Items:
+${batch.map(v => `base:"${v.base}" | target:"${v.target}" | status:${v.status}`).join('\n')}`;
+
+          try {
+            const aiResp = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 2000,
+                messages: [{ role: 'user', content: prompt }]
+              })
+            });
+            const aiData  = await aiResp.json();
+            const aiText  = aiData.content?.[0]?.text || '[]';
+            console.log(`[Multilingual AI] Batch ${Math.floor(b/batchSize)+1}/${Math.ceil(toVerify.length/batchSize)}: ${aiText.slice(0,100)}`);
+            const cleaned = aiText.replace(/```json\n?|```/g, '').trim();
+            const batchResults = JSON.parse(cleaned);
+            allVerifications.push(...batchResults);
+          } catch(e) {
+            console.error(`[Multilingual AI] Batch ${Math.floor(b/batchSize)+1} error:`, e.message);
+          }
+        }
+
+        // Map AI results back to page elements
+        const verMap = {};
+        for (const v of allVerifications) {
+          verMap[v.base + '||' + v.target] = v;
+          if (v.base === v.target) verMap[v.base + '||' + v.base] = v;
+        }
+
+        let wrongTranslation = 0;
+        for (const page of pages) {
+          for (const el of page.elements || []) {
+            const key = el.status === 'not_translated'
+              ? el.base_text + '||' + el.base_text
+              : el.base_text + '||' + el.target_text;
+            const ver = verMap[key] || verMap[el.base_text + '||' + el.base_text];
+            if (ver) {
+              el.ai_correct = ver.correct;
+              el.ai_reason  = ver.reason;
+              el.suggested  = (ver.suggested && ver.suggested !== el.base_text) ? ver.suggested : null;
+              if (el.status === 'translated') {
+                el.status = ver.correct ? 'translated' : 'wrong_translation';
+                if (!ver.correct) wrongTranslation++;
+              }
+            }
+          }
+          // Update page score
+          const correct = (page.elements||[]).filter(e => e.status === 'translated').length;
+          const total   = (page.elements||[]).length;
+          page.score    = total > 0 ? Math.round((correct / total) * 100) : 0;
+          page.wrong_translation = (page.elements||[]).filter(e => e.status === 'wrong_translation').length;
+        }
+
+        // Recalculate overall score
+        totalTranslated  -= wrongTranslation;
+        overallScore      = totalElements > 0 ? Math.round((totalTranslated / totalElements) * 100) : 0;
+
+        console.log(`[Multilingual] AI verified ${allVerifications.length} translations, ${wrongTranslation} wrong`);
+      }
+    } catch(e) {
+      console.error('[Multilingual] AI verification error:', e.message);
+      // Continue without AI verification - not critical
+    }
+
+    // Delete previous result for same test+language combo before inserting new one
+    await pool.query(`
+      DELETE FROM multilingual_results
+      WHERE test_case_id=$1 AND base_language=$2 AND target_language=$3
+    `, [test_case_id, base_language, target_language]);
+
+    // Save result
+    const saved = await pool.query(`
+      INSERT INTO multilingual_results
+        (project_id, test_case_id, base_language, target_language,
+         pages, total_elements, translated, not_translated, overflow, overall_score, run_by)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      RETURNING id
+    `, [tc.rows[0]?.project_id, test_case_id, base_language, target_language,
+        JSON.stringify(pages), totalElements, totalTranslated,
+        totalNotTranslated, totalOverflow, overallScore, req.user?.id || null]);
+
+    res.json({
+      ok: true,
+      result_id:     saved.rows[0].id,
+      overall_score: overallScore,
+      total:         totalElements,
+      translated:    totalTranslated,
+      not_translated:totalNotTranslated,
+      overflow:      totalOverflow,
+      pages
+    });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Get all multilingual results for a test case
+app.get('/api/multilingual/results/:test_case_id', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`
+      SELECT id, base_language, target_language, overall_score,
+             total_elements, translated, not_translated, overflow, run_at
+      FROM multilingual_results
+      WHERE test_case_id=$1
+      ORDER BY run_at DESC
+      LIMIT 20
+    `, [req.params.test_case_id]);
+    res.json(r.rows);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Get specific result details
+app.get('/api/multilingual/result/:id', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      'SELECT * FROM multilingual_results WHERE id=$1', [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(r.rows[0]);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Delete baseline for a test case + language
+app.delete('/api/multilingual/baseline/:test_case_id/:language', requireAuth, async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM multilingual_baselines WHERE test_case_id=$1 AND language=$2',
+      [req.params.test_case_id, req.params.language]);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 // ─── JIRA ROUTES ─────────────────────────────────────────────────────────────
