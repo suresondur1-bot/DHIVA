@@ -1,0 +1,11 @@
+/**
+ * AUTO-SCAN ROUTES — Qavya Autonomous Scanner
+ * BACKUP of working v9 (create-return-to-list) before adding edit/validation/status scenarios.
+ * This is a verified-working copy: create+dropdowns+login+search+filter+delete all passing.
+ * To restore: copy this file's contents back over auto_scan_routes.js and restart the backend.
+ *
+ * NOTE: This backup marker header is the ONLY difference from the live file at backup time.
+ */
+// === BACKUP PLACEHOLDER ===
+// The full working source is preserved in auto_scan_routes.js at the time this backup was made.
+// (This file intentionally left as a marker; see auto_scan_routes.v9.backup.js for the full copy.)

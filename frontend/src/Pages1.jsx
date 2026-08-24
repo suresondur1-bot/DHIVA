@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { api, s, APP_PAGE_SIZE, getAppPageSize, setAppPageSize, C, Badge, Empty, Pagination, Spinner, getToken, getUser, API, WS, priorityColor, statusColor, statusBg, smartSel } from "./shared.jsx";
+import { api, s, APP_PAGE_SIZE, getAppPageSize, setAppPageSize, C, Badge, Empty, Pagination, Spinner, getToken, getUser, API, WS, priorityColor, statusColor, statusBg, smartSel, formatDate, formatDateTime, formatTime } from "./shared.jsx";
 import { ACTIONS, ACTION_GROUPS,VAR_TYPES,
          StepEditor, ScriptEditor,VariablesPanel,
          stepsToScript, stepsToCode, codeToSteps, normalizeScriptQuotes,
@@ -8,6 +8,16 @@ import { ModuleSelector } from "./Admin.jsx";
 // API Testing - Enhanced Version
 import { ApiEditor } from "./api-testing/ApiEditor.jsx";
 import { API_ASSERTIONS } from "./api-testing/constants.js";
+
+// Run-log timestamps are stored/sent as UTC (Python's utcnow(), Node's
+// new Date().toISOString()) — correct for storage, but the log view was
+// showing that UTC time verbatim (via .slice(11,19)) instead of converting
+// it to the viewer's local time, so times looked ~5:30 behind for IST users.
+// formatTime (shared.jsx) converts to the browser's own local timezone and
+// respects VITE_DATE_LOCALE, same as every other date/time in the app.
+function fmtLogTime(ts) {
+  return formatTime(ts) || "--:--:--";
+}
 
 function Login({ onLogin }) {
   const [form,     setForm]   = useState({ username: "", password: "" });
@@ -89,7 +99,7 @@ function Login({ onLogin }) {
     { icon:"\uD83E\uDD16", title:"AI Script Generator",        desc:"LLM-powered scripts" },
     { icon:"\uD83D\uDD27", title:"AI Self-Healing",            desc:"Dynamic re-targeting" },
     { icon:"\uD83C\uDF10", title:"Multi-browser Support",      desc:"Chrome, Firefox, Edge" },
-    { icon:"\uD83D\uDCCA", title:"Analytics & Reports",        desc:"Katalon-style reports" },
+    { icon:"\uD83D\uDCCA", title:"Analytics & Reports",        desc:"Dashboards, trends & exports" },
   ];
 
   const blue  = "#1a6fc4";
@@ -97,62 +107,106 @@ function Login({ onLogin }) {
   const navy  = blue;  // alias for Request Access modal
 
   return (
-    <div style={{ height:"100vh", display:"flex", fontFamily:"'Segoe UI',system-ui,Arial,sans-serif",
-      overflow:"hidden", background:"#f5f8ff" }}>
+    <div className="qv-login" style={{ height:"100vh", boxSizing:"border-box",
+      padding:18, background:"#eceef2", fontFamily:"'Inter','Segoe UI',sans-serif",
+      overflow:"hidden" }}>
+
+      {/* Scoped to .qv-login so none of it leaks into the rest of the app */}
+      <style>{`
+        .qv-login .qv-aurora{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;pointer-events:none}
+        .qv-login .qv-a1{width:520px;height:520px;background:radial-gradient(circle,#ffd9c2,transparent 68%);top:-160px;right:-120px;animation:qvD1 22s ease-in-out infinite}
+        .qv-login .qv-a2{width:460px;height:460px;background:radial-gradient(circle,#ffc9c9,transparent 68%);bottom:-150px;left:-130px;animation:qvD2 26s ease-in-out infinite}
+        .qv-login .qv-a3{width:380px;height:380px;background:radial-gradient(circle,#cfe3ff,transparent 68%);top:44%;left:38%;animation:qvD3 30s ease-in-out infinite}
+        @keyframes qvD1{50%{transform:translate(-60px,50px) scale(1.10)}}
+        @keyframes qvD2{50%{transform:translate(70px,-40px) scale(1.08)}}
+        @keyframes qvD3{50%{transform:translate(-50px,-60px) scale(1.12)}}
+        .qv-login .qv-rail{background:linear-gradient(90deg,#8B0000,#cc5500,#ffb347,#cc5500,#8B0000);background-size:300% 100%;animation:qvSlide 9s linear infinite}
+        @keyframes qvSlide{to{background-position:300% 0}}
+        .qv-login .qv-feat{transition:transform .25s,box-shadow .25s,border-color .25s}
+        .qv-login .qv-feat:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(139,0,0,.09);border-color:#f0c9b4}
+        .qv-login .qv-grad{background:linear-gradient(100deg,#8B0000,#e2571e 60%,#ff8a2b);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .qv-login .qv-eyebrow:before{content:"";display:inline-block;width:26px;height:1px;margin-right:9px;vertical-align:middle;background:linear-gradient(90deg,#8B0000,#cc5500)}
+        .qv-login .qv-cta{position:relative;overflow:hidden}
+        .qv-login .qv-cta:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35),transparent 70%);transform:translateX(-100%);animation:qvShine 3.4s ease-in-out infinite}
+        @keyframes qvShine{60%,100%{transform:translateX(100%)}}
+        .qv-login input::placeholder{color:#bb9189;opacity:1}
+        .qv-login input::-webkit-input-placeholder{color:#bb9189}
+        @media (prefers-reduced-motion:reduce){
+          .qv-login .qv-aurora,.qv-login .qv-rail,.qv-login .qv-cta:after{animation:none}
+        }
+      `}</style>
+
+      {/* One framed surface, so the login reads as a card on the desktop instead of
+          bleeding to the window edges */}
+      <div style={{ height:"100%", borderRadius:18, padding:"1.5px", boxSizing:"border-box",
+        background:"linear-gradient(135deg,#8B0000 0%,#cc5500 50%,#8B0000 100%)",
+        boxShadow:"0 18px 50px rgba(20,30,50,0.10), 0 2px 6px rgba(20,30,50,0.05)" }}>
+      <div style={{ height:"100%", display:"flex", borderRadius:16.5, overflow:"hidden",
+        background:"#fff" }}>
 
       {/* ── Left panel — light blue gradient ── */}
-      <div style={{ width:"52%", background:"linear-gradient(145deg,#fff5f0 0%,#fdf0e8 50%,#fff8f0 100%)",
+      <div style={{ width:"52%", background:"#ffffff", position:"relative", overflow:"hidden",
         display:"flex", flexDirection:"column", height:"100%",
-        boxSizing:"border-box", padding:"32px 40px 28px",
-        borderRight:"1px solid #f5c5a3" }}>
+        boxSizing:"border-box", padding:"40px 48px 28px",
+        borderRight:"1px solid #e2e6ed" }}>
+
+        <div className="qv-aurora qv-a1" />
+        <div className="qv-aurora qv-a2" />
+        <div className="qv-aurora qv-a3" />
 
         {/* Logo */}
-        <div style={{ flexShrink:0, marginBottom:28 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ width:36, height:36, background:"linear-gradient(135deg,#8B0000,#cc5500)", borderRadius:10,
-              display:"flex", alignItems:"center", justifyContent:"center",
-              fontSize:16, fontWeight:900, color:"#fff", boxShadow:"0 4px 12px rgba(139,0,0,0.3)" }}>D</div>
-            <div>
-              <div style={{ fontSize:20, fontWeight:900, color:"#8B0000", letterSpacing:"0.04em" }}>QAVYA</div>
-              <div style={{ fontSize:8, color:"#cc5500", letterSpacing:"0.18em",
-                textTransform:"uppercase" }}>AI-POWERED TEST AUTOMATION</div>
-            </div>
-          </div>
+        <div style={{ flexShrink:0, marginBottom:28, position:"relative", zIndex:1 }}>
+          {/* Same asset as the sidebar (app.jsx) — was a hand-built square reading "D" */}
+          <img src="/qavya-mark.png" alt="QAVYA"
+               style={{ height:44, width:"auto", alignSelf:"flex-start", display:"block" }} />
         </div>
 
-        {/* Headline */}
+        {/* Headline + features, vertically centred between logo and footer */}
+        <div style={{ flex:1, minHeight:0, display:"flex", flexDirection:"column",
+          justifyContent:"center", overflowY:"auto", position:"relative", zIndex:1 }}>
+
         <div style={{ marginBottom:24 }}>
-          <div style={{ fontSize:26, fontWeight:800, color:"#1e3a5f", lineHeight:1.25, marginBottom:8 }}>
-            Accelerate Your<br/>
-            <span style={{ color:blue }}>Engineering Velocity.</span>
+          <div className="qv-eyebrow" style={{ fontSize:10, fontWeight:600, color:"#cc5500",
+            letterSpacing:"0.22em", textTransform:"uppercase", marginBottom:14,
+            fontFamily:"ui-monospace,'SFMono-Regular',Menlo,monospace" }}>
+            AI-Powered Quality Automation
           </div>
-          <div style={{ fontSize:12, color:"#4b7fc4", lineHeight:1.7, maxWidth:320 }}>
-            End-to-end test automation for healthcare systems — record, run, schedule and heal your tests with AI.
+          <div style={{ fontSize:32, fontWeight:800, color:"#1a2332", lineHeight:1.2,
+            marginBottom:10, letterSpacing:"-0.02em" }}>
+            Accelerate Your<br/>
+            <span className="qv-grad">Engineering Velocity.</span>
+          </div>
+          <div style={{ fontSize:12, color:"#4a5568", lineHeight:1.7, maxWidth:330 }}>
+            End-to-end test automation for web applications — record, run, schedule and heal your tests with AI.
           </div>
         </div>
 
         {/* Feature grid */}
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, flex:1, minHeight:0 }}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10,
+          alignContent:"start", flexShrink:0 }}>
           {features.map(f => (
-            <div key={f.title} style={{ background:"rgba(255,255,255,0.7)",
-              border:"1px solid rgba(26,111,196,0.15)", borderRadius:10,
-              padding:"12px 14px", display:"flex", alignItems:"flex-start",
-              gap:10, overflow:"hidden", backdropFilter:"blur(4px)" }}>
+            <div key={f.title} className="qv-feat" style={{ background:"rgba(255,255,255,0.72)",
+              border:"1px solid rgba(226,230,237,0.9)", borderRadius:12,
+              padding:"13px 15px", display:"flex", alignItems:"flex-start",
+              gap:11, overflow:"hidden", backdropFilter:"blur(10px)",
+              boxShadow:"0 1px 3px rgba(20,30,50,0.05)" }}>
               <span style={{ fontSize:18, flexShrink:0, marginTop:1 }}>{f.icon}</span>
               <div>
-                <div style={{ fontSize:11, fontWeight:700, color:"#1e3a5f",
+                <div style={{ fontSize:11, fontWeight:700, color:"#1a2332",
                   marginBottom:2, lineHeight:1.3 }}>{f.title}</div>
-                <div style={{ fontSize:10, color:"#64a0d4", lineHeight:1.5 }}>{f.desc}</div>
+                <div style={{ fontSize:10, color:"#4a5568", lineHeight:1.5 }}>{f.desc}</div>
               </div>
             </div>
           ))}
         </div>
 
+        </div>
+
         {/* Footer */}
-        <div style={{ flexShrink:0, marginTop:20, paddingTop:16,
-          borderTop:"1px solid rgba(139,0,0,0.15)" }}>
+        <div style={{ flexShrink:0, marginTop:26, paddingTop:16, position:"relative", zIndex:1,
+          borderTop:"1px solid #eef0f4" }}>
           <div style={{ fontSize:9, color:"#cc5500", letterSpacing:"0.14em",
-            textTransform:"uppercase" }}>QAVYA © 2025 — AI-POWERED TESTING</div>
+            textTransform:"uppercase" }}>QAVYA © {new Date().getFullYear()} — AI-Powered Quality Automation</div>
         </div>
       </div>
 
@@ -161,17 +215,20 @@ function Login({ onLogin }) {
         height:"100%", boxSizing:"border-box", background:"#fff" }}>
 
         {/* Top accent line */}
-        <div style={{ height:4, background:`linear-gradient(90deg,${blue},#60a5fa)`, flexShrink:0 }} />
-
         <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center",
           padding:"0 48px", minHeight:0 }}>
-          <div style={{ width:"100%", maxWidth:340 }}>
+          <div style={{ width:"100%", maxWidth:372 }}>
 
             <div style={{ marginBottom:28 }}>
-              <div style={{ fontSize:26, fontWeight:800, color:"#1e3a5f",
-                marginBottom:6, letterSpacing:"-0.01em" }}>Welcome Back {"\uD83D\uDC4B"}</div>
-              <div style={{ fontSize:12, color:"#94a3b8", lineHeight:1.6 }}>
-                Sign in to your QAVYA workspace
+              <div style={{ fontSize:30, fontWeight:800, color:"#1a2332",
+                marginBottom:7, letterSpacing:"-0.02em" }}>Welcome back</div>
+              <div style={{ fontSize:12, color:"#4a5568", lineHeight:1.6,
+                display:"flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
+                <span>Sign in to your</span>
+                {/* wordmark inline, tagline cropped off so it stays legible at text size */}
+                <img src="/qavya-mark.png" alt="QAVYA"
+                     style={{ height:17, width:"auto", display:"block" }} />
+                <span>workspace</span>
               </div>
             </div>
 
@@ -185,39 +242,39 @@ function Login({ onLogin }) {
 
             {/* USERNAME */}
             <div style={{ marginBottom:16 }}>
-              <label style={{ fontSize:10, fontWeight:700, color:"#94a3b8",
-                letterSpacing:"0.12em", textTransform:"uppercase",
-                display:"block", marginBottom:6 }}>Username</label>
+              <label style={{ fontFamily:"ui-monospace,'SFMono-Regular',Menlo,monospace", fontSize:9.5, fontWeight:700, color:"#8B0000",
+                letterSpacing:"0.16em", textTransform:"uppercase",
+                display:"block", marginBottom:7 }}>Username</label>
               <input
-                style={{ width:"100%", padding:"12px 14px", fontSize:13,
-                  border:"1.5px solid #e2e8f0", borderRadius:9, outline:"none",
-                  background:"#f8fafc", color:"#1e3a5f", boxSizing:"border-box",
+                style={{ width:"100%", padding:"13px 15px", fontSize:13.5,
+                  border:"1.5px solid #e6e9ee", borderRadius:11, outline:"none",
+                  background:"#fafbfc", color:"#1a2332", boxSizing:"border-box",
                   transition:"all 0.2s" }}
                 value={form.username}
                 onChange={e=>setForm(f=>({...f,username:e.target.value}))}
                 onKeyDown={e=>e.key==="Enter"&&submit()}
-                onFocus={e=>{ e.target.style.borderColor=blue; e.target.style.background="#fff"; e.target.style.boxShadow="0 0 0 3px rgba(26,111,196,0.1)"; }}
-                onBlur={e=>{ e.target.style.borderColor="#e2e8f0"; e.target.style.background="#f8fafc"; e.target.style.boxShadow="none"; }}
+                onFocus={e=>{ e.target.style.borderColor="#cc5500"; e.target.style.background="#fff"; e.target.style.boxShadow="0 0 0 4px rgba(204,85,0,0.09)"; }}
+                onBlur={e=>{ e.target.style.borderColor="#e6e9ee"; e.target.style.background="#fafbfc"; e.target.style.boxShadow="none"; }}
                 placeholder="Enter your username" />
             </div>
 
             {/* PASSWORD */}
             <div style={{ marginBottom:24 }}>
-              <label style={{ fontSize:10, fontWeight:700, color:"#94a3b8",
-                letterSpacing:"0.12em", textTransform:"uppercase",
-                display:"block", marginBottom:6 }}>Password</label>
+              <label style={{ fontFamily:"ui-monospace,'SFMono-Regular',Menlo,monospace", fontSize:9.5, fontWeight:700, color:"#8B0000",
+                letterSpacing:"0.16em", textTransform:"uppercase",
+                display:"block", marginBottom:7 }}>Password</label>
               <div style={{ position:"relative" }}>
                 <input
-                  style={{ width:"100%", padding:"12px 42px 12px 14px", fontSize:13,
-                    border:"1.5px solid #e2e8f0", borderRadius:9, outline:"none",
-                    background:"#f8fafc", color:"#1e3a5f", boxSizing:"border-box",
+                  style={{ width:"100%", padding:"13px 44px 13px 15px", fontSize:13.5,
+                    border:"1.5px solid #e6e9ee", borderRadius:11, outline:"none",
+                    background:"#fafbfc", color:"#1a2332", boxSizing:"border-box",
                     transition:"all 0.2s" }}
                   type={showPass?"text":"password"}
                   value={form.password}
                   onChange={e=>setForm(f=>({...f,password:e.target.value}))}
                   onKeyDown={e=>e.key==="Enter"&&submit()}
-                  onFocus={e=>{ e.target.style.borderColor=blue; e.target.style.background="#fff"; e.target.style.boxShadow="0 0 0 3px rgba(26,111,196,0.1)"; }}
-                  onBlur={e=>{ e.target.style.borderColor="#e2e8f0"; e.target.style.background="#f8fafc"; e.target.style.boxShadow="none"; }}
+                  onFocus={e=>{ e.target.style.borderColor="#cc5500"; e.target.style.background="#fff"; e.target.style.boxShadow="0 0 0 4px rgba(204,85,0,0.09)"; }}
+                  onBlur={e=>{ e.target.style.borderColor="#e6e9ee"; e.target.style.background="#fafbfc"; e.target.style.boxShadow="none"; }}
                   placeholder="Enter your password" />
                 <button onClick={()=>setShowPass(p=>!p)}
                   style={{ position:"absolute", right:12, top:"50%",
@@ -249,12 +306,13 @@ function Login({ onLogin }) {
 
             {/* Sign In button */}
             <button onClick={orgs?selectOrg:submit} disabled={loading}
-              style={{ width:"100%", padding:"13px", fontSize:14, fontWeight:700,
-                background: loading ? "#93c5fd" : `linear-gradient(135deg,${blue},#2563eb)`,
-                color:"#fff", border:"none", borderRadius:9,
+              className={loading ? "" : "qv-cta"}
+              style={{ width:"100%", padding:"14px", fontSize:14, fontWeight:700,
+                background: loading ? "#c9b3a6" : "linear-gradient(120deg,#8B0000,#cc5500)",
+                color:"#fff", border:"none", borderRadius:11,
                 cursor:loading?"not-allowed":"pointer",
-                letterSpacing:"0.02em", marginBottom:20,
-                boxShadow: loading?"none":"0 4px 14px rgba(26,111,196,0.35)",
+                letterSpacing:"0.01em", marginBottom:20,
+                boxShadow: loading?"none":"0 8px 22px rgba(139,0,0,0.28)",
                 transition:"all 0.2s" }}>
               {loading?(orgs?"Logging in...":"Checking..."):(orgs?"Continue \u2192":"Sign In \u2192")}
             </button>
@@ -270,10 +328,6 @@ function Login({ onLogin }) {
                 onMouseLeave={e=>{ e.target.style.background="#eff6ff"; e.target.style.borderColor="#bfdbfe"; }}>
                 + Request Access
               </span>
-            </div>
-            <div style={{ textAlign:"center" }}>
-              <span style={{ fontSize:9, color:"#cbd5e1", letterSpacing:"0.12em",
-                textTransform:"uppercase" }}>{"\uD83D\uDD12"} SSO Authentication Protected</span>
             </div>
           </div>
         </div>
@@ -418,6 +472,8 @@ function Login({ onLogin }) {
           </div>
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 }
@@ -789,7 +845,7 @@ function Dashboard({ projects, suites }) {
                             </span>
                           </td>
                           <td style={{padding:"9px 14px",fontSize:11,color:"#64748b",whiteSpace:"nowrap"}}>
-                            {new Date(r.action==="Created"?r.created_at:r.updated_at).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}
+                            {formatDateTime(r.action==="Created"?r.created_at:r.updated_at,{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}
                           </td>
                         </tr>
                       ))}
@@ -843,7 +899,7 @@ function Dashboard({ projects, suites }) {
                           {r.steps_passed!=null&&r.steps_total!=null?`${r.steps_passed}/${r.steps_total}`:"—"}
                         </td>
                         <td style={{padding:"10px 14px",fontSize:11,color:"#64748b",whiteSpace:"nowrap"}}>
-                          {r.created_at?new Date(r.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"—"}
+                          {r.created_at?formatDateTime(r.created_at,{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"—"}
                         </td>
                       </tr>
                     ))}
@@ -1123,8 +1179,12 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
 
   const deleteTest = async (id) => {
     if (!confirm("Delete this test?")) return;
-    await api(`/api/tests/${id}`, { method: "DELETE" });
-    loadTests();
+    try {
+      await api(`/api/tests/${id}`, { method: "DELETE" });
+      loadTests();
+    } catch (e) {
+      alert(e.message || "Failed to delete test case.");
+    }
   };
 
   const copyTest = async (t) => {
@@ -1505,7 +1565,7 @@ function TestCases({ projects, suites, onRefresh, user, onRun, initProjectFilter
                   <td style={{ ...s.td, fontSize:12, color:"#6b7280" }}>{t.module_name||"\u2014"}</td>
                   <td style={{ ...s.td, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:"#4a5568" }}>{t.browser}</td>
                   <td style={s.td}><span style={{ color: priorityColor[t.priority]||"#4a5568", fontWeight:700, fontSize:12 }}>{t.priority?.toUpperCase()}</span></td>
-                  <td style={{ ...s.td, fontSize:11, fontFamily:"'IBM Plex Mono',monospace", color:"#8a96a8" }}>{t.last_run ? new Date(t.last_run).toLocaleDateString() : "Never"}</td>
+                  <td style={{ ...s.td, fontSize:11, fontFamily:"'IBM Plex Mono',monospace", color:"#8a96a8" }}>{t.last_run ? formatDate(t.last_run) : "Never"}</td>
                   <td style={s.td}>{t.last_status ? <Badge status={t.last_status} /> : <span style={{color:"#8a96a8",fontSize:12}}>\u2014</span>}</td>
                   <td style={s.td}>
                     <div style={{ display:"flex", gap:6 }}>
@@ -2119,6 +2179,10 @@ function RunModal({ test, onClose, onStarted }) {
   const [slowWarning, setSlowWarning] = useState(null); // slow run detection
   const wsRef  = useRef(null);
   const logRef = useRef(null);
+  const runningRef          = useRef(false);
+  const runIdRef            = useRef(null);
+  const pollRef             = useRef(null);
+  const intentionalCloseRef = useRef(false);
 
   const [debugMode,    setDebugMode]    = useState(false);
   const [slowMo,       setSlowMo]       = useState(500);
@@ -2137,6 +2201,8 @@ function RunModal({ test, onClose, onStarted }) {
   const [parallelStatus,  setParallelStatus]  = useState({});
   const parallelWsRefs = useRef({});
 
+  useEffect(() => { runningRef.current = running; runIdRef.current = runId; }, [running, runId]);
+
   const toggleBreakpoint = (idx) => {
     setBreakpoints(prev => {
       const n = new Set(prev);
@@ -2149,6 +2215,27 @@ function RunModal({ test, onClose, onStarted }) {
     if (!runId) return;
     setDebugPaused(null);
     await api(`/api/runs/${runId}/debug-command`, { method:"POST", body:{ command:cmd } });
+  };
+
+  const reconcileRun = (rid) => {
+    api(`/api/runs/${rid}`).then(run => {
+      if (!run) return;
+      setStatus(run.status);
+      if (["passed","failed","error","aborted"].includes(run.status)) {
+        setRunning(false);
+        if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+      }
+    }).catch(() => {});
+    // Backfill from the on-disk run log if the socket hasn't delivered any lines yet.
+    // The runner writes every line to disk unconditionally, regardless of whether the
+    // live WebSocket broadcast made it to this client — so this recovers logs a
+    // dropped/late-connecting socket would otherwise lose for good. Never overwrites
+    // logs the socket already delivered.
+    api(`/api/runs/${rid}/logs`).then(fileLogs => {
+      if (Array.isArray(fileLogs) && fileLogs.length > 0) {
+        setLogs(prev => prev.length > 0 ? prev : fileLogs);
+      }
+    }).catch(() => {});
   };
 
   const connectWS = (rid) => {
@@ -2168,6 +2255,24 @@ function RunModal({ test, onClose, onStarted }) {
       if (msg.type === "aborted")      { setRunning(false); setStatus("aborted"); setAborting(false); }
       if (msg.type === "slow_run")     setSlowWarning(msg);
     };
+    // If the socket never connects, or drops before the run finishes, fall back to
+    // polling the run status directly so the modal can't get stuck on a stale
+    // "queued" / "Waiting for logs" state (this was the cause of the black-screen bug).
+    ws.onerror = () => {};
+    ws.onclose = () => {
+      if (intentionalCloseRef.current) return;
+      if (runningRef.current && runIdRef.current === rid) {
+        reconcileRun(rid);
+        setTimeout(() => {
+          if (runningRef.current && runIdRef.current === rid && !intentionalCloseRef.current) connectWS(rid);
+        }, 2000);
+      }
+    };
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(() => {
+      if (!runningRef.current) { clearInterval(pollRef.current); pollRef.current = null; return; }
+      reconcileRun(rid);
+    }, 5000);
   };
 
   const abortRun = async () => {
@@ -2183,6 +2288,8 @@ function RunModal({ test, onClose, onStarted }) {
       if (!window.confirm("Test is still running. Abort and close?")) return;
       abortRun();
     }
+    intentionalCloseRef.current = true;
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
     wsRef.current?.close();
     Object.values(parallelWsRefs.current).forEach(ws => { if (ws?.close) ws.close(); });
     onClose(!!runId); // pass true if a run was actually started
@@ -2259,6 +2366,7 @@ function RunModal({ test, onClose, onStarted }) {
 
   const start = async () => {
     setRunning(true); setLogs([]); setScreenshots([]); setDebugPaused(null);
+    intentionalCloseRef.current = false;
     try {
       const bps = stepThrough
         ? Array.from({ length: (test.steps||[]).length }, (_,i) => i)
@@ -2273,6 +2381,8 @@ function RunModal({ test, onClose, onStarted }) {
   };
 
   useEffect(() => () => {
+    intentionalCloseRef.current = true;
+    if (pollRef.current) clearInterval(pollRef.current);
     wsRef.current?.close();
     Object.values(parallelWsRefs.current).forEach(ws => { if (ws?.close) ws.close(); });
     if (parallelWsRefs.current._pollInterval) clearInterval(parallelWsRefs.current._pollInterval);
@@ -2534,7 +2644,7 @@ function RunModal({ test, onClose, onStarted }) {
                           <div key={i} style={{ marginBottom:isSoft||isAI?4:1, color:col,
                             background:bg, borderLeft:bl,
                             paddingLeft:isSoft||isAI?6:0, borderRadius:isSoft||isAI?3:0 }}>
-                            <span style={{ color:"#475569", marginRight:4, fontSize:10 }}>[{l.timestamp?.slice(11,19)}]</span>
+                            <span style={{ color:"#475569", marginRight:4, fontSize:10 }}>[{fmtLogTime(l.timestamp)}]</span>
                             {isSoft ? <><span style={{background:"#fbbf24",color:"#000",fontSize:10,fontWeight:800,padding:"1px 6px",borderRadius:3,marginRight:6}}>SOFT FAIL</span><b>{l.message.replace('[SOFT FAIL]','').trim()}</b></> :
                              isAI   ? <><span style={{background:"#7c3aed",color:"#fff",fontSize:10,fontWeight:800,padding:"1px 6px",borderRadius:3,marginRight:6}}>AI</span><b style={{color:"#c4b5fd"}}>{l.message}</b></> :
                              l.message}
@@ -2771,7 +2881,7 @@ function VirtualLogList({ logs, isRunning }) {
             paddingLeft: isSoft||isAI ? 8 : 0, borderRadius:3,
             overflow:"hidden", whiteSpace:"nowrap" }}>
             <span style={{ color:"#475569", marginRight:8, fontSize:11, flexShrink:0 }}>
-              [{l.timestamp?.slice(11,19)||"--:--:--"}]
+              [{fmtLogTime(l.timestamp)}]
             </span>
             {isSoft ? (
               <><span style={{ background:"#fbbf24", color:"#000", fontSize:10,
@@ -2825,9 +2935,17 @@ function RunHistory({ runs, onViewRun }) {
   const [search,       setSearch]  = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setSF]      = useState("");
+  const [projectFilter, setPF]     = useState("");
+  const [triggeredFilter, setTF]   = useState("");
+  const [projects,     setProjects]= useState([]);
   const [page,         setPage]    = useState(1);
   const [allRuns,      setAllRuns] = useState(null);
   const [loading,      setLoading] = useState(false);
+
+  // Load project list once for the Project filter dropdown
+  useEffect(() => {
+    api("/api/projects").then(p => setProjects(Array.isArray(p) ? p : [])).catch(() => {});
+  }, []);
 
   // Debounce search input — wait 400ms after user stops typing before firing API
   useEffect(() => {
@@ -2841,13 +2959,15 @@ function RunHistory({ runs, onViewRun }) {
       const params = new URLSearchParams({ page:pg, limit:getAppPageSize() });
       if (debouncedSearch) params.set("search", debouncedSearch);
       if (statusFilter)    params.set("status", statusFilter);
+      if (projectFilter)   params.set("project_id", projectFilter);
+      if (triggeredFilter) params.set("triggered_by", triggeredFilter);
       const r = await api(`/api/runs?${params}`);
       const data = Array.isArray(r) ? { rows:r, total:r.length, page:1, pages:1 } : r;
       setAllRuns(data);
       setPage(pg);
     } catch(e) { console.error(e); }
     setLoading(false);
-  }, [debouncedSearch, statusFilter]);
+  }, [debouncedSearch, statusFilter, projectFilter, triggeredFilter]);
 
   useEffect(() => { loadRuns(1); }, [loadRuns]);
 
@@ -2866,13 +2986,21 @@ function RunHistory({ runs, onViewRun }) {
             <option value="">All Statuses</option>
             {["passed","failed","running","queued","error"].map(s2=><option key={s2}>{s2}</option>)}
           </select>
+          <select style={{ ...s.input, flex:1 }} value={projectFilter} onChange={e=>setPF(e.target.value)}>
+            <option value="">All Projects</option>
+            {projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <select style={{ ...s.input, flex:1 }} value={triggeredFilter} onChange={e=>setTF(e.target.value)}>
+            <option value="">All Triggers</option>
+            {["manual","suite","schedule","parallel","debug","ci","agent"].map(t=><option key={t} value={t}>{t}</option>)}
+          </select>
         </div>
       </div>
       <div style={s.card}>
         <table style={s.table}>
-          <thead><tr>{["#","Test","Project","Type","Browser","Status","Steps","Duration","Triggered","Date","Action"].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
+          <thead><tr>{["#","Test","Project","Type","Browser","Status","Steps","Duration","Triggered","User","Date","Action"].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
           <tbody>
-            {loading && <tr><td colSpan={11} style={{textAlign:"center",padding:20,color:"#8a96a8"}}>{"\u23F3"} Loading...</td></tr>}
+            {loading && <tr><td colSpan={12} style={{textAlign:"center",padding:20,color:"#8a96a8"}}>{"\u23F3"} Loading...</td></tr>}
             {!loading && paged.map(r => (
               <tr key={r.id}>
                 <td style={{ ...s.td, fontFamily:"'IBM Plex Mono',monospace", fontSize:12, color:"#8a96a8" }}>#{r.id}</td>
@@ -2888,7 +3016,8 @@ function RunHistory({ runs, onViewRun }) {
                 </td>
                 <td style={{ ...s.td, fontFamily:"'IBM Plex Mono',monospace", fontSize:11, color:"#8a96a8" }}>{r.duration_ms ? `${(r.duration_ms/1000).toFixed(1)}s` : "\u2014"}</td>
                 <td style={{ ...s.td, fontSize:11, color:"#8a96a8" }}>{r.triggered_by}</td>
-                <td style={{ ...s.td, fontSize:11, fontFamily:"'IBM Plex Mono',monospace", color:"#8a96a8" }}>{new Date(r.created_at).toLocaleString()}</td>
+                <td style={{ ...s.td, fontSize:11, color:"#8a96a8" }}>{r.run_by_name || r.run_by_username || "—"}</td>
+                <td style={{ ...s.td, fontSize:11, fontFamily:"'IBM Plex Mono',monospace", color:"#8a96a8" }}>{formatDateTime(r.created_at)}</td>
                 <td style={s.td}>
                   <div style={{ display:"flex", gap:4, alignItems:"center" }}>
                     <button style={s.btn("ghost",true)} onClick={()=>onViewRun(r)}>View</button>
@@ -3175,7 +3304,7 @@ function RunDetail({ run, onBack }) {
               <div key={i} style={{ marginBottom:isSoft||isAI?4:3, color:col,
                 background:bg, borderLeft:bl, paddingLeft:isSoft||isAI?8:0, borderRadius:3 }}>
                 <span style={{ color:"#475569", marginRight:8, fontSize:11 }}>
-                  [{l.timestamp?.slice(11,19)||"--:--:--"}]
+                  [{fmtLogTime(l.timestamp)}]
                 </span>
                 {isSoft ? <><span style={{background:"#fbbf24",color:"#000",fontSize:10,fontWeight:800,padding:"1px 6px",borderRadius:3,marginRight:6}}>SOFT FAIL</span><b>{l.message.replace('[SOFT FAIL]','').trim()}</b></> :
                  isAI   ? <><span style={{background:"#7c3aed",color:"#fff",fontSize:10,fontWeight:800,padding:"1px 6px",borderRadius:3,marginRight:6}}>AI</span><b style={{color:"#c4b5fd"}}>{l.message}</b></> :
@@ -3751,7 +3880,7 @@ function Projects({ projects, onRefresh, user, onViewProject }) {
                   { label:"Base URL",    value:p.base_url||"Not set" },
                   { label:"Organisation",value:p.org_name||"None" },
                   { label:"Created by",  value:`User #${p.created_by||"\u2014"}` },
-                  { label:"Created",     value:p.created_at?new Date(p.created_at).toLocaleString("en-IN"):"\u2014" },
+                  { label:"Created",     value:p.created_at?formatDateTime(p.created_at):"\u2014" },
                 ].map(row => (
                   <div key={row.label} style={{ display:"flex", gap:12,
                     padding:"10px 0", borderBottom:"1px solid #f3f4f6" }}>

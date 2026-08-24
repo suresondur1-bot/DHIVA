@@ -29,6 +29,7 @@ const ACTIONS = [
   { value: "execute_script",       label: "⚙️ Execute JS",             group: "Actions" },
   { value: "table_action",          label: "📊 Table Action (find row)",  group: "Actions" },
   { value: "table_multi_action",    label: "📊 Table Multi Action (multi-condition)", group: "Actions" },
+  { value: "ai_step",               label: "🤖 AI Step (Natural Language)",  group: "Actions" },
   // ── Waits ────────────────────────────────────────────────────────────────
   { value: "wait",                 label: "⏱️ Wait (ms)",              group: "Waits" },
   { value: "wait_for_selector",    label: "⏳ Wait for element",        group: "Waits" },
@@ -3292,6 +3293,239 @@ function TableMultiActionUI({ step, i, updateStep, launchInspector }) {
 
 
 
+
+
+// ─── FILE LIBRARY PICKER ────────────────────────────────────────────────────────────
+// Replaces the plain text input for upload_attachment steps.
+// User picks a file from the server library (previously uploaded) or uploads
+// a new file from their local machine. The step value always stores the
+// server-side path so the runner can use it with no changes.
+function FileLibraryPicker({ value, onChange }) {
+  const [open,       setOpen]       = useState(false);
+  const [files,      setFiles]      = useState([]);
+  const [loading,    setLoading]    = useState(false);
+  const [uploading,  setUploading]  = useState(false);
+  const [error,      setError]      = useState('');
+  const fileRef = React.useRef();
+
+  // Derive display name from the stored server path
+  const displayName = value ? value.replace(/.*[\\/]/, '') : '';
+
+  const loadFiles = async () => {
+    setLoading(true); setError('');
+    try {
+      const token = localStorage.getItem('autoqa_token');
+      const r = await fetch('/api/file-library', { headers: { Authorization: `Bearer ${token}` } });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Failed to load files');
+      setFiles(d.files || []);
+    } catch(e) { setError(e.message); }
+    finally { setLoading(false); }
+  };
+
+  const openModal = () => { setOpen(true); loadFiles(); };
+
+  const pickFile = (f) => {
+    onChange(f.server_path);
+    setOpen(false);
+  };
+
+  const deleteFile = async (f, e) => {
+    e.stopPropagation();
+    if (!confirm(`Delete "${f.filename}" from the server?`)) return;
+    try {
+      const token = localStorage.getItem('autoqa_token');
+      await fetch(`/api/file-library/${encodeURIComponent(f.filename)}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      setFiles(prev => prev.filter(x => x.filename !== f.filename));
+      // Clear the step value if the deleted file was selected
+      if (value && value.replace(/.*[\\/]/, '') === f.filename) onChange('');
+    } catch(e) { alert('Delete failed: ' + e.message); }
+  };
+
+  const uploadFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true); setError('');
+    try {
+      const token = localStorage.getItem('autoqa_token');
+      const fd = new FormData();
+      fd.append('file', file);
+      const r = await fetch('/api/file-library', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Upload failed');
+      // Auto-select the just-uploaded file and close
+      onChange(d.server_path);
+      setOpen(false);
+    } catch(e) { setError(e.message); }
+    finally { setUploading(false); if(fileRef.current) fileRef.current.value=''; }
+  };
+
+  const fmtSize = (b) => b < 1024 ? `${b} B` : b < 1024*1024 ? `${(b/1024).toFixed(1)} KB` : `${(b/1024/1024).toFixed(1)} MB`;
+  const fmtDate = (iso) => { const d=new Date(iso); return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); };
+
+  return (
+    <>
+      {/* Compact inline display */}
+      <div style={{ display:'flex', alignItems:'center', gap:6, flex:1 }}>
+        <div style={{ flex:1, background:'#f8fafc', border:'1px solid #d1d5db', borderRadius:6,
+          padding:'6px 10px', fontSize:12, color: displayName ? '#1e40af' : '#9ca3af',
+          fontFamily:"'IBM Plex Mono',monospace", overflow:'hidden', textOverflow:'ellipsis',
+          whiteSpace:'nowrap', minWidth:0 }}>
+          {displayName ? `📄 ${displayName}` : 'No file selected'}
+        </div>
+        <button
+          onClick={openModal}
+          style={{ flexShrink:0, padding:'6px 12px', fontSize:12, fontWeight:600,
+            background:'#1a6fc4', color:'#fff', border:'none', borderRadius:6, cursor:'pointer' }}>
+          📂 Choose File
+        </button>
+        {displayName && (
+          <button onClick={()=>onChange('')}
+            style={{ flexShrink:0, padding:'5px 8px', fontSize:11, color:'#ef4444',
+              background:'#fff', border:'1px solid #fca5a5', borderRadius:6, cursor:'pointer' }}>
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Modal */}
+      {open && (
+        <div style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,0.45)',
+          display:'flex', alignItems:'center', justifyContent:'center' }}
+          onClick={e=>e.target===e.currentTarget&&setOpen(false)}>
+          <div style={{ background:'#fff', borderRadius:14, width:560, maxWidth:'95vw',
+            maxHeight:'80vh', display:'flex', flexDirection:'column',
+            boxShadow:'0 20px 60px rgba(0,0,0,0.25)', overflow:'hidden' }}>
+
+            {/* Header */}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between',
+              padding:'16px 20px', borderBottom:'1px solid #e5e7eb' }}>
+              <div style={{ fontSize:16, fontWeight:700, color:'#1a2332' }}>📁 File Library</div>
+              <button onClick={()=>setOpen(false)}
+                style={{ background:'none', border:'none', fontSize:20, cursor:'pointer', color:'#6b7280' }}>×</button>
+            </div>
+
+            {/* Upload strip */}
+            <div style={{ padding:'14px 20px', background:'#f0f7ff',
+              borderBottom:'1px solid #bdd7f5', display:'flex', alignItems:'center', gap:12 }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'#185fa5' }}>⬆️ Upload new file from your computer</div>
+              <input ref={fileRef} type='file' onChange={uploadFile}
+                style={{ display:'none' }} id='flp-file-input' />
+              <label htmlFor='flp-file-input'
+                style={{ padding:'7px 16px', background: uploading?'#9ca3af':'#1a6fc4',
+                  color:'#fff', borderRadius:7, fontSize:12, fontWeight:600,
+                  cursor: uploading?'not-allowed':'pointer', flexShrink:0 }}>
+                {uploading ? '⏳ Uploading...' : 'Choose File'}
+              </label>
+              <div style={{ fontSize:11, color:'#6b7280' }}>Max 50 MB</div>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div style={{ padding:'8px 20px', background:'#fff5f5', color:'#c53030',
+                fontSize:12, borderBottom:'1px solid #fed7d7' }}>⚠️ {error}</div>
+            )}
+
+            {/* File list */}
+            <div style={{ flex:1, overflowY:'auto', padding:'12px 16px' }}>
+              {loading ? (
+                <div style={{ textAlign:'center', padding:32, color:'#9ca3af', fontSize:13 }}>⏳ Loading files...</div>
+              ) : files.length === 0 ? (
+                <div style={{ textAlign:'center', padding:32, color:'#9ca3af', fontSize:13 }}>
+                  <div style={{ fontSize:32, marginBottom:8 }}>📂</div>
+                  No files uploaded yet. Upload one above to get started.
+                </div>
+              ) : (
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+                  <thead>
+                    <tr style={{ background:'#f8fafc' }}>
+                      <th style={{ padding:'8px 10px', textAlign:'left', fontWeight:600,
+                        color:'#6b7280', fontSize:11, textTransform:'uppercase',
+                        borderBottom:'1px solid #e5e7eb' }}>File name</th>
+                      <th style={{ padding:'8px 10px', textAlign:'right', fontWeight:600,
+                        color:'#6b7280', fontSize:11, textTransform:'uppercase',
+                        borderBottom:'1px solid #e5e7eb', whiteSpace:'nowrap' }}>Size</th>
+                      <th style={{ padding:'8px 10px', textAlign:'right', fontWeight:600,
+                        color:'#6b7280', fontSize:11, textTransform:'uppercase',
+                        borderBottom:'1px solid #e5e7eb', whiteSpace:'nowrap' }}>Uploaded</th>
+                      <th style={{ width:36, borderBottom:'1px solid #e5e7eb' }}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {files.map(f => {
+                      const isSelected = value && value.replace(/.*[\\/]/, '') === f.filename;
+                      return (
+                        <tr key={f.filename}
+                          onClick={()=>pickFile(f)}
+                          style={{ cursor:'pointer', borderBottom:'1px solid #f3f4f6',
+                            background: isSelected ? '#eff6ff' : 'transparent',
+                            transition:'background 0.1s' }}
+                          onMouseEnter={e=>!isSelected&&(e.currentTarget.style.background='#f9fafb')}
+                          onMouseLeave={e=>!isSelected&&(e.currentTarget.style.background='transparent')}>
+                          <td style={{ padding:'10px 10px' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                              <span style={{ fontSize:16 }}>
+                                {/\.(pdf)$/i.test(f.filename)?'📄':
+                                 /\.(xlsx?|csv)$/i.test(f.filename)?'📊':
+                                 /\.(docx?)$/i.test(f.filename)?'📝':
+                                 /\.(jpe?g|png|gif|webp|bmp)$/i.test(f.filename)?'🖼️':
+                                 /\.(zip|rar|7z)$/i.test(f.filename)?'🗂️':'📄'}
+                              </span>
+                              <span style={{ fontWeight: isSelected?700:400,
+                                color: isSelected?'#1e40af':'#1a2332' }}>{f.filename}</span>
+                              {isSelected && (
+                                <span style={{ fontSize:10, background:'#1a6fc4', color:'#fff',
+                                  padding:'1px 7px', borderRadius:10, fontWeight:700 }}>✓ selected</span>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{ padding:'10px 10px', textAlign:'right',
+                            color:'#6b7280', whiteSpace:'nowrap' }}>{fmtSize(f.size)}</td>
+                          <td style={{ padding:'10px 10px', textAlign:'right',
+                            color:'#6b7280', whiteSpace:'nowrap' }}>{fmtDate(f.uploaded_at)}</td>
+                          <td style={{ padding:'10px 6px', textAlign:'center' }}>
+                            <button
+                              onClick={e=>deleteFile(f,e)}
+                              title='Delete from server'
+                              style={{ background:'none', border:'none', cursor:'pointer',
+                                color:'#ef4444', fontSize:15, padding:'2px 4px',
+                                borderRadius:4, lineHeight:1 }}>
+                              🗑️
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{ padding:'12px 20px', borderTop:'1px solid #e5e7eb',
+              background:'#f9fafb', display:'flex', justifyContent:'space-between',
+              alignItems:'center' }}>
+              <div style={{ fontSize:11, color:'#9ca3af' }}>
+                Files are stored on the server and reusable across all test scripts.
+              </div>
+              <button onClick={()=>setOpen(false)}
+                style={{ padding:'7px 16px', fontSize:12, fontWeight:600,
+                  background:'#f3f4f6', color:'#374151', border:'1px solid #d1d5db',
+                  borderRadius:7, cursor:'pointer' }}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+
 function StepEditor({ steps, onChange, variables, projectId }) {
   const [varPicker,   setVarPicker]  = useState(null);
   const [selected,    setSelected]   = useState(new Set()); // selected step indices
@@ -3434,6 +3668,8 @@ function StepEditor({ steps, onChange, variables, projectId }) {
     { value:"var_equals",         label:"Variable == value" },
     { value:"var_not_equals",     label:"Variable != value" },
     { value:"var_contains",       label:"Variable contains" },
+    { value:"var_greater",        label:"Variable > value" },
+    { value:"var_less",           label:"Variable < value" },
     { value:"url_contains",       label:"URL contains" },
     { value:"url_not_contains",   label:"URL does NOT contain" },
     { value:"page_title_contains",label:"Page title contains" },
@@ -3589,6 +3825,10 @@ function StepEditor({ steps, onChange, variables, projectId }) {
         const VAR_ASSERT    = ["assert_equals","assert_not_equals","assert_contains","assert_not_contains",
                                "assert_starts_with","assert_ends_with","assert_greater","assert_less",
                                "assert_between","assert_matches","assert_empty","assert_not_empty","assert_soft"];
+        const ASSERT_ELEMENT_ACTIONS = ["assert_text","assert_attribute","assert_css","assert_enabled",
+                               "assert_disabled","assert_checked","assert_not_checked","assert_selected",
+                               "assert_cookie","assert_not_text","assert_visible","assert_not_visible",
+                               "assert_url","assert_title","assert_value","assert_count","assert_ai"];
         const isStore    = STORE_ACTIONS.includes(step.action);
         const isStoreUrl = step.action==="store_url";
         const isStrOp    = STR_ACTIONS.includes(step.action);
@@ -3597,6 +3837,7 @@ function StepEditor({ steps, onChange, variables, projectId }) {
         const isEncOp    = ENC_ACTIONS.includes(step.action);
         const isVarAssert= VAR_ASSERT.includes(step.action);
         const isAssertVar = isVarAssert;
+        const isAssertAction = isVarAssert || ASSERT_ELEMENT_ACTIONS.includes(step.action);
         const isEncodeOp  = isEncOp;
         const needsStoreAs = isStore||isStoreUrl||isStrOp||isMathOp||isDateOp||isEncOp;
         const isRepeat = step.action==="repeat_until";
@@ -3722,6 +3963,25 @@ function StepEditor({ steps, onChange, variables, projectId }) {
                     />ms
                   </span>
                 )}
+              </div>
+            )}
+
+            {/* ── Continue on fail (assert steps only) ── */}
+            {isAssertAction && (
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:8,
+                padding:"8px 12px", background:"#fef9c3", border:"1px solid #fde68a",
+                borderRadius:7 }}>
+                <input type="checkbox" id={`cof_assert_${i}`}
+                  checked={!!step.continue_on_fail}
+                  onChange={e=>updateStep(i,"continue_on_fail",e.target.checked)}
+                  style={{ width:15, height:15, cursor:"pointer" }} />
+                <label htmlFor={`cof_assert_${i}`} style={{ fontSize:12, fontWeight:600,
+                  color:"#92400e", cursor:"pointer" }}>
+                  🟡 Continue on fail
+                </label>
+                <span style={{ fontSize:11, color:"#b45309", marginLeft:4 }}>
+                  — Off (default): test stops here if this assertion fails. On: logged as a failure, test carries on.
+                </span>
               </div>
             )}
 
@@ -4019,7 +4279,7 @@ function StepEditor({ steps, onChange, variables, projectId }) {
                       style={{ ...s.btn("primary",true), padding:"7px 10px", fontSize:14 }}>🎯</button>
                   </div>
                 )}
-                {["var_equals","var_not_equals","var_contains"].includes(step.if_condition||"") && (
+                {["var_equals","var_not_equals","var_contains","var_greater","var_less"].includes(step.if_condition||"") && (
                   <>
                     <div style={{ display:"flex", gap:8, alignItems:"center" }}>
                       <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>Variable</span>
@@ -4031,9 +4291,12 @@ function StepEditor({ steps, onChange, variables, projectId }) {
                       </div>
                     </div>
                     <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-                      <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>Equals</span>
+                      <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>
+                        {step.if_condition==="var_greater" ? "Greater than" : step.if_condition==="var_less" ? "Less than" : step.if_condition==="var_contains" ? "Contains" : "Equals"}
+                      </span>
                       <input style={{ ...s.input, flex:1 }}
-                        placeholder="expected value" value={step.if_value||""}
+                        placeholder={["var_greater","var_less"].includes(step.if_condition) ? "numeric value" : "expected value"}
+                        value={step.if_value||""}
                         onChange={e=>updateStep(i,"if_value",e.target.value)} />
                     </div>
                   </>
@@ -4063,6 +4326,36 @@ function StepEditor({ steps, onChange, variables, projectId }) {
                     <input style={{ ...s.input, flex:1 }} placeholder="selector"
                       value={step.if_selector||""} onChange={e=>updateStep(i,"if_selector",e.target.value)} />
                     <button onClick={()=>launchInspector(i)} style={{ ...s.btn("primary",true), padding:"7px 10px", fontSize:14 }}>🎯</button>
+                  </div>
+                )}
+                {["var_equals","var_not_equals","var_contains","var_greater","var_less"].includes(step.if_condition||"") && (
+                  <>
+                    <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                      <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>Variable</span>
+                      <div style={{ flex:1, position:"relative" }}>
+                        <input style={{ ...s.input, paddingRight:hasVars?80:12 }}
+                          placeholder="{{var_name}}" value={step.if_var||""}
+                          onChange={e=>updateStep(i,"if_var",e.target.value)} />
+                        <VarBtn stepIdx={i} field="if_var" />
+                      </div>
+                    </div>
+                    <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                      <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>
+                        {step.if_condition==="var_greater" ? "Greater than" : step.if_condition==="var_less" ? "Less than" : step.if_condition==="var_contains" ? "Contains" : "Equals"}
+                      </span>
+                      <input style={{ ...s.input, flex:1 }}
+                        placeholder={["var_greater","var_less"].includes(step.if_condition) ? "numeric value" : "expected value"}
+                        value={step.if_value||""}
+                        onChange={e=>updateStep(i,"if_value",e.target.value)} />
+                    </div>
+                  </>
+                )}
+                {["url_contains","url_not_contains","page_title_contains"].includes(step.if_condition||"") && (
+                  <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                    <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>Value</span>
+                    <input style={{ ...s.input, flex:1 }}
+                      placeholder="text to match" value={step.if_value||""}
+                      onChange={e=>updateStep(i,"if_value",e.target.value)} />
                   </div>
                 )}
                 <div style={{ display:"flex", gap:8, alignItems:"center" }}>
@@ -4114,6 +4407,36 @@ function StepEditor({ steps, onChange, variables, projectId }) {
                     <input style={{ ...s.input, flex:1 }} placeholder="selector"
                       value={step.if_selector||""} onChange={e=>updateStep(i,"if_selector",e.target.value)} />
                     <button onClick={()=>launchInspector(i)} style={{ ...s.btn("primary",true), padding:"7px 10px", fontSize:14 }}>🎯</button>
+                  </div>
+                )}
+                {["var_equals","var_not_equals","var_contains","var_greater","var_less"].includes(step.if_condition||"") && (
+                  <>
+                    <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                      <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>Variable</span>
+                      <div style={{ flex:1, position:"relative" }}>
+                        <input style={{ ...s.input, paddingRight:hasVars?80:12 }}
+                          placeholder="{{var_name}}" value={step.if_var||""}
+                          onChange={e=>updateStep(i,"if_var",e.target.value)} />
+                        <VarBtn stepIdx={i} field="if_var" />
+                      </div>
+                    </div>
+                    <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                      <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>
+                        {step.if_condition==="var_greater" ? "Greater than" : step.if_condition==="var_less" ? "Less than" : step.if_condition==="var_contains" ? "Contains" : "Equals"}
+                      </span>
+                      <input style={{ ...s.input, flex:1 }}
+                        placeholder={["var_greater","var_less"].includes(step.if_condition) ? "numeric value" : "expected value"}
+                        value={step.if_value||""}
+                        onChange={e=>updateStep(i,"if_value",e.target.value)} />
+                    </div>
+                  </>
+                )}
+                {["url_contains","url_not_contains","page_title_contains"].includes(step.if_condition||"") && (
+                  <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                    <span style={{ fontSize:12, color:"#8a96a8", minWidth:70 }}>Value</span>
+                    <input style={{ ...s.input, flex:1 }}
+                      placeholder="text to match" value={step.if_value||""}
+                      onChange={e=>updateStep(i,"if_value",e.target.value)} />
                   </div>
                 )}
                 <div style={{ display:"flex", gap:8, alignItems:"center" }}>
@@ -4206,6 +4529,61 @@ function StepEditor({ steps, onChange, variables, projectId }) {
                   <span style={{ fontSize:12, color:"#8a96a8", minWidth:80 }}>Store into</span>
                   <input style={{ ...s.input, flex:1 }} placeholder="variable_name"
                     value={step.value||""} onChange={e=>updateStep(i,"value",e.target.value)} />
+                </div>
+              </div>
+            )}
+            {(step.action==="assert_attribute") && (
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                <div style={{ display:"flex", gap:6 }}>
+                  <input style={{ ...s.input, flex:1 }}
+                    placeholder="selector / get_by_role(...)"
+                    value={step.selector||""}
+                    onChange={e=>updateStep(i,"selector",e.target.value)} />
+                  <button onClick={()=>launchInspector(i)}
+                    style={{ ...s.btn("primary",true), padding:"7px 10px", fontSize:14 }}>🎯</button>
+                </div>
+                <input style={s.input} placeholder="Attribute name (e.g. href, class, data-id)"
+                  value={step.attr_name||""} onChange={e=>updateStep(i,"attr_name",e.target.value)} />
+                <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  <span style={{ fontSize:12, color:"#8a96a8", minWidth:100 }}>Expected value</span>
+                  <input style={{ ...s.input, flex:1 }} placeholder="expected value (contains match)"
+                    value={step.value||""} onChange={e=>updateStep(i,"value",e.target.value)} />
+                </div>
+              </div>
+            )}
+            {(step.action==="assert_css") && (
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                <div style={{ display:"flex", gap:6 }}>
+                  <input style={{ ...s.input, flex:1 }}
+                    placeholder="selector / get_by_role(...)"
+                    value={step.selector||""}
+                    onChange={e=>updateStep(i,"selector",e.target.value)} />
+                  <button onClick={()=>launchInspector(i)}
+                    style={{ ...s.btn("primary",true), padding:"7px 10px", fontSize:14 }}>🎯</button>
+                </div>
+                <input style={s.input} placeholder="CSS property (e.g. background-color, font-size, display)"
+                  value={step.css_prop||""} onChange={e=>updateStep(i,"css_prop",e.target.value)} />
+                <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  <span style={{ fontSize:12, color:"#8a96a8", minWidth:100 }}>Expected value</span>
+                  <input style={{ ...s.input, flex:1 }} placeholder="e.g. #ff7800, rgb(255,120,0), 16px, bold"
+                    value={step.value||""} onChange={e=>updateStep(i,"value",e.target.value)} />
+                </div>
+                <div style={{ fontSize:11, color:"#9ca3af" }}>
+                  💡 Colors are compared by value, not text — <code>#ff7800</code> matches <code>rgb(255, 120, 0)</code> automatically.
+                </div>
+              </div>
+            )}
+            {(step.action==="assert_cookie") && (
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  <span style={{ fontSize:12, color:"#8a96a8", minWidth:100 }}>Cookie name</span>
+                  <input style={{ ...s.input, flex:1 }} placeholder="e.g. session_token"
+                    value={step.value||""} onChange={e=>updateStep(i,"value",e.target.value)} />
+                </div>
+                <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  <span style={{ fontSize:12, color:"#8a96a8", minWidth:100 }}>Expected value</span>
+                  <input style={{ ...s.input, flex:1 }} placeholder="optional — leave blank to just check the cookie exists"
+                    value={step.value2||""} onChange={e=>updateStep(i,"value2",e.target.value)} />
                 </div>
               </div>
             )}
@@ -4640,6 +5018,52 @@ function StepEditor({ steps, onChange, variables, projectId }) {
               </div>
             )}
 
+            {/* Capture Page Text (Multilingual) — baseline options */}
+            {step.action === "capture_page_text" && (
+              <div style={{ marginTop: 8, padding: "8px 10px", border: "1.5px solid #dbeafe",
+                            borderRadius: 6, background: "#f8fbff" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer",
+                                fontSize: 12, fontWeight: 600, color: "#1d4ed8" }}>
+                  <input
+                    type="checkbox"
+                    checked={step.capture_grid !== false}
+                    onChange={e => updateStep(i, "capture_grid", e.target.checked)}
+                    style={{ width: 15, height: 15, cursor: "pointer" }}
+                  />
+                  Capture grid / table data
+                </label>
+                <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4, lineHeight: 1.5 }}>
+                  On: table rows are recorded too — patient name, dates, status, ward.
+                  Off: only page text (labels, buttons, headers, tooltips, menus).
+                  <br />
+                  Turn this OFF on repeat captures of the same screen — hover and menu steps
+                  don't need the grid again. Whether these rows count toward the score is a
+                  separate choice, made on the Compare screen.
+                </div>
+              </div>
+            )}
+
+            {/* AI Step (Natural Language) */}
+            {step.action === "ai_step" && (
+              <div style={{ marginTop: 8 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#7c3aed", display: "block", marginBottom: 4 }}>
+                  🤖 Instruction for Claude (supports {"{{variables}}"})
+                </label>
+                <textarea
+                  value={step.value || ""}
+                  onChange={e => updateStep(i, "value", e.target.value)}
+                  placeholder={"Tap the Get OTP button\nEnter {{patient_name}} in the Patient Name field\nSelect Male from the Gender dropdown"}
+                  rows={3}
+                  style={{ width: "100%", fontSize: 13, padding: "8px 10px",
+                    border: "1.5px solid #ddd6fe", borderRadius: 6,
+                    fontFamily: "inherit", resize: "vertical", boxSizing: "border-box" }}
+                />
+                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
+                  Claude will screenshot the current page, work out which element to interact with, and perform the action (click, type, select, check, hover...) live. No selector needed.
+                </div>
+              </div>
+            )}
+
             {/* Search & Select */}
             {step.action==="search_select" && (
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -4796,6 +5220,9 @@ function StepEditor({ steps, onChange, variables, projectId }) {
               && step.action!=="table_action"
               && step.action!=="table_multi_action"
               && step.action!=="store_attr" && step.action!=="store_js"
+              && step.action!=="assert_attribute" && step.action!=="assert_css"
+              && step.action!=="assert_cookie"
+              && step.action!=="scroll"
               && step.action!=="call_test" && (
               <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
                 {needsSelector.includes(step.action) && (
@@ -4812,19 +5239,28 @@ function StepEditor({ steps, onChange, variables, projectId }) {
                       style={{ ...s.btn("primary",true), padding:"7px 10px", fontSize:14, flexShrink:0 }}>🎯</button>
                   </div>
                 )}
-                {!["click","hover","assert_visible","assert_not_visible","clear","check","uncheck",
+                                {!["click","hover","assert_visible","assert_not_visible","clear","check","uncheck",
                    "store_text","store_value","store_url","screenshot"].includes(step.action) && (
                   <div style={{ flex:1, position:"relative", minWidth:160 }}>
-                    <input style={{ ...s.input, paddingRight:hasVars?80:12 }}
-                      placeholder={step.action==="navigate"?"https://..."
-                        :step.action==="wait"?"2000 (milliseconds)"
-                        :step.action==="execute_script"?"document.querySelector('.x').remove()"
-                        :step.action==="compare_pdf_page"?"C:\\\\path\\\\to\\\\file.pdf"
-                        :step.action==="log_message"?"Message or {{variable}} to print"
-                        :"value"}
-                      value={step.value||""}
-                      onChange={e=>updateStep(i,"value",e.target.value)} />
-                    <VarBtn stepIdx={i} field="value" />
+                    {step.action === "upload_attachment" ? (
+                      <FileLibraryPicker
+                        value={step.value||""}
+                        onChange={v => updateStep(i, "value", v)}
+                      />
+                    ) : (
+                      <>
+                        <input style={{ ...s.input, paddingRight:hasVars?80:12 }}
+                          placeholder={step.action==="navigate"?"https://..."
+                            :step.action==="wait"?"2000 (milliseconds)"
+                            :step.action==="execute_script"?"document.querySelector('.x').remove()"
+                            :step.action==="compare_pdf_page"?"C:\\\\path\\\\to\\\\file.pdf"
+                            :step.action==="log_message"?"Message or {{variable}} to print"
+                            :"value"}
+                          value={step.value||""}
+                          onChange={e=>updateStep(i,"value",e.target.value)} />
+                        <VarBtn stepIdx={i} field="value" />
+                      </>
+                    )}
                   </div>
                 )}
               </div>

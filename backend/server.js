@@ -7,7 +7,7 @@ const bcrypt   = require("bcryptjs");
 const helmet   = require("helmet");
 const { Pool } = require("pg");
 const cron     = require("node-cron");
-const { spawn }= require("child_process");
+const { spawn, exec }= require("child_process");
 const path     = require("path");
 const fs       = require("fs");
 const http     = require("http");
@@ -157,6 +157,16 @@ const STUCK_RUN_TIMEOUT_MIN= parseInt(process.env.STUCK_RUN_TIMEOUT_MIN|| "60");
 const QUEUE_POLL_INTERVAL = parseInt(process.env.QUEUE_POLL_INTERVAL || "2000"); // ms
 const PROJECT_VAR_LIMIT   = parseInt(process.env.PROJECT_VAR_LIMIT       || "50");   // max vars per project
 
+// ── Multi-server deployment: identify THIS server so runs it creates always
+// execute on it, never on a sibling server sharing the same database ─────────
+const INSTANCE_ID = process.env.INSTANCE_ID || os.hostname();
+// Only one server in a multi-server deployment should own schedules (cron jobs
+// are registered per-process from the shared `schedules` table — if every
+// server loaded them, every scheduled run would fire once PER server).
+// Defaults to true so a single-server deployment keeps working with no config.
+const SCHEDULER_ENABLED = (process.env.SCHEDULER_ENABLED ?? "true") === "true";
+console.log(`🖥️  Instance: ${INSTANCE_ID}${SCHEDULER_ENABLED ? " (schedules: ON)" : " (schedules: OFF — another instance owns them)"}`);
+
 // ── Encryption helpers for secret project variables ───────────────────────────
 const ENC_KEY = (() => {
   const raw = process.env.VAR_ENCRYPTION_KEY || "athma-default-encryption-key-32b";
@@ -284,6 +294,13 @@ pool.connect((err, client, release) => {
       ALTER TABLE test_cases ADD COLUMN IF NOT EXISTS is_callable BOOLEAN DEFAULT FALSE;
       ALTER TABLE test_cases ADD COLUMN IF NOT EXISTS heal_update BOOLEAN DEFAULT FALSE;
     `).then(() => console.log("✅ is_callable column ready"))
+      .catch(() => {});  // already exists — fine
+
+    // Multi-server deployments: tag which server created each run so the
+    // shared queue worker never hands it to a sibling server.
+    pool.query(`
+      ALTER TABLE test_runs ADD COLUMN IF NOT EXISTS origin_server TEXT;
+    `).then(() => console.log("✅ origin_server column ready"))
       .catch(() => {});  // already exists — fine
 
     pool.query(`
@@ -1082,6 +1099,10 @@ app.get("/api/tests", requireAuth, async (req, res) => {
   const offset   = (parseInt(page) - 1) * pageSize;
   try {
     const ids = await getAllowedProjectIds(req.user);
+    // Non-admins with zero assigned projects see nothing, full stop — short-circuit
+    // before even considering an explicit project_id (which would otherwise still
+    // run a query, just one that happens to return no rows).
+    if (ids !== null && !ids.length) return res.json({ rows: [], total: 0, page: 1, pages: 0 });
     let q = `SELECT tc.*, ts.name as suite_name, p.name as project_name,
              m.name as module_name,
              (SELECT status FROM test_runs WHERE test_case_id=tc.id ORDER BY created_at DESC LIMIT 1) as last_status,
@@ -1090,13 +1111,12 @@ app.get("/api/tests", requireAuth, async (req, res) => {
              LEFT JOIN test_suites ts ON tc.suite_id=ts.id
              LEFT JOIN projects p ON tc.project_id=p.id
              LEFT JOIN modules m ON tc.module_id=m.id
-             WHERE tc.active=TRUE`;
+             WHERE tc.active=TRUE${projectFilterCol(ids, "tc.project_id")}`;
     const vals = [];
+    // Applied ON TOP of the allowed-projects filter above (not instead of it) —
+    // previously an explicit project_id bypassed the access check entirely, so a
+    // non-admin could see another project's test cases just by passing its id.
     if (project_id) { q += ` AND tc.project_id=$${vals.length+1}`; vals.push(project_id); }
-    else if (ids !== null) {
-      if (!ids.length) return res.json({ rows: [], total: 0, page: 1, pages: 0 });
-      q += ` AND tc.project_id IN (${ids.join(",")})`;
-    }
     if (suite_id)    { q += ` AND tc.suite_id=$${vals.length+1}`;  vals.push(suite_id); }
     if (search)      { q += ` AND tc.name ILIKE $${vals.length+1}`; vals.push(`%${search}%`); }
     // Helper: builds IN clause for comma-separated values e.g. "high,medium"
@@ -1208,6 +1228,16 @@ app.get("/api/tests/:id", requireAuth, async (req, res) => {
       if (ids !== null && !ids.includes(r.rows[0].project_id)) {
         return res.status(403).json({ error: "Access denied to this test case" });
       }
+    } else {
+      // The runner fetches a test case through this exact route when a "Call Test Case"
+      // (call_test) step invokes it from inside another script — that's a separate runtime
+      // path from the normal spawn flow, and it was never resolving Saved Connection
+      // db_validate/db_extract_multi steps, so a DB step only worked when its own test was
+      // run directly, not when called from another script. Embed here too, but ONLY for the
+      // runner-token path — never for normal frontend/editor requests, which must not receive
+      // decrypted passwords in the response.
+      try { r.rows[0].steps = await embedDbConnections(r.rows[0].steps || []); }
+      catch(e) { console.error(`[GET /api/tests/:id] embedDbConnections failed for call_test:`, e.message); }
     }
     res.json(r.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -1265,6 +1295,389 @@ app.put("/api/tests/:id", requireAuth, requireRole("admin","lead","tester"), asy
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ============================================================================
+//  AGENT TEST CASES — additive routes (agent-authored scripts in their own table)
+//  Reuses existing helpers: pool, requireAuth, requireRole, spawnRunner, broadcast.
+//  Prereq: agent_test_cases table created. Does not modify any existing route.
+// ============================================================================
+app.get("/api/agent-tests", requireAuth, async (req, res) => {
+  try {
+    const { project_id } = req.query;
+    const params = [];
+    let where = "";
+    if (project_id) { params.push(project_id); where = "WHERE project_id = $1"; }
+    const r = await pool.query(
+      `SELECT id, project_id, name, goal, base_url, type, browser,
+              jsonb_array_length(steps) AS step_count,
+              status, approved, promoted_test_case_id, created_at
+         FROM agent_test_cases ${where}
+        ORDER BY created_at DESC`, params);
+    res.json(r.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get("/api/agent-tests/:id", requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query("SELECT * FROM agent_test_cases WHERE id=$1", [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: "Not found" });
+    res.json(r.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Build a self-contained login prelude (replay opens a clean browser, so the
+// script must log in + navigate itself). Selectors captured from the real
+// Athma login page. NOTE: password is stored in plain text in the steps — fine
+// for SQA/dummy; for real envs reference a {{variable}} instead.
+function _agentLoginPrelude({ login_url, username, password, target_url }) {
+  const SEL_USER = "#username", SEL_PASS = "#password";
+  const SEL_SIGNIN = 'div > div > form:nth-of-type(1) > div:nth-of-type(3) > button';
+  return [
+    { action: "navigate", value: login_url, _note: "open Athma login page" },
+    { action: "wait_for_selector", selector: SEL_USER, _note: "wait for login form" },
+    { action: "type", selector: SEL_USER, value: username, _note: "enter username" },
+    { action: "type", selector: SEL_PASS, value: password, _note: "enter password" },
+    { action: "click", selector: SEL_SIGNIN, _note: "click Sign in" },
+    { action: "wait", value: "3000", _note: "wait for login" },
+    { action: "navigate", value: target_url, _note: "go to target page" },
+    { action: "wait", value: "3000", _note: "wait for page load" },
+  ];
+}
+
+app.post("/api/agent-tests", requireAuth, requireRole("admin", "lead", "tester"), async (req, res) => {
+  const { project_id, name, goal, base_url, type, browser, steps, variables,
+          add_login, login_username, login_password, login_url, target_url } = req.body;
+  if (!name?.trim()) return res.status(400).json({ error: "name is required" });
+  try {
+    let finalSteps = Array.isArray(steps) ? steps.slice() : [];
+    // Optionally prepend a login prelude so the script replays self-contained.
+    if (add_login) {
+      if (!login_username || !login_password || !target_url) {
+        return res.status(400).json({ error: "add_login requires login_username, login_password, target_url" });
+      }
+      const prelude = _agentLoginPrelude({
+        login_url: login_url || base_url || "",
+        username: login_username, password: login_password, target_url,
+      });
+      finalSteps = prelude.concat(finalSteps);
+    }
+    const r = await pool.query(
+      `INSERT INTO agent_test_cases (project_id, name, goal, base_url, type, browser, steps, variables, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
+      [project_id || null, name.trim(), goal || null, base_url || null,
+       type || "ui", browser || "chrome",
+       JSON.stringify(finalSteps), JSON.stringify(variables || []),
+       req.user.uid]
+    );
+    res.json({ id: r.rows[0].id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── AUTHOR a new agent test from a natural-language goal (runs the agent) ────
+// Spawns headless_author.py on the SERVER. It logs in, drives the form, and
+// writes a script; we read that script and insert it into agent_test_cases.
+// NOTE: this opens a real browser on the server machine and AUTO-SUBMITS
+// (creates a real record). Use on SQA / dummy data only. Takes 1-3 minutes.
+app.post("/api/agent-tests/author", requireAuth, requireRole("admin", "lead", "tester"), async (req, res) => {
+  const { goal, target_url, project_id, name,
+          login_url, login_username, login_password } = req.body;
+  if (!goal?.trim())   return res.status(400).json({ error: "goal is required" });
+  if (!target_url)     return res.status(400).json({ error: "target_url is required" });
+
+  const authorScript = path.join(__dirname, "../runner/agent/headless_author.py");
+  if (!fs.existsSync(authorScript)) {
+    return res.status(500).json({ error: "headless_author.py not found on server" });
+  }
+
+  const args = [
+    authorScript,
+    "--goal", goal,
+    "--target-url", target_url,
+    "--login-url", login_url || "https://sqa.narayanahealth.org/",
+    "--user", login_username || "admin",
+    "--password", login_password || "admin",
+  ];
+
+  let stdout = "", stderr = "";
+  const proc = spawn(PYTHON_CMD, args, {
+    cwd: path.join(__dirname, "../runner"),
+    windowsHide: true,
+    env: { ...process.env, PYTHONUNBUFFERED: "1" },
+  });
+  proc.stdout.on("data", d => { stdout += d.toString(); });
+  proc.stderr.on("data", d => { stderr += d.toString(); });
+
+  // Kill timer: must be longer than WALL_CLOCK_SECONDS in agent/config.py (currently 420s = 7min).
+  const killTimer = setTimeout(() => { try { proc.kill(); } catch {} }, 12 * 60 * 1000);
+
+  proc.on("close", async (code) => {
+    clearTimeout(killTimer);
+    try {
+      // The agent prints: SCRIPT_PATH=<abs path>
+      const m = stdout.match(/SCRIPT_PATH=(.+\.json)\s*$/m);
+      if (!m) {
+        return res.status(500).json({
+          error: "Agent did not produce a script.",
+          detail: (stderr || stdout).slice(-1500),
+        });
+      }
+      const scriptPath = m[1].trim();
+      const doc = JSON.parse(fs.readFileSync(scriptPath, "utf8"));
+      const steps = (doc.steps || []).map(st => {
+        const o = {}; for (const k in st) if (!k.startsWith("_")) o[k] = st[k]; return o;
+      });
+      if (!steps.length) {
+        return res.status(500).json({ error: "Agent produced an empty script.",
+          detail: (stderr || stdout).slice(-1500) });
+      }
+      const r = await pool.query(
+        `INSERT INTO agent_test_cases (project_id, name, goal, base_url, type, browser, steps, variables, created_by)
+         VALUES ($1,$2,$3,$4,'ui','chrome',$5,'[]',$6) RETURNING id`,
+        [project_id || null, (name || doc.meta?.goal || "Agent test").slice(0, 200),
+         doc.meta?.goal || goal, target_url, JSON.stringify(steps), req.user.uid]
+      );
+      res.json({ id: r.rows[0].id, steps: steps.length });
+    } catch (err) {
+      res.status(500).json({ error: err.message, detail: (stderr || stdout).slice(-1500) });
+    }
+  });
+  proc.on("error", (err) => {
+    clearTimeout(killTimer);
+    res.status(500).json({ error: `Failed to start agent: ${err.message}` });
+  });
+});
+
+// ── RE-AUTHOR an existing agent test from an edited goal (overwrite in place) ─
+// Same as /author but reuses the row's target_url/name and UPDATEs the SAME row
+// (overwriting goal + steps) instead of inserting a new one. Login password is
+// not stored, so it must be supplied in the request. Creates a real SQA record.
+app.post("/api/agent-tests/:id/reauthor", requireAuth, requireRole("admin", "lead", "tester"), async (req, res) => {
+  const { goal, login_url, login_username, login_password, target_url } = req.body;
+  if (!goal?.trim())     return res.status(400).json({ error: "goal is required" });
+  if (!login_password)   return res.status(400).json({ error: "login_password is required" });
+
+  let existing;
+  try {
+    const ex = await pool.query("SELECT * FROM agent_test_cases WHERE id=$1", [req.params.id]);
+    if (!ex.rows.length) return res.status(404).json({ error: "Agent test not found" });
+    existing = ex.rows[0];
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+
+  const tgt = target_url || existing.base_url;
+  if (!tgt) return res.status(400).json({ error: "target_url is required (none stored on this test)" });
+
+  const authorScript = path.join(__dirname, "../runner/agent/headless_author.py");
+  if (!fs.existsSync(authorScript)) {
+    return res.status(500).json({ error: "headless_author.py not found on server" });
+  }
+
+  const args = [
+    authorScript,
+    "--goal", goal,
+    "--target-url", tgt,
+    "--login-url", login_url || "https://sqa.narayanahealth.org/",
+    "--user", login_username || "admin",
+    "--password", login_password,
+  ];
+
+  let stdout = "", stderr = "";
+  const proc = spawn(PYTHON_CMD, args, {
+    cwd: path.join(__dirname, "../runner"),
+    windowsHide: true,
+    env: { ...process.env, PYTHONUNBUFFERED: "1" },
+  });
+  proc.stdout.on("data", d => { stdout += d.toString(); });
+  proc.stderr.on("data", d => { stderr += d.toString(); });
+
+  // Kill timer: must be longer than WALL_CLOCK_SECONDS in agent/config.py (currently 420s = 7min).
+  const killTimer = setTimeout(() => { try { proc.kill(); } catch {} }, 12 * 60 * 1000);
+
+  proc.on("close", async (code) => {
+    clearTimeout(killTimer);
+    try {
+      const m = stdout.match(/SCRIPT_PATH=(.+\.json)\s*$/m);
+      if (!m) {
+        return res.status(500).json({ error: "Agent did not produce a script.",
+          detail: (stderr || stdout).slice(-1500) });
+      }
+      const doc = JSON.parse(fs.readFileSync(m[1].trim(), "utf8"));
+      const steps = (doc.steps || []).map(st => {
+        const o = {}; for (const k in st) if (!k.startsWith("_")) o[k] = st[k]; return o;
+      });
+      if (!steps.length) {
+        return res.status(500).json({ error: "Agent produced an empty script.",
+          detail: (stderr || stdout).slice(-1500) });
+      }
+      const r = await pool.query(
+        `UPDATE agent_test_cases
+            SET goal = $1, steps = $2, base_url = $3, status = 'draft',
+                approved = false, updated_at = NOW()
+          WHERE id = $4
+        RETURNING id`,
+        [goal, JSON.stringify(steps), tgt, req.params.id]
+      );
+      res.json({ id: r.rows[0].id, steps: steps.length });
+    } catch (err) {
+      res.status(500).json({ error: err.message, detail: (stderr || stdout).slice(-1500) });
+    }
+  });
+  proc.on("error", (err) => {
+    clearTimeout(killTimer);
+    res.status(500).json({ error: `Failed to start agent: ${err.message}` });
+  });
+});
+
+// ── STUDY a new screen: read its controls and draft a playbook ───────────────
+// Spawns study_screen.py on the SERVER. It logs in, navigates to target_url,
+// perceives every control (same digest the agent uses), and asks the LLM ONCE
+// to write a screen playbook into runner/agent/playbooks/. After this, "Create
+// with agent" on that screen uses real, screen-specific guidance instead of
+// generic-only rules. Read-only on the app (no records created). ~30-60s.
+app.post("/api/agent-tests/study", requireAuth, requireRole("admin", "lead", "tester"), async (req, res) => {
+  const { target_url, label, match,
+          login_url, login_username, login_password } = req.body;
+  if (!target_url) return res.status(400).json({ error: "target_url is required" });
+
+  const studyScript = path.join(__dirname, "../runner/agent/study_screen.py");
+  if (!fs.existsSync(studyScript)) {
+    return res.status(500).json({ error: "study_screen.py not found on server" });
+  }
+
+  const args = [
+    studyScript,
+    "--target-url", target_url,
+    "--login-url", login_url || "https://sqa.narayanahealth.org/",
+    "--user", login_username || "admin",
+    "--password", login_password || "admin",
+  ];
+  if (label) { args.push("--label", label); }
+  if (match) { args.push("--match", match); }
+
+  let stdout = "", stderr = "";
+  const proc = spawn(PYTHON_CMD, args, {
+    cwd: path.join(__dirname, "../runner"),
+    windowsHide: true,
+    env: { ...process.env, PYTHONUNBUFFERED: "1" },
+  });
+  proc.stdout.on("data", d => { stdout += d.toString(); });
+  proc.stderr.on("data", d => { stderr += d.toString(); });
+
+  const killTimer = setTimeout(() => { try { proc.kill(); } catch {} }, 3 * 60 * 1000);
+
+  proc.on("close", () => {
+    clearTimeout(killTimer);
+    try {
+      const errM = stdout.match(/STUDY_ERROR=(.+)$/m);
+      if (errM) {
+        return res.status(500).json({ error: errM[1].trim(),
+          detail: (stderr || stdout).slice(-1500) });
+      }
+      const m = stdout.match(/PLAYBOOK_PATH=(.+\.md)\s*$/m);
+      if (!m) {
+        return res.status(500).json({
+          error: "Study did not produce a playbook.",
+          detail: (stderr || stdout).slice(-1500),
+        });
+      }
+      const playbookPath = m[1].trim();
+      let playbook = "";
+      try { playbook = fs.readFileSync(playbookPath, "utf8"); } catch {}
+      // Count controls from the printed summary line if present.
+      const cm = stdout.match(/controls=(\d+)\s+match='([^']*)'/);
+      res.json({
+        ok: true,
+        playbook_path: playbookPath,
+        playbook,
+        controls: cm ? parseInt(cm[1]) : null,
+        match: cm ? cm[2] : null,
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message, detail: (stderr || stdout).slice(-1500) });
+    }
+  });
+  proc.on("error", (err) => {
+    clearTimeout(killTimer);
+    res.status(500).json({ error: `Failed to start study: ${err.message}` });
+  });
+});
+
+app.put("/api/agent-tests/:id", requireAuth, requireRole("admin", "lead", "tester"), async (req, res) => {
+  const { goal, name } = req.body;
+  if (goal === undefined && name === undefined)
+    return res.status(400).json({ error: "nothing to update" });
+  try {
+    const r = await pool.query(
+      `UPDATE agent_test_cases
+          SET goal = COALESCE($1, goal),
+              name = COALESCE($2, name),
+              updated_at = NOW()
+        WHERE id = $3
+      RETURNING id, name, goal`,
+      [goal ?? null, (name && name.trim()) || null, req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: "Agent test not found" });
+    res.json(r.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete("/api/agent-tests/:id", requireAuth, requireRole("admin", "lead", "tester"), async (req, res) => {
+  try {
+    await pool.query("DELETE FROM agent_test_cases WHERE id=$1", [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post("/api/agent-tests/:id/run", requireAuth, requireRole("admin", "lead", "tester"), async (req, res) => {
+  try {
+    const tc = await pool.query("SELECT * FROM agent_test_cases WHERE id=$1", [req.params.id]);
+    if (!tc.rows.length) return res.status(404).json({ error: "Agent test not found" });
+    const a = tc.rows[0];
+    const run = await pool.query(
+      `INSERT INTO test_runs (test_case_id, project_id, status, browser, triggered_by, started_at, origin_server)
+       VALUES ($1,$2,'running',$3,$4,NOW(),$5) RETURNING id`,
+      [null, a.project_id, a.browser || "chrome", `agent-test:${a.id}`, INSTANCE_ID]
+    );
+    const runId = run.rows[0].id;
+    const config = {
+      type:         a.type || "ui",
+      steps:        a.steps || [],
+      browser:      a.browser || "chrome",
+      base_url:     a.base_url || "",
+      variables:    a.variables || [],
+      project_id:   a.project_id,
+      test_case_id: null,
+      heal_update:  false,
+    };
+    broadcast(runId, { type: "status", status: "running" });
+    broadcast(runId, { type: "log", level: "info",
+      message: `\u25b6 Running AGENT test "${a.name}" (id ${a.id}) \u2014 no AI, replay only`,
+      timestamp: new Date().toISOString() });
+    spawnRunner(runId, config);
+    res.json({ run_id: runId });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post("/api/agent-tests/:id/promote", requireAuth, requireRole("admin", "lead"), async (req, res) => {
+  try {
+    const tc = await pool.query("SELECT * FROM agent_test_cases WHERE id=$1", [req.params.id]);
+    if (!tc.rows.length) return res.status(404).json({ error: "Agent test not found" });
+    const a = tc.rows[0];
+    const ins = await pool.query(
+      `INSERT INTO test_cases (project_id,name,description,type,browser,base_url,steps,variables,priority,created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+      [a.project_id, a.name, `Promoted from agent test #${a.id}. Goal: ${a.goal || ""}`,
+       a.type || "ui", a.browser || "chrome", a.base_url || null,
+       JSON.stringify(a.steps || []), JSON.stringify(a.variables || []),
+       "medium", req.user.uid]
+    );
+    await pool.query(
+      "UPDATE agent_test_cases SET status='promoted', promoted_test_case_id=$1, updated_at=NOW() WHERE id=$2",
+      [ins.rows[0].id, a.id]);
+    res.json({ test_case_id: ins.rows[0].id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+// ============================================================================
+//  END agent test routes
+// ============================================================================
+
 // ── Copy test case ────────────────────────────────────────────────────────────
 app.post("/api/tests/:id/copy", requireAuth, requireRole("admin","lead","tester"), async (req, res) => {
   try {
@@ -1306,13 +1719,45 @@ app.post("/api/tests/:id/copy", requireAuth, requireRole("admin","lead","tester"
 });
 
 app.delete("/api/tests/:id", requireAuth, requireRole("admin","lead"), async (req, res) => {
-  try { await pool.query("UPDATE test_cases SET active=FALSE WHERE id=$1", [req.params.id]); res.json({ success: true }); }
+  try {
+    const testId = req.params.id;
+    // Block deletion if this test case is still referenced by a "Call Test" step
+    // in any other active test case — deleting it would silently break those callers.
+    const callers = await pool.query(
+      `SELECT id, name FROM test_cases
+        WHERE active = TRUE
+          AND id <> $1
+          AND EXISTS (
+            SELECT 1 FROM jsonb_array_elements(COALESCE(steps::jsonb, '[]'::jsonb)) elem
+             WHERE elem->>'action' = 'call_test' AND elem->>'value' = $2
+          )
+        ORDER BY name`,
+      [testId, String(testId)]
+    );
+    if (callers.rows.length) {
+      const names = callers.rows.map(r => r.name).join(", ");
+      return res.status(409).json({
+        error: `Cannot delete — this test case is called by: ${names}. Remove the Call Test step(s) from ${callers.rows.length > 1 ? "those test cases" : "that test case"} first.`,
+        callers: callers.rows,
+      });
+    }
+    await pool.query("UPDATE test_cases SET active=FALSE WHERE id=$1", [testId]);
+    res.json({ success: true });
+  }
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ─── RUN TEST ─────────────────────────────────────────────────────────────────
 // ─── SPAWN RUNNER (shared helper) ────────────────────────────────────────────
-function spawnRunner(runId, config) {
+async function spawnRunner(runId, config) {
+  // Resolve any "Saved Connection" db_validate/db_extract_multi steps into their
+  // real host/port/user/password BEFORE the runner ever sees them — otherwise the
+  // runner falls back to its own defaults (localhost, no password) and fails with
+  // "fe_sendauth: no password supplied".
+  if (config.steps && config.steps.length) {
+    try { config.steps = await embedDbConnections(config.steps); }
+    catch(e) { console.error(`[spawnRunner] embedDbConnections failed for run ${runId}:`, e.message); }
+  }
   // Write config to temp file to avoid ENAMETOOLONG on large test cases
   const configPath = path.join(LOGS_PATH, `config_${runId}.json`);
   fs.writeFileSync(configPath, JSON.stringify(config), 'utf8');
@@ -1324,6 +1769,7 @@ function spawnRunner(runId, config) {
     env: { ...process.env, PYTHONUNBUFFERED: "1" },
   });
   activeRunPids.set(runId, proc.pid);
+  console.log(`[spawnRunner] run ${runId} spawned — pid=${proc.pid}`);
 
   proc.on("error", (err) => {
     console.error(`❌ Spawn error run ${runId}: ${err.message}`);
@@ -1346,12 +1792,14 @@ function spawnRunner(runId, config) {
     }
   });
   proc.on("close", (code) => {
+    console.log(`[spawnRunner] run ${runId} process closed — exit code=${code}`);
     // Clean up temp config file
     try { fs.unlinkSync(configPath); } catch(e) {}
     pool.query(
       "SELECT status FROM test_runs WHERE id=$1", [runId]
     ).then(r => {
       const currentStatus = r.rows[0]?.status;
+      console.log(`[spawnRunner] run ${runId} close-handler — db status at exit: ${currentStatus}`);
       if (currentStatus && !['aborted','error'].includes(currentStatus)) {
         // Runner exited but status not yet set — mark as error
         if (code !== 0 && currentStatus === 'running') {
@@ -1371,6 +1819,31 @@ function spawnRunner(runId, config) {
 // Track active run PIDs
 const activeRunPids = new Map(); // runId -> pid
 
+// ─── Find/kill a runner process by run id, even if it isn't tracked in
+// activeRunPids ──────────────────────────────────────────────────────────────
+// activeRunPids only knows about processes THIS Node instance spawned. If the
+// backend was restarted non-gracefully (crash, hard kill, etc.) a runner.py
+// process spawned by the *previous* instance can still be alive as an orphan —
+// still driving a real browser — with nothing in the new process's memory
+// pointing at it. This looks it up directly in the OS process list by matching
+// the exact "--run-id <id> --config-file" argument sequence every spawn call
+// uses, so it can be found and killed regardless of which backend instance
+// started it. Returns a Promise<boolean> (true if a kill was attempted).
+function killRunnerProcessByRunId(runId) {
+  return new Promise((resolve) => {
+    const id = parseInt(runId);
+    if (!Number.isInteger(id)) return resolve(false);
+    if (process.platform === "win32") {
+      const cmd = `powershell -NoProfile -Command "Get-CimInstance Win32_Process | ` +
+        `Where-Object { $_.CommandLine -like '*--run-id ${id} --config-file*' } | ` +
+        `ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"`;
+      exec(cmd, { timeout: 8000 }, (err) => resolve(!err));
+    } else {
+      exec(`pkill -f -- "--run-id ${id} --config-file"`, { timeout: 8000 }, () => resolve(true));
+    }
+  });
+}
+
 // Track aborted suite runs so sequential loop can stop early
 const abortedSuiteRuns = new Set(); // suiteRunId
 
@@ -1379,6 +1852,7 @@ app.delete("/api/runs/:id/abort", requireAuth, async (req, res) => {
   const runId = parseInt(req.params.id);
   try {
     const pid = activeRunPids.get(runId);
+    console.log(`[abort] run ${runId} — tracked pid: ${pid || 'NONE (not in activeRunPids)'}`);
     if (pid) {
       try {
         if (process.platform === 'win32') {
@@ -1386,13 +1860,22 @@ app.delete("/api/runs/:id/abort", requireAuth, async (req, res) => {
         } else {
           process.kill(pid, 'SIGKILL');
         }
-      } catch(e) { /* process may have already exited */ }
+        console.log(`[abort] run ${runId} — kill signal sent to pid ${pid}`);
+      } catch(e) { console.log(`[abort] run ${runId} — kill attempt threw: ${e.message}`); /* process may have already exited */ }
       activeRunPids.delete(runId);
+    } else {
+      // Not tracked in this process's memory — may be an orphan left behind by a
+      // prior (non-graceful) backend restart, still genuinely running a browser
+      // session. Best-effort kill it by matching its run id in the OS process list.
+      killRunnerProcessByRunId(runId).then(killed => {
+        if (killed) console.log(`[abort] run ${runId} — attempted kill of untracked/orphaned process by run-id match`);
+      }).catch(()=>{});
     }
-    await pool.query(
-      "UPDATE test_runs SET status='aborted', finished_at=NOW() WHERE id=$1 AND status IN ('running','queued')",
+    const abortUpd = await pool.query(
+      "UPDATE test_runs SET status='aborted', finished_at=NOW() WHERE id=$1 AND status IN ('running','queued') RETURNING id",
       [runId]
     );
+    console.log(`[abort] run ${runId} — DB rows set to aborted: ${abortUpd.rows.length}`);
     broadcast(runId, { type: 'aborted' });
     // Immediately trigger queue so next queued run starts
     setTimeout(processQueue, 200);
@@ -1423,6 +1906,9 @@ app.delete("/api/suite-runs/:id/abort", requireAuth, async (req, res) => {
           }
         } catch(e) {}
         activeRunPids.delete(row.id);
+      } else {
+        // Orphaned from a prior backend restart — best-effort kill by run-id match.
+        killRunnerProcessByRunId(row.id).catch(()=>{});
       }
       await pool.query(
         "UPDATE test_runs SET status='aborted', finished_at=NOW() WHERE id=$1",
@@ -1444,87 +1930,6 @@ app.delete("/api/suite-runs/:id/abort", requireAuth, async (req, res) => {
   } catch(err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete("/api/runs/:id/abort", requireAuth, async (req, res) => {
-  const runId = parseInt(req.params.id);
-  try {
-    const pid = activeRunPids.get(runId);
-    if (pid) {
-      try {
-        if (process.platform === "win32") {
-          spawn("taskkill", ["/pid", String(pid), "/f", "/t"], { shell: true });
-        } else {
-          process.kill(pid, "SIGKILL");
-        }
-      } catch(e) { /* already dead */ }
-      activeRunPids.delete(runId);
-    }
-    await pool.query(
-      "UPDATE test_runs SET status='aborted', finished_at=NOW() WHERE id=$1 AND status IN ('running','queued')",
-      [runId]
-    );
-    broadcast(runId, { type: "aborted" });
-    broadcast(runId, { type: "log", level: "warn",
-      message: "⛔ Run aborted by user", timestamp: new Date().toISOString() });
-    // Trigger queue so next queued run starts
-    setTimeout(processQueue, 200);
-    res.json({ ok: true });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
-// ─── ABORT SUITE RUN ─────────────────────────────────────────────────────────
-app.delete("/api/suite-runs/:id/abort", requireAuth, async (req, res) => {
-  const suiteRunId = parseInt(req.params.id);
-  try {
-    // Mark suite as aborted so the sequential loop stops
-    abortedSuiteRuns.add(suiteRunId);
-
-    // Kill any currently running test in this suite
-    const runningRun = await pool.query(
-      "SELECT id FROM test_runs WHERE suite_run_id=$1 AND status='running' LIMIT 1",
-      [suiteRunId]
-    );
-    if (runningRun.rows[0]) {
-      const runId = runningRun.rows[0].id;
-      const pid = activeRunPids.get(runId);
-      if (pid) {
-        try {
-          if (process.platform === "win32") {
-            spawn("taskkill", ["/pid", String(pid), "/f", "/t"], { shell: true });
-          } else {
-            process.kill(pid, "SIGKILL");
-          }
-        } catch(e) { /* already dead */ }
-        activeRunPids.delete(runId);
-      }
-      await pool.query(
-        "UPDATE test_runs SET status='aborted', finished_at=NOW() WHERE id=$1",
-        [runId]
-      );
-      broadcast(suiteRunId, { type: "test_done", run_id: runId, status: "aborted",
-        steps_passed: 0, steps_total: 0 });
-    }
-
-    // Mark all still-queued tests as aborted
-    await pool.query(
-      "UPDATE test_runs SET status='aborted', finished_at=NOW() WHERE suite_run_id=$1 AND status IN ('running','queued')",
-      [suiteRunId]
-    );
-
-    // Finalize suite_run as aborted with partial results
-    const final = await pool.query(
-      `SELECT COUNT(*) FILTER(WHERE status='passed') as passed,
-              COUNT(*) FILTER(WHERE status IN ('failed','error')) as failed
-       FROM test_runs WHERE suite_run_id=$1`, [suiteRunId]
-    );
-    const f = final.rows[0];
-    await pool.query(
-      "UPDATE suite_runs SET status='aborted', passed=$1, failed=$2, finished_at=NOW() WHERE id=$3",
-      [+f.passed, +f.failed, suiteRunId]
-    );
-    broadcast(suiteRunId, { type: "suite_aborted", passed: +f.passed, failed: +f.failed });
-    res.json({ ok: true });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
 
 // ─── QUEUE WORKER ─────────────────────────────────────────────────────────────
 let _lastQueueLogState = ''; // track last logged state — only log on change
@@ -1555,6 +1960,9 @@ async function processQueue() {
     }
 
     // Count ALL running jobs per org (includes suite + manual + all triggered_by)
+    // Scoped to THIS server's own runs — in a multi-server deployment sharing
+    // one DB, a sibling server's load must not eat into this server's capacity
+    // (origin_server IS NULL keeps legacy pre-migration rows counted too).
     const runningRes = await pool.query(`
       SELECT
         COALESCE(uo.org_id::text, 'none') as org_id,
@@ -1568,8 +1976,9 @@ async function processQueue() {
       ) uo ON uo.user_id = tr.run_by
       LEFT JOIN organisations o ON o.id = uo.org_id
       WHERE tr.status = 'running'
+        AND (tr.origin_server = $1 OR tr.origin_server IS NULL)
       GROUP BY COALESCE(uo.org_id::text, 'none'), COALESCE(o.name, 'No Org')
-    `);
+    `, [INSTANCE_ID]);
 
     const orgCounts = {};
     const orgDetails = {};
@@ -1600,8 +2009,12 @@ async function processQueue() {
     const slotsAvailable = MAX_CONCURRENT_RUNS - totalRunning;
 
     // Pick queued runs — simple join, no organisations table
+    // Scoped to rows THIS server created (origin_server) so a run submitted
+    // through one server's URL always executes on that same server, never a
+    // sibling server sharing the same database (origin_server IS NULL keeps
+    // legacy pre-migration rows from getting stuck forever).
     const queued = await pool.query(`
-      SELECT tr.*, tc.type, tc.steps, tc.base_url, tc.api_config, 
+      SELECT tr.*, tc.type as tc_type, tc.steps, tc.base_url, tc.api_config as tc_api_config,
              tc.variables as test_case_variables,
              tr.variables as test_run_variables,
              uo2.org_id as session_org_id,
@@ -1620,9 +2033,10 @@ async function processQueue() {
       ) uo2 ON uo2.user_id = tr.run_by
       WHERE tr.status = 'queued'
         AND tr.suite_run_id IS NULL
+        AND (tr.origin_server = $1 OR tr.origin_server IS NULL)
       ORDER BY priority_rank ASC, tr.created_at ASC
-      LIMIT $1
-    `, [slotsAvailable * 2]);
+      LIMIT $2
+    `, [INSTANCE_ID, slotsAvailable * 2]);
 
     let spawned = 0;
     for (const run of queued.rows) {
@@ -1666,6 +2080,7 @@ async function processQueue() {
       orgCounts[orgKey] = (orgCounts[orgKey] || 0) + 1;
       spawned++;
 
+      try {
       // Build config
       const runnerToken = process.env.RUNNER_SECRET || "nat-internal-runner-2024";
       let projectVars = {};
@@ -1683,7 +2098,12 @@ async function processQueue() {
 
       // PARALLEL VARIABLES FIX: Merge test case variables with test run variables
       const testCaseVars = run.test_case_variables || [];
-      
+
+      console.log(`[DEBUG Run ${run.id}] testCaseVars content (fresh from DB, test_case_id=${run.test_case_id}):`, JSON.stringify(testCaseVars));
+      broadcast(run.id, { type:"log", level:"info",
+        message:`[DEBUG] Variables loaded from DB for test_case_id=${run.test_case_id}: ${JSON.stringify(testCaseVars)}`,
+        timestamp:new Date().toISOString() });
+
       console.log(`[DEBUG Run ${run.id}] RAW test_run_variables:`, run.test_run_variables);
       console.log(`[DEBUG Run ${run.id}] TYPE:`, typeof run.test_run_variables);
       
@@ -1719,7 +2139,7 @@ async function processQueue() {
       }
 
       const config = {
-        type:         run.type,
+        type:         run.tc_type || run.type,
         steps:        run.steps        || [],
         browser:      run.browser      || "chrome",
         base_url:     run.base_url     || "",
@@ -1728,7 +2148,7 @@ async function processQueue() {
         project_id:   run.project_id,
         runner_token: runnerToken,
         test_case_id: run.test_case_id,
-        api_config:   run.api_config   || null,
+        api_config:   run.tc_api_config || run.api_config || null,
         heal_update:  healUpdate,
       };
 
@@ -1736,6 +2156,17 @@ async function processQueue() {
       broadcast(run.id, { type:"status", status:"running" });
       broadcast(run.id, { type:"log", level:"info", message:`▶ Starting run (queued position processed)`, timestamp:new Date().toISOString() });
       spawnRunner(run.id, config);
+      } catch (spawnErr) {
+        // Never leave a run stuck at "running" with nothing behind it — if anything
+        // fails between marking it running and actually spawning the process, fail it
+        // explicitly instead of silently abandoning it (this was the root cause of runs
+        // getting permanently stuck at "running" with no process and no logs).
+        console.error(`[Queue] run ${run.id} failed to spawn: ${spawnErr.message}`);
+        pool.query("UPDATE test_runs SET status='error', finished_at=NOW() WHERE id=$1 AND status='running'", [run.id]).catch(()=>{});
+        broadcast(run.id, { type:"status", status:"error" });
+        broadcast(run.id, { type:"log", level:"error", message:`❌ Failed to start: ${spawnErr.message}`, timestamp:new Date().toISOString() });
+        broadcast(run.id, { type:"done", code:1 });
+      }
     }
   } catch(err) {
     console.error("[Queue] Error:", err.message);
@@ -1755,8 +2186,8 @@ app.post("/api/tests/:id/run", requireAuth, async (req, res) => {
     const test = tc.rows[0];
 
     const run = await pool.query(
-      "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by) VALUES ($1,$2,'queued',$3,'manual',$4) RETURNING *",
-      [test.id, test.project_id, browser||test.browser||"chrome", req.user.uid]
+      "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,origin_server) VALUES ($1,$2,'queued',$3,'manual',$4,$5) RETURNING *",
+      [test.id, test.project_id, browser||test.browser||"chrome", req.user.uid, INSTANCE_ID]
     );
     const runId = run.rows[0].id;
 
@@ -1821,11 +2252,20 @@ app.get("/api/runs/:id/logs", requireAuth, (req, res) => {
   try {
     const logFile = path.join(LOGS_PATH, `run_${req.params.id}.log`);
     if (!fs.existsSync(logFile)) return res.json([]);
-    const lines = fs.readFileSync(logFile, "utf-8").split("\n").filter(Boolean);
+    // .replace strips a trailing \r — the runner writes this file in Python
+    // text mode, which on Windows silently turns every \n into \r\n. Splitting
+    // on "\n" alone then leaves a stray \r on the end of every line, which broke
+    // the regex below (no "s" flag, so "." never matches \r) — every single
+    // line fell through to the raw, unparsed fallback below.
+    const lines = fs.readFileSync(logFile, "utf-8").split("\n").filter(Boolean).map(l => l.replace(/\r$/, ""));
     const logs = lines.map(line => {
       // Parse: [HH:MM:SS] [LEVEL] message
       const m = line.match(/^\[(\d{2}:\d{2}:\d{2})\]\s*\[([A-Z]+)\]\s*(.*)$/);
-      if (m) return { timestamp: m[1], level: m[2].toLowerCase(), message: m[3] };
+      // The frontend always does timestamp.slice(11,19) to pull "HH:MM:SS" out
+      // of what it expects to be a full ISO datetime string. A bare "HH:MM:SS"
+      // is only 8 chars, so slice(11,19) on it silently returns "" (index past
+      // the end) — wrap it in a dummy date so that slice keeps working.
+      if (m) return { timestamp: `1970-01-01T${m[1]}.000Z`, level: m[2].toLowerCase(), message: m[3] };
       return { timestamp: "", level: "info", message: line };
     });
     res.json(logs);
@@ -1854,6 +2294,18 @@ app.patch("/api/runs/:id", async (req, res) => {
     console.log(`[PATCH run ${req.params.id}] status=${status} IP:${req.ip} steps_passed:${steps_passed} steps_failed:${steps_failed} duration:${duration_ms}`);
   }
   try {
+    // Guard: once a run has been force-finalized as 'error' or 'aborted' (e.g. by
+    // the startup orphan cleanup after a backend restart, or a user abort), don't
+    // let a late callback from that same orphaned/killed runner process silently
+    // resurrect or mutate it — the process that's calling this may be a leftover
+    // that outlived the run it thinks it still owns.
+    const curRes = await pool.query("SELECT status FROM test_runs WHERE id=$1", [req.params.id]);
+    const curStatus = curRes.rows[0]?.status;
+    if (curStatus && ['error', 'aborted'].includes(curStatus)) {
+      console.log(`[PATCH run ${req.params.id}] ignored — already finalized as '${curStatus}'`);
+      return res.json({ ok: true, ignored: true });
+    }
+
     await pool.query(
       "UPDATE test_runs SET status=COALESCE($1,status), duration_ms=COALESCE($2,duration_ms), steps_total=COALESCE($3,steps_total), steps_passed=COALESCE($4,steps_passed), steps_failed=COALESCE($5,steps_failed), started_at=COALESCE($6,started_at), finished_at=COALESCE($7,finished_at) WHERE id=$8",
       [status, duration_ms, steps_total, steps_passed, steps_failed, started_at, finished_at, req.params.id]
@@ -1909,25 +2361,37 @@ app.patch("/api/runs/:id", async (req, res) => {
 
 // ─── TEST RUNS ────────────────────────────────────────────────────────────────
 app.get("/api/runs", requireAuth, async (req, res) => {
-  const { test_case_id, project_id, status, page = 1, limit, search } = req.query;
+  const { test_case_id, project_id, status, triggered_by, page = 1, limit, search } = req.query;
   const pageSize = parseInt(limit || PAGE_SIZE);
   const offset   = (parseInt(page) - 1) * pageSize;
   try {
     const ids = await getAllowedProjectIds(req.user);
     const pf  = projectFilterCol(ids, "tr.project_id");
     let q = `SELECT tr.id, tr.status, tr.browser, tr.duration_ms, tr.steps_passed, tr.steps_failed,
-             tr.steps_total, tr.created_at, tr.started_at, tr.finished_at, tr.triggered_by,
+             COALESCE(tr.steps_total, jsonb_array_length(tc.steps), jsonb_array_length(atc.steps)) as steps_total,
+             tr.created_at, tr.started_at, tr.finished_at, tr.triggered_by,
              tr.parallel_run_id, tr.parallel_label,
-             tc.name as test_name, tc.type as test_type, p.name as project_name
+             COALESCE(tc.name, atc.name) as test_name, tc.type as test_type, p.name as project_name,
+             u.username as run_by_username, u.full_name as run_by_name
              FROM test_runs tr
              LEFT JOIN test_cases tc ON tr.test_case_id=tc.id
+             LEFT JOIN agent_test_cases atc
+               ON tr.test_case_id IS NULL
+              AND tr.triggered_by LIKE 'agent-test:%'
+              AND atc.id = NULLIF(split_part(tr.triggered_by, ':', 2), '')::int
              LEFT JOIN projects p ON tr.project_id=p.id
+             LEFT JOIN auto_users u ON tr.run_by=u.id
              WHERE 1=1${pf}`;
     const vals = [];
     if (test_case_id) { q += ` AND tr.test_case_id=$${vals.length+1}`; vals.push(test_case_id); }
     if (project_id)   { q += ` AND tr.project_id=$${vals.length+1}`;   vals.push(project_id); }
     if (status)       { q += ` AND tr.status=$${vals.length+1}`;        vals.push(status); }
-    if (search)       { q += ` AND tc.name ILIKE $${vals.length+1}`;    vals.push(`%${search}%`); }
+    if (triggered_by) {
+      // "agent" groups all AI-agent runs (stored as 'agent-test:<id>')
+      if (triggered_by === "agent") q += ` AND tr.triggered_by LIKE 'agent-test:%'`;
+      else { q += ` AND tr.triggered_by=$${vals.length+1}`; vals.push(triggered_by); }
+    }
+    if (search)       { q += ` AND COALESCE(tc.name, atc.name) ILIKE $${vals.length+1}`;    vals.push(`%${search}%`); }
     const countQ = q.replace(/SELECT tr\.id.*FROM test_runs tr/s, "SELECT COUNT(*) FROM test_runs tr");
     const countR = await pool.query(countQ, vals);
     const total  = parseInt(countR.rows[0].count);
@@ -1949,6 +2413,14 @@ app.get("/api/runs/:id", requireAuth, async (req, res) => {
       FROM test_runs tr LEFT JOIN test_cases tc ON tr.test_case_id=tc.id
       WHERE tr.id=$1
     `, [req.params.id]);
+    if (!r.rows[0]) return res.status(404).json({ error: "Run not found" });
+    // Was previously unguarded — anyone authenticated could view any run's full
+    // detail (including test steps) just by knowing/guessing the numeric id,
+    // regardless of project access. Same check as GET /api/tests/:id.
+    const ids = await getAllowedProjectIds(req.user);
+    if (ids !== null && !ids.includes(r.rows[0].project_id)) {
+      return res.status(403).json({ error: "Access denied to this run" });
+    }
     res.json(r.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -2093,7 +2565,9 @@ app.get("/live/:runId", (req, res) => {
     const doneBanner= document.getElementById("done-banner");
 
     function addLog(level, message, time) {
-      const ts = time ? time.slice(11,19) : new Date().toTimeString().slice(0,8);
+      // time (when present) is a UTC ISO timestamp — convert to this browser's
+      // local time instead of slicing the UTC string verbatim.
+      const ts = time ? new Date(time).toTimeString().slice(0,8) : new Date().toTimeString().slice(0,8);
       const div = document.createElement("div");
       div.className = "log-" + (level||"info");
       div.innerHTML = '<span class="log-time">['+ts+']</span>' + escHtml(message);
@@ -2463,10 +2937,15 @@ async function generateSuiteReport(suiteRunId, suite, tests, testRuns) {
     try {
       const logFile = path.join(__dirname, '..', 'runner', 'logs', `run_${run.id}.log`);
       if (fs.existsSync(logFile)) {
-        const lines = fs.readFileSync(logFile, 'utf-8').split('\n').filter(Boolean);
+        // Same fix as GET /api/runs/:id/logs: strip the trailing \r Python's
+        // text-mode write adds on Windows (broke the regex below, every line
+        // fell through to "unparsed raw line + blank timestamp"), and wrap the
+        // bare HH:MM:SS in a dummy UTC date so it can be timezone-converted
+        // for display below instead of shown as raw UTC.
+        const lines = fs.readFileSync(logFile, 'utf-8').split('\n').filter(Boolean).map(l => l.replace(/\r$/, ''));
         logs = lines.map(line => {
           const m = line.match(/^\[(\d{2}:\d{2}:\d{2})\]\s*\[([A-Z]+)\]\s*(.*)$/);
-          if (m) return { timestamp: m[1], level: m[2].toLowerCase(), message: m[3] };
+          if (m) return { timestamp: `1970-01-01T${m[1]}.000Z`, level: m[2].toLowerCase(), message: m[3] };
           return { timestamp: '', level: 'info', message: line };
         });
       }
@@ -2478,7 +2957,7 @@ async function generateSuiteReport(suiteRunId, suite, tests, testRuns) {
       const col = l.level==="pass"?"#00a86b":l.level==="fail"?"#e53935":l.level==="error"?"#f97316":"#555";
       const icon= l.level==="pass"?"✅":l.level==="fail"?"❌":l.level==="error"?"🔴":"ℹ";
       return `<tr>
-        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap">${(l.timestamp||"").slice(11,19)}</td>
+        <td style="padding:3px 8px;color:#888;font-size:11px;white-space:nowrap">${l.timestamp ? new Date(l.timestamp).toLocaleTimeString('en-IN', { timeZone:'Asia/Kolkata', hour12:false }) : ''}</td>
         <td style="padding:3px 8px;color:${col};font-size:11px">${icon}</td>
         <td style="padding:3px 8px;font-size:12px;color:#333">${(l.message||"").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
       </tr>`;
@@ -2921,7 +3400,18 @@ async function embedDbConnections(steps) {
   if (!steps || !steps.length) return steps;
   const result = [];
   for (const step of steps) {
-    if (step.action === "db_validate" && (step.db_config?.conn_mode === "saved" || step.db_config?.mode === "saved") && step.db_config?.conn_name) {
+    const isDbStep = step.action === "db_validate" || step.action === "db_extract_multi";
+    if (isDbStep) {
+      console.log(`[embedDbConnections] db step seen — action=${step.action} conn_name=${step.db_config?.conn_name||"(none)"} conn_mode=${step.db_config?.conn_mode||"(unset)"} mode=${step.db_config?.mode||"(unset)"} host=${step.db_config?.host||"(none)"}`);
+    }
+    // Treat the step as referring to a saved connection whenever a conn_name is present
+    // and the mode wasn't explicitly set to "manual" — the frontend defaults its toggle
+    // to "Saved Connection" visually without necessarily persisting conn_mode:"saved" onto
+    // the step, so requiring an exact "saved" match here silently skipped real saved-connection
+    // steps whose db_config never got an explicit conn_mode key written to it.
+    const usesSaved = isDbStep && step.db_config?.conn_name &&
+      step.db_config?.conn_mode !== "manual" && step.db_config?.mode !== "manual";
+    if (usesSaved) {
       try {
         const r = await pool.query(
           "SELECT * FROM db_connections WHERE lower(name)=lower($1)",
@@ -2929,6 +3419,11 @@ async function embedDbConnections(steps) {
         );
         if (r.rows[0]) {
           const c = r.rows[0];
+          // password_enc is stored encrypted (see /api/db-connections POST) — must be
+          // decrypted the same way the "Test Connection" endpoint does, or the runner
+          // gets handed ciphertext instead of the real password.
+          const decryptedPassword = typeof decryptValue === 'function' ? decryptValue(c.password_enc) : c.password_enc;
+          console.log(`[embedDbConnections] Resolved '${step.db_config.conn_name}' -> ${c.host}:${c.port}/${c.database} (user=${c.username}, password=${decryptedPassword ? "set" : "EMPTY"})`);
           result.push({
             ...step,
             db_config: {
@@ -2940,10 +3435,12 @@ async function embedDbConnections(steps) {
               port:     String(c.port),
               database: c.database,
               user:     c.username,
-              password: c.password_enc,
+              password: decryptedPassword,
             }
           });
           continue;
+        } else {
+          console.error(`[embedDbConnections] No saved connection found named '${step.db_config.conn_name}'`);
         }
       } catch(e) {
         console.error(`[embedDbConnections] Could not embed '${step.db_config.conn_name}':`, e.message);
@@ -2959,6 +3456,15 @@ const scheduledJobs = new Map();
 
 function registerSchedule(schedule) {
   if (!schedule.active) return;
+  // Multi-server deployments: only the designated scheduler instance actually
+  // registers cron jobs. Without this, every server sharing the DB would load
+  // and fire the same schedule independently — duplicating every scheduled
+  // run once per server. Covers startup load AND live create/reactivate,
+  // since both funnel through this same function.
+  if (!SCHEDULER_ENABLED) {
+    console.log(`⏰ Schedule #${schedule.id} — not registering (schedules disabled on this instance)`);
+    return;
+  }
 
   const runnerToken = process.env.RUNNER_SECRET || "nat-internal-runner-2024"; // internal token for scheduled runs
 
@@ -2999,8 +3505,8 @@ function registerSchedule(schedule) {
         for (const test of testsRes.rows) {
           try {
             const run = await pool.query(
-              "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,suite_run_id) VALUES ($1,$2,'queued',$3,'schedule',$4) RETURNING *",
-              [test.id, test.project_id, schedule.browser||test.browser, suiteRunId]
+              "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,suite_run_id,origin_server) VALUES ($1,$2,'queued',$3,'schedule',$4,$5) RETURNING *",
+              [test.id, test.project_id, schedule.browser||test.browser, suiteRunId, INSTANCE_ID]
             );
             const fullTest = await pool.query("SELECT variables FROM test_cases WHERE id=$1", [test.id]);
             const embeddedSteps = await embedDbConnections(test.steps||[]);
@@ -3013,8 +3519,12 @@ function registerSchedule(schedule) {
               test_case_id: test.id,
               api_config: test.api_config || null,
             };
+            // Use a config FILE (not inline arg) — Windows caps command lines at
+            // ~32K chars, which silently breaks tests with many steps.
+            const schedSuiteCfg = path.join(LOGS_PATH, `config_${run.rows[0].id}.json`);
+            fs.writeFileSync(schedSuiteCfg, JSON.stringify(config), 'utf8');
             await new Promise((resolve) => {
-              const proc = spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(run.rows[0].id), "--config", JSON.stringify(config)], {
+              const proc = spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(run.rows[0].id), "--config-file", schedSuiteCfg], {
                 detached: false, stdio: "ignore"
               });
               proc.on("exit", resolve);
@@ -3059,8 +3569,11 @@ function registerSchedule(schedule) {
                   "UPDATE test_runs SET status='running', retried=true, started_at=NOW(), finished_at=NULL, logs='[]', steps_passed=0, steps_failed=0, duration_ms=NULL WHERE id=$1",
                   [failedRun.id]
                 );
+                // Config file instead of inline arg (Windows ~32K command-line cap)
+                const schedRetryCfg = path.join(LOGS_PATH, `config_${failedRun.id}.json`);
+                fs.writeFileSync(schedRetryCfg, JSON.stringify(retryConfig), 'utf8');
                 await new Promise((resolve) => {
-                  const proc = spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(failedRun.id), "--config", JSON.stringify(retryConfig)], {
+                  const proc = spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(failedRun.id), "--config-file", schedRetryCfg], {
                     detached: false, stdio: "ignore"
                   });
                   proc.on("exit", resolve);
@@ -3121,8 +3634,8 @@ function registerSchedule(schedule) {
         if (!tc.rows[0]) { console.error(`Test case ${schedule.test_case_id} not found`); return; }
         const test = tc.rows[0];
         const run  = await pool.query(
-          "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by) VALUES ($1,$2,'queued',$3,'schedule') RETURNING *",
-          [test.id, test.project_id, schedule.browser||test.browser]
+          "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,origin_server) VALUES ($1,$2,'queued',$3,'schedule',$4) RETURNING *",
+          [test.id, test.project_id, schedule.browser||test.browser, INSTANCE_ID]
         );
         const fullTest = await pool.query("SELECT variables FROM test_cases WHERE id=$1", [test.id]);
         const embeddedSteps = await embedDbConnections(test.steps||[]);
@@ -3135,7 +3648,10 @@ function registerSchedule(schedule) {
           test_case_id: test.id,
           api_config: test.api_config || null,
         };
-        spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(run.rows[0].id), "--config", JSON.stringify(config)], {
+        // Config file instead of inline arg (Windows ~32K command-line cap)
+        const schedCfg = path.join(LOGS_PATH, `config_${run.rows[0].id}.json`);
+        fs.writeFileSync(schedCfg, JSON.stringify(config), 'utf8');
+        spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(run.rows[0].id), "--config-file", schedCfg], {
           detached: false, stdio: "ignore"
         });
         console.log(`⏰ Scheduled run triggered for test: ${test.name}`);
@@ -3670,9 +4186,9 @@ app.post("/api/suite-runs", requireAuth, async (req, res) => {
       if (!tc.rows[0]) continue;
       const test = tc.rows[0];
       const run = await pool.query(
-        `INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,suite_run_id)
-         VALUES ($1,$2,'queued',$3,'suite',$4,$5) RETURNING id`,
-        [test.id, test.project_id, browser||test.browser, req.user.uid, suiteRunId]
+        `INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,suite_run_id,origin_server)
+         VALUES ($1,$2,'queued',$3,'suite',$4,$5,$6) RETURNING id`,
+        [test.id, test.project_id, browser||test.browser, req.user.uid, suiteRunId, INSTANCE_ID]
       );
       runIds.push({ runId: run.rows[0].id, test });
     }
@@ -3690,9 +4206,10 @@ app.post("/api/suite-runs", requireAuth, async (req, res) => {
       const fullTest = await pool.query("SELECT variables FROM test_cases WHERE id=$1", [test.id]);
       const isLastTest = runIds[runIds.length - 1].runId === runId;
       const config = {
-        type: test.type, steps: test.steps||[], browser: browser||test.browser||"chrome",
+        type: test.type, steps: await embedDbConnections(test.steps||[]), browser: browser||test.browser||"chrome",
         base_url: test.base_url||"", variables: fullTest.rows[0]?.variables||[],
         runner_token: runnerToken, test_case_id: test.id,
+        api_config: test.api_config || null,
         keep_browser: !isLastTest,  // keep browser alive between suite tests, close after last
       };
 
@@ -3714,8 +4231,12 @@ app.post("/api/suite-runs", requireAuth, async (req, res) => {
       // Move queued -> running just before spawning (only 1 counts as running at a time)
       await pool.query("UPDATE test_runs SET status='running', started_at=NOW() WHERE id=$1", [runId]);
 
+      // Use a config FILE (not inline arg) — Windows caps command lines at ~32K
+      // chars; large tests in a suite silently failed to spawn with inline JSON.
+      const suiteCfgPath = path.join(LOGS_PATH, `config_${runId}.json`);
+      fs.writeFileSync(suiteCfgPath, JSON.stringify(config), 'utf8');
       await new Promise((resolve) => {
-        const proc = spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(runId), "--config", JSON.stringify(config)], {
+        const proc = spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(runId), "--config-file", suiteCfgPath], {
           detached: false, stdio: ["ignore","pipe","pipe"], windowsHide: true,
           env: { ...process.env, PYTHONUNBUFFERED: "1" },
         });
@@ -3731,28 +4252,40 @@ app.post("/api/suite-runs", requireAuth, async (req, res) => {
         });
         proc.on("close", async () => {
           activeRunPids.delete(runId);
-          // Get final status of this test
-          const runRow = await pool.query("SELECT status,steps_passed,steps_total FROM test_runs WHERE id=$1", [runId]);
-          const runStatus = runRow.rows[0]?.status || "unknown";
-          // Broadcast test_done with status so UI can update the test row
-          broadcast(suiteRunId, {
-            type: "test_done",
-            run_id: runId,
-            test_name: test.name,
-            status: runStatus,
-            steps_passed: runRow.rows[0]?.steps_passed || 0,
-            steps_total:  runRow.rows[0]?.steps_total  || 0,
-          });
-          // Update suite_run totals
-          const totals = await pool.query(
-            `SELECT COUNT(*) FILTER(WHERE status='passed') as passed,
-                    COUNT(*) FILTER(WHERE status='failed' OR status='error') as failed,
-                    COUNT(*) FILTER(WHERE status IN ('queued','running')) as pending
-             FROM test_runs WHERE suite_run_id=$1`, [suiteRunId]
-          );
-          const t = totals.rows[0];
-          broadcast(suiteRunId, { type:"progress", passed:+t.passed, failed:+t.failed, pending:+t.pending, run_id:runId });
-          resolve();
+          // Wrapped in try/catch — a DB hiccup here must never freeze the whole
+          // suite forever. resolve() always runs (in finally) so the loop always
+          // advances to the next test, even if this bookkeeping fails.
+          try {
+            // Get final status of this test
+            const runRow = await pool.query("SELECT status,steps_passed,steps_total FROM test_runs WHERE id=$1", [runId]);
+            const runStatus = runRow.rows[0]?.status || "unknown";
+            // Broadcast test_done with status so UI can update the test row
+            broadcast(suiteRunId, {
+              type: "test_done",
+              run_id: runId,
+              test_name: test.name,
+              status: runStatus,
+              steps_passed: runRow.rows[0]?.steps_passed || 0,
+              steps_total:  runRow.rows[0]?.steps_total  || 0,
+            });
+            // Update suite_run totals
+            const totals = await pool.query(
+              `SELECT COUNT(*) FILTER(WHERE status='passed') as passed,
+                      COUNT(*) FILTER(WHERE status='failed' OR status='error') as failed,
+                      COUNT(*) FILTER(WHERE status IN ('queued','running')) as pending
+               FROM test_runs WHERE suite_run_id=$1`, [suiteRunId]
+            );
+            const t = totals.rows[0];
+            broadcast(suiteRunId, { type:"progress", passed:+t.passed, failed:+t.failed, pending:+t.pending, run_id:runId });
+          } catch (closeErr) {
+            console.error(`[Suite ${suiteRunId}] close-handler error for run ${runId}: ${closeErr.message}`);
+            try {
+              await pool.query("UPDATE test_runs SET status='error', finished_at=NOW() WHERE id=$1 AND status='running'", [runId]);
+            } catch(e) {}
+            broadcast(suiteRunId, { type:"test_done", run_id:runId, test_name:test.name, status:"error", steps_passed:0, steps_total:0 });
+          } finally {
+            resolve();
+          }
         });
       });
     }
@@ -3776,7 +4309,7 @@ app.post("/api/suite-runs", requireAuth, async (req, res) => {
           if (abortedSuiteRuns.has(suiteRunId)) break;
           const fullTest = await pool.query("SELECT variables FROM test_cases WHERE id=$1", [failedRun.test_case_id]);
           const config = {
-            type: failedRun.type, steps: failedRun.steps||[], browser: browser||failedRun.browser||"chrome",
+            type: failedRun.type, steps: await embedDbConnections(failedRun.steps||[]), browser: browser||failedRun.browser||"chrome",
             base_url: failedRun.base_url||"", variables: fullTest.rows[0]?.variables||[],
             runner_token: runnerToken, test_case_id: failedRun.test_case_id,
           };
@@ -3789,8 +4322,11 @@ app.post("/api/suite-runs", requireAuth, async (req, res) => {
             type: "test_start", run_id: failedRun.id,
             test_name: `[RETRY] ${failedRun.name}`, test_id: failedRun.test_case_id, test_type: failedRun.type
           });
+          // Config file instead of inline arg (Windows ~32K command-line cap)
+          const retryCfgPath = path.join(LOGS_PATH, `config_${failedRun.id}.json`);
+          fs.writeFileSync(retryCfgPath, JSON.stringify(config), 'utf8');
           await new Promise((resolve) => {
-            const proc = spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(failedRun.id), "--config", JSON.stringify(config)], {
+            const proc = spawn(PYTHON_CMD, [RUNNER_PATH, "--run-id", String(failedRun.id), "--config-file", retryCfgPath], {
               detached: false, stdio: ["ignore","pipe","pipe"], windowsHide: true,
               env: { ...process.env, PYTHONUNBUFFERED: "1" },
             });
@@ -3805,23 +4341,32 @@ app.post("/api/suite-runs", requireAuth, async (req, res) => {
             });
             proc.on("close", async () => {
               activeRunPids.delete(failedRun.id);
-              const retryRow = await pool.query("SELECT status,steps_passed,steps_total FROM test_runs WHERE id=$1", [failedRun.id]);
-              const retryStatus = retryRow.rows[0]?.status || "unknown";
-              broadcast(suiteRunId, {
-                type: "test_done", run_id: failedRun.id,
-                test_name: `[RETRY] ${failedRun.name}`, status: retryStatus,
-                steps_passed: retryRow.rows[0]?.steps_passed || 0,
-                steps_total:  retryRow.rows[0]?.steps_total  || 0,
-              });
-              const totals = await pool.query(
-                `SELECT COUNT(*) FILTER(WHERE status='passed') as passed,
-                        COUNT(*) FILTER(WHERE status='failed' OR status='error') as failed,
-                        COUNT(*) FILTER(WHERE status IN ('queued','running')) as pending
-                 FROM test_runs WHERE suite_run_id=$1`, [suiteRunId]
-              );
-              const t = totals.rows[0];
-              broadcast(suiteRunId, { type:"progress", passed:+t.passed, failed:+t.failed, pending:+t.pending });
-              resolve();
+              try {
+                const retryRow = await pool.query("SELECT status,steps_passed,steps_total FROM test_runs WHERE id=$1", [failedRun.id]);
+                const retryStatus = retryRow.rows[0]?.status || "unknown";
+                broadcast(suiteRunId, {
+                  type: "test_done", run_id: failedRun.id,
+                  test_name: `[RETRY] ${failedRun.name}`, status: retryStatus,
+                  steps_passed: retryRow.rows[0]?.steps_passed || 0,
+                  steps_total:  retryRow.rows[0]?.steps_total  || 0,
+                });
+                const totals = await pool.query(
+                  `SELECT COUNT(*) FILTER(WHERE status='passed') as passed,
+                          COUNT(*) FILTER(WHERE status='failed' OR status='error') as failed,
+                          COUNT(*) FILTER(WHERE status IN ('queued','running')) as pending
+                   FROM test_runs WHERE suite_run_id=$1`, [suiteRunId]
+                );
+                const t = totals.rows[0];
+                broadcast(suiteRunId, { type:"progress", passed:+t.passed, failed:+t.failed, pending:+t.pending });
+              } catch (closeErr) {
+                console.error(`[Suite ${suiteRunId}] retry close-handler error for run ${failedRun.id}: ${closeErr.message}`);
+                try {
+                  await pool.query("UPDATE test_runs SET status='error', finished_at=NOW() WHERE id=$1 AND status='running'", [failedRun.id]);
+                } catch(e) {}
+                broadcast(suiteRunId, { type:"test_done", run_id:failedRun.id, test_name:`[RETRY] ${failedRun.name}`, status:"error", steps_passed:0, steps_total:0 });
+              } finally {
+                resolve();
+              }
             });
           });
         }
@@ -3900,6 +4445,7 @@ app.get("/api/suite-runs", requireAuth, async (req, res) => {
   try {
     const ids = await getAllowedProjectIds(req.user);
     const pf  = projectFilterCol(ids, "sr.project_id");
+    console.log(`[DEBUG /api/suite-runs] uid=${req.user.uid} id=${req.user.id} role="${req.user.role}" isSuperAdmin=${isSuperAdmin(req.user)} allowedProjectIds=${ids===null ? "null (no filter)" : JSON.stringify(ids)} filterClause="${pf}"`);
     const r = await pool.query(`
       SELECT sr.*,
              s.name as suite_name,
@@ -3916,6 +4462,24 @@ app.get("/api/suite-runs", requireAuth, async (req, res) => {
       GROUP BY sr.id, s.name, p.name
       ORDER BY COALESCE(sr.started_at, sr.finished_at) DESC NULLS LAST, sr.id DESC LIMIT 100
     `);
+    console.log(`[DEBUG /api/suite-runs] query returned ${r.rows.length} row(s)`);
+    // Derive the displayed status LIVE from the same passed/failed counts shown in this
+    // row, instead of trusting the stored `status` column. Two reasons: (1) the scheduled-run
+    // path only ever wrote "passed"/"failed" and never computed "partial", unlike the manual
+    // Suite Runner and CI-CD paths, so a scheduled suite with some passing and some failing
+    // tests was always mislabeled "failed"; (2) `status` is written once and can drift out of
+    // sync with the passed/failed counts (which are always freshly recomputed here from the
+    // current test_runs rows), so two rows with identical counts could show different badges.
+    // Deriving both from the same live counts guarantees they can never disagree.
+    const LIVE_DERIVABLE = new Set(["passed","failed","partial"]);
+    r.rows.forEach(row => {
+      if (!LIVE_DERIVABLE.has(row.status)) return; // leave running/queued/aborted/error alone
+      const total = parseInt(row.total) || 0;
+      if (total === 0) return; // nothing to derive from — keep stored status
+      const failed = parseInt(row.failed) || 0;
+      const passed = parseInt(row.passed) || 0;
+      row.status = failed === 0 ? "passed" : (passed === 0 ? "failed" : "partial");
+    });
     res.json(r.rows);
   } catch(err) { res.status(500).json({ error: err.message }); }
 });
@@ -4790,6 +5354,83 @@ Respond ONLY with a JSON array, no explanation, no markdown, just raw JSON like:
   }
 });
 
+// ── AI Step: called by async_runner.py to execute ONE natural-language test step ────
+// Takes a screenshot + a plain-English instruction, asks Claude to resolve it into a
+// concrete Playwright action + selector (+ value for typing), which the runner executes.
+app.post("/api/ai/step", async (req, res) => {
+  const { screenshot_base64, instruction, run_id } = req.body;
+  try {
+    const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
+    if (!ANTHROPIC_KEY) {
+      return res.status(500).json({ error: "ANTHROPIC_API_KEY is not set. Add it to backend/.env or set it as an environment variable before starting the server." });
+    }
+    if (!instruction || !instruction.trim()) {
+      return res.status(400).json({ error: "instruction is empty" });
+    }
+
+    const stepData = await callClaude({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        messages: [{
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: detectMediaType(screenshot_base64), data: screenshot_base64 }
+            },
+            {
+              type: "text",
+              text: `You are a Playwright test automation expert executing ONE natural-language test step on a live web page.
+
+Instruction: "${instruction}"
+
+Look at the screenshot and decide the single best Playwright action to carry out this instruction right now.
+
+Respond ONLY with raw JSON, no markdown, no explanation, in this exact shape:
+{"action": "click", "selector": "get_by_role(\\"button\\", name=\\"Submit\\")", "value": "", "confidence": "high", "reason": "..."}
+
+Rules:
+- "action" must be one of: click, type, clear, select, check, uncheck, hover, press
+- "selector" must use one of these formats:
+  - get_by_role("button", name="...")
+  - get_by_role("link", name="...")
+  - get_by_placeholder("...")
+  - get_by_text("...")
+  - get_by_label("...")
+  - #id-value
+  - .class-name
+  - [data-testid="..."]
+  - text="exact text"
+- "value" is the text to type / option to select / key to press. Leave "" for click/hover/check/uncheck.
+- If the instruction implies typing (e.g. "enter", "type", "fill"), use action "type" directly and put the text to type in "value" -- NEVER resolve a text-entry instruction to "click" as a preliminary/warm-up step. The "type" action already focuses and clicks the field for you before filling it, so there is never a need to click a text field first. Only use "click" when the instruction is actually about clicking something (a button, link, tab, checkbox, menu item) -- never as a prerequisite before typing.
+- If the instruction implies selecting a dropdown option, use action "select" and put the option text in "value".
+- Pick the ONE element that best matches the instruction. Do not invent elements that aren't visible in the screenshot.
+- Text selectors: get_by_text("...") is a CONTAINS match -- prefer it, with a SHORT distinctive substring (one word or short phrase you can see verbatim), whenever the target's visible text is long, spans multiple lines, or includes dynamic details (counts, durations, timestamps, status text). Reserve the exact-match form text="..." for short, single-line, fully-visible labels only (e.g. a button or tab caption).
+- NEVER abbreviate, summarize, or truncate text inside a selector -- do not write "...", "(...)", or similar inside "selector". Every character inside get_by_text(...) or text="..." must be copied verbatim from what is actually visible on screen. If you can't read the full text exactly, use a shorter verbatim substring instead of guessing or shortening it.
+- If the visible name/text you are matching is purely numeric or very short (e.g. a calendar day number, a count, a single digit or short code), ALWAYS add exact=True -- e.g. get_by_role("button", name="5", exact=True) or get_by_text("5", exact=True). Without it, a short numeric name matches as a substring against every other element that merely contains those digits (e.g. "5" would also match "15" and "25"), which causes ambiguous/failed clicks.`
+            }
+          ]
+        }]
+    });
+
+    const text = stepData.content?.[0]?.text || "{}";
+    let resolved;
+    try {
+      const clean = text.replace(/```json|```/g, "").trim();
+      resolved = JSON.parse(clean);
+    } catch {
+      return res.status(500).json({ error: "Failed to parse AI response", raw: text });
+    }
+
+    console.log(`[AI Step] Run ${run_id} — "${instruction}" → ${resolved.action} ${resolved.selector}`);
+    res.json(resolved);
+
+  } catch (err) {
+    console.error("[AI Step] Error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── AI Script Generator: upload screenshots → get test steps ─────────────────
 app.post("/api/ai/generate-steps", requireAuth, async (req, res) => {
   const { screenshots, context_description } = req.body;
@@ -4953,8 +5594,8 @@ app.post("/api/debug/script", requireAuth, async (req, res) => {
     const uid = req.user?.uid || null;
     const pid = req.user?.project_id || null;
     const [runResult] = (await pool.query(
-      "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,started_at) VALUES ($1,$2,'running',$3,'debug',$4,NOW()) RETURNING *",
-      [test_case_id||null, pid, browser, uid]
+      "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,started_at,origin_server) VALUES ($1,$2,'running',$3,'debug',$4,NOW(),$5) RETURNING *",
+      [test_case_id||null, pid, browser, uid, INSTANCE_ID]
     )).rows;
     const runId = runResult.id;
     const runnerToken = process.env.RUNNER_SECRET || "nat-internal-runner-2024"; // always use secret so call_test works
@@ -4982,7 +5623,8 @@ app.post("/api/debug/:id/start", requireAuth, async (req, res) => {
           breakpoints, runnerToken, test_case_id } = session.pendingConfig;
   delete session.pendingConfig;
 
-  const config = { type:"ui", steps, browser, base_url, variables,
+  const embeddedSteps = await embedDbConnections(steps || []);
+  const config = { type:"ui", steps: embeddedSteps, browser, base_url, variables,
                    runner_token: runnerToken, test_case_id };
 
   const args = [
@@ -5025,8 +5667,8 @@ app.post("/api/tests/:id/debug", requireAuth, async (req, res) => {
     const test = r.rows[0];
 
     const [runResult] = (await pool.query(
-      "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,started_at) VALUES ($1,$2,'running',$3,'debug',$4,NOW()) RETURNING *",
-      [test.id, test.project_id, browser, req.user?.uid||null]
+      "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,started_at,origin_server) VALUES ($1,$2,'running',$3,'debug',$4,NOW(),$5) RETURNING *",
+      [test.id, test.project_id, browser, req.user?.uid||null, INSTANCE_ID]
     )).rows;
     const runId = runResult.id;
 
@@ -5035,7 +5677,7 @@ app.post("/api/tests/:id/debug", requireAuth, async (req, res) => {
     const runnerToken = process.env.RUNNER_SECRET || "nat-internal-runner-2024"; // always use secret so call_test works
 
     const config = {
-      type: test.type, steps: test.steps||[], browser,
+      type: test.type, steps: await embedDbConnections(test.steps||[]), browser,
       base_url: test.base_url||"", variables,
       runner_token: runnerToken, test_case_id: test.id,
       api_config: test.api_config || null,
@@ -5181,10 +5823,9 @@ app.post("/api/validate-script", requireAuth, async (req, res) => {
   const tmp = os.tmpdir() + "/athma_validate_" + Date.now() + ".py";
   fs.writeFileSync(tmp, code);
 
-  // Try python, then python3 (Windows uses python, Linux/Mac uses python3)
-  const pythonCmd = process.platform === "win32" ? "python" : "python3";
-
-  const proc = spawn(pythonCmd, ["-m", "py_compile", tmp]);
+  // Use the same resolved Python command (PYTHON_PATH from .env) as the rest of the server,
+  // instead of a bare "python"/"python3" which hits the Windows Store alias stub.
+  const proc = spawn(PYTHON_CMD, ["-m", "py_compile", tmp]);
   let stderr = "";
   proc.stderr.on("data", d => stderr += d.toString());
   proc.on("close", exitCode => {
@@ -5344,6 +5985,9 @@ if (fs.existsSync(FRONTEND_DIST)) {
     etag: true,
     lastModified: true
   }));
+  // ── Auto-Scan routes (isolated, no impact on existing routes) ───────────────
+  app.use('/api/auto-scan', require('./auto_scan_routes'));
+
   // SPA fallback — serve index.html for all non-API routes
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/ws')) return next();
@@ -5353,26 +5997,6 @@ if (fs.existsSync(FRONTEND_DIST)) {
 } else {
   console.warn('⚠️  Frontend dist not found at:', FRONTEND_DIST, '— run npm run build in frontend/');
 }
-
-// ─── GRACEFUL SHUTDOWN ────────────────────────────────────────────────────────
-process.on("SIGTERM", () => {
-  console.log("⚡ SIGTERM received — draining queue and shutting down...");
-  clearInterval(queueInterval);
-  // Wait for running jobs to finish (max 30s)
-  let waited = 0;
-  const drain = setInterval(async () => {
-    const r = await pool.query("SELECT COUNT(*) as c FROM test_runs WHERE status='running'");
-    const running = parseInt(r.rows[0].c);
-    if (running === 0 || waited >= 30000) {
-      clearInterval(drain);
-      await pool.end();
-      process.exit(0);
-    }
-    waited += 2000;
-    console.log(`⏳ Waiting for ${running} running tests to finish...`);
-  }, 2000);
-});
-
 
 // ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
 app.get("/api/health", async (req, res) => {
@@ -5396,30 +6020,9 @@ app.get("/api/health", async (req, res) => {
 });
 
 
-// ─── GRACEFUL SHUTDOWN ────────────────────────────────────────────────────────
-async function gracefulShutdown(signal) {
-  console.log(`\n[${signal}] Shutting down gracefully...`);
-  // Stop accepting new requests
-  server.close(async () => {
-    console.log("HTTP server closed");
-    // Wait for running jobs (max 30s)
-    let waited = 0;
-    while (waited < 30) {
-      const r = await pool.query("SELECT COUNT(*) FROM test_runs WHERE status='running'").catch(()=>({rows:[{count:0}]}));
-      const running = parseInt(r.rows[0].count);
-      if (running === 0) break;
-      console.log(`Waiting for ${running} running test(s) to finish...`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      waited += 2;
-    }
-    await pool.end();
-    console.log("Database pool closed. Goodbye.");
-    process.exit(0);
-  });
-  setTimeout(() => { console.error("Forced shutdown after 35s"); process.exit(1); }, 35000);
-}
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-process.on("SIGINT",  () => gracefulShutdown("SIGINT"));
+// Note: the single gracefulShutdown() used for real (kills tracked runner
+// processes, marks in-flight rows 'error', then exits) lives further down —
+// see "GRACEFUL SHUTDOWN — kill all runner processes on Ctrl+C or SIGTERM".
 
 // ─── PARALLEL RUN REPORT GENERATOR ───────────────────────────────────────────
 async function generateParallelReport(parallelRunId, runs, testName) {
@@ -5466,7 +6069,7 @@ async function generateParallelReport(parallelRunId, runs, testName) {
   const bsecs=runs.map((run,bi)=>{
     const logs=Array.isArray(run.logs)?run.logs:[];
     const sc=run.status==="passed"?"#16a34a":run.status==="failed"?"#dc2626":"#f59e0b";
-    const logRows=logs.map(l=>{const col=l.level==="pass"?"#16a34a":l.level==="fail"?"#dc2626":l.level==="error"?"#ea580c":"#6b7280";const icon=l.level==="pass"?"✅":l.level==="fail"?"❌":l.level==="error"?"🔴":"ℹ";return `<tr><td style="padding:2px 8px;color:#9ca3af;font-size:10px;white-space:nowrap">${(l.timestamp||"").slice(11,19)}</td><td style="padding:2px 8px;font-size:11px">${icon}</td><td style="padding:2px 8px;font-size:11px;color:${col}">${(l.message||"").replace(/</g,"&lt;")}</td></tr>`;}).join("");
+    const logRows=logs.map(l=>{const col=l.level==="pass"?"#16a34a":l.level==="fail"?"#dc2626":l.level==="error"?"#ea580c":"#6b7280";const icon=l.level==="pass"?"✅":l.level==="fail"?"❌":l.level==="error"?"🔴":"ℹ";const t=l.timestamp?new Date(l.timestamp).toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:false}):"";return `<tr><td style="padding:2px 8px;color:#9ca3af;font-size:10px;white-space:nowrap">${t}</td><td style="padding:2px 8px;font-size:11px">${icon}</td><td style="padding:2px 8px;font-size:11px;color:${col}">${(l.message||"").replace(/</g,"&lt;")}</td></tr>`;}).join("");
     return `<div style="border:1px solid #e5e7eb;border-radius:8px;margin-bottom:10px;overflow:hidden"><div style="padding:10px 16px;background:#f9fafb;display:flex;justify-content:space-between;cursor:pointer" onclick="toggleBrowser(${bi})"><div><span style="font-weight:700">${run.parallel_label||run.browser}</span></div><div style="display:flex;gap:12px;align-items:center"><span style="color:${sc};font-weight:700">${(run.status||"—").toUpperCase()}</span><span style="color:#6b7280">▼</span></div></div><div id="browser-${bi}" style="display:none;padding:10px 16px"><table style="width:100%;border-collapse:collapse;font-family:monospace"><tbody>${logRows||"<tr><td colspan=3 style='color:#9ca3af;padding:8px'>No logs</td></tr>"}</tbody></table></div></div>`;
   }).join("");
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Parallel Report — ${(testName||"Test").replace(/</g,"&lt;")}</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;background:#f8fafc;color:#1e293b}.header{background:linear-gradient(135deg,#5c0000,#8B0000);color:#fff;padding:24px 32px}.card{background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:20px 24px;margin:16px 24px}table{border-collapse:collapse;width:100%}</style></head><body>
@@ -5499,8 +6102,8 @@ app.post("/api/tests/:id/parallel-run", requireAuth, async (req, res) => {
         });
       }
       const r = await pool.query(
-        "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,parallel_run_id,parallel_label,variables) VALUES ($1,$2,'queued',$3,'parallel',$4,$5,$6,$7) RETURNING *",
-        [t.id, t.project_id, cfg.browser||t.browser||"chrome", req.user.uid, parallelRunId, cfg.label||`Run ${i+1}`, JSON.stringify(vars)]
+        "INSERT INTO test_runs (test_case_id,project_id,status,browser,triggered_by,run_by,parallel_run_id,parallel_label,variables,origin_server) VALUES ($1,$2,'queued',$3,'parallel',$4,$5,$6,$7,$8) RETURNING *",
+        [t.id, t.project_id, cfg.browser||t.browser||"chrome", req.user.uid, parallelRunId, cfg.label||`Run ${i+1}`, JSON.stringify(vars), INSTANCE_ID]
       );
       runIds.push(r.rows[0].id);
     }
@@ -5846,6 +6449,27 @@ RULES:
 
 // ─── SMART PAGE STUDY ────────────────────────────────────────────────────────
 // ── Quick Scan Q&A — AI generates smart questions from page map ─────────────
+// Visual Prompts — fetch/update user-editable prompts
+app.get("/api/visual-prompts", requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT match_level, prompt_text, updated_at FROM visual_prompts ORDER BY match_level`);
+    res.json({ ok: true, prompts: r.rows });
+  } catch(e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+app.put("/api/visual-prompts/:matchLevel", requireAuth, async (req, res) => {
+  const { matchLevel } = req.params;
+  const { prompt_text } = req.body;
+  try {
+    await pool.query(
+      `INSERT INTO visual_prompts (match_level, prompt_text, updated_at) VALUES ($1,$2,NOW())
+       ON CONFLICT (match_level) DO UPDATE SET prompt_text=$2, updated_at=NOW()`,
+      [matchLevel, prompt_text]
+    );
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
 app.post("/api/ai/quick-scan-questions", requireAuth, async (req, res) => {
   try {
     const { pageMap } = req.body;
@@ -5898,7 +6522,7 @@ app.post("/api/ai/generate-scripts", requireAuth, async (req, res) => {
     const { prompt } = req.body;
     if (!prompt?.trim()) return res.status(400).json({ error: "prompt required" });
     const result = await callClaude({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 4000,
       messages: [{ role: "user", content: prompt }],
     });
@@ -5942,8 +6566,22 @@ setInterval(() => {
 
 // 1. Start session — generate ID, tell extension to begin recording
 app.post('/api/smart-study/session/start', requireAuth, (req, res) => {
-  // Enforce max concurrent sessions
-  if (smartStudySessions.size >= SS_MAX) {
+  // Enforce max concurrent sessions.
+  // Only sessions still actively 'recording' should count against the limit.
+  // 'stopped' / 'processing' / 'done' sessions are finished and must NOT block
+  // a new recording (otherwise every past recording eats a slot for 30 min and
+  // you eventually get "Max concurrent smart study sessions reached").
+  // Also opportunistically prune anything stale/finished so the Map can't fill
+  // up with leftovers from MV3 service-worker restarts re-pushing old sessions.
+  const now = Date.now();
+  let activeRecording = 0;
+  for (const [id, s] of smartStudySessions) {
+    const finished = s.status && s.status !== 'recording';
+    const stale    = now - (s.lastActivity || 0) > SS_TTL_MS;
+    if (finished || stale) { smartStudySessions.delete(id); continue; }
+    activeRecording++;
+  }
+  if (activeRecording >= SS_MAX) {
     return res.status(429).json({ error: 'Max concurrent smart study sessions reached. Try again shortly.' });
   }
   const sessionId = `ss_${Date.now()}_${req.user.id}`;
@@ -5954,8 +6592,12 @@ app.post('/api/smart-study/session/start', requireAuth, (req, res) => {
     events:       [],
     status:       'recording', // recording | stopped | processing | done
   });
-  // Tell extension to start via existing WebSocket
-  broadcast('ext_runner', { type: 'smart_study_start', sessionId });
+  // The frontend messages the extension DIRECTLY via chrome.runtime.sendMessage
+  // (per-user, targeted). Do NOT broadcast over the shared 'ext_runner' WS
+  // channel — every user's extension subscribes to that same channel, so a
+  // broadcast would start recording in EVERY connected user's browser under
+  // this one user's session id, causing cross-talk and "No events captured".
+  // broadcast('ext_runner', { type: 'smart_study_start', sessionId });
   console.log(`[SmartStudy] Session started: ${sessionId}`);
   res.json({ ok: true, sessionId });
 });
@@ -5967,9 +6609,12 @@ app.post('/api/smart-study/session/:id/push-events', async (req, res) => {
   // Find session by ID without auth check (extension doesn't have user token)
   const sess = smartStudySessions.get(sessionId);
   if (!sess) {
-    // Session may have expired — create a temporary one to hold events
+    // Session may have expired — create a temporary one to hold events.
+    // Mark it 'stopped' (not 'recording') so it does NOT count against the
+    // concurrent-session limit and gets pruned on the next start. A late push
+    // from a restarted service worker should never consume a live slot.
     smartStudySessions.set(sessionId, {
-      sessionId, userId: null, status: 'recording',
+      sessionId, userId: null, status: 'stopped',
       events: events || [], lastActivity: Date.now(), createdAt: Date.now()
     });
     return res.json({ ok: true, count: (events||[]).length });
@@ -6006,7 +6651,17 @@ app.post('/api/smart-study/session/:id/stop', requireAuth, async (req, res) => {
   sess.lastActivity = Date.now();
 
   // Return all events collected so far to the frontend for client-side processing
-  res.json({ ok: true, events: sess.events, sessionId });
+  const events = sess.events;
+  res.json({ ok: true, events, sessionId });
+
+  // Free the concurrency slot now that recording has stopped. Keep the session
+  // around briefly so a follow-up /generate (or a late event push) can still
+  // find it, then remove it so it never counts toward SS_MAX again.
+  setTimeout(() => {
+    const s = smartStudySessions.get(sessionId);
+    // Only delete if it didn't move on to processing/done in the meantime.
+    if (s && (s.status === 'stopped')) smartStudySessions.delete(sessionId);
+  }, 90000);
 });
 
 // 3. Generate — receive processed data from browser, call Claude, return script
@@ -6171,6 +6826,66 @@ app.post("/api/smart-study/scan-result", async (req, res) => {
   if (error) pending.reject(new Error(error));
   else pending.resolve(result);
   res.json({ ok: true });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VISUAL SCAN  (NEW, ISOLATED — direct-message model, no poll queue)
+// The UI sends the screenshot (captured directly from the user's own browser)
+// plus the Figma frame URL + token. We write the PNG to a temp file, run the
+// standalone compare script, and return its JSON report. Touches nothing else.
+// ═══════════════════════════════════════════════════════════════════════════
+const VISUAL_SCAN_SCRIPT = path.join(__dirname, "../runner/visual_quick_scan.py");
+app.post("/api/visual/compare", requireAuth, async (req, res) => {
+  const { screenshot, figmaUrl, figmaToken, matchLevel, threshold } = req.body || {};
+  if (!screenshot) return res.status(400).json({ ok: false, error: "screenshot required" });
+  if (!figmaUrl || !figmaToken) return res.status(400).json({ ok: false, error: "figmaUrl and figmaToken are required" });
+
+  let shotPath = null;
+  try {
+    const b64 = String(screenshot).replace(/^data:image\/\w+;base64,/, "");
+    shotPath = path.join(LOGS_PATH, `vscan_${Date.now()}_${Math.floor(Math.random()*1e6)}.png`);
+    fs.writeFileSync(shotPath, Buffer.from(b64, "base64"));
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: "Failed to save screenshot: " + e.message });
+  }
+
+  const argv = [
+    VISUAL_SCAN_SCRIPT,
+    "--screenshot", shotPath,
+    "--figma-url", figmaUrl,
+    "--figma-token", figmaToken,
+    "--match-level", String(matchLevel || "ai"),
+    "--threshold", String(threshold != null ? threshold : 5),
+  ];
+  const proc = spawn(PYTHON_CMD, argv, {
+    detached: false,
+    stdio: ["ignore", "pipe", "pipe"],
+    windowsHide: true,
+    env: { ...process.env, PYTHONUNBUFFERED: "1" },
+  });
+
+  let out = "", errOut = "", done = false;
+  const finish = (code, body) => {
+    if (done) return; done = true;
+    try { fs.unlinkSync(shotPath); } catch (e) {}
+    res.status(code).json(body);
+  };
+  proc.stdout.on("data", d => { out += d.toString(); });
+  proc.stderr.on("data", d => { errOut += d.toString(); });
+  proc.on("error", (err) => finish(503, { ok: false, error: "Compare process failed to start: " + err.message }));
+  proc.on("close", () => {
+    let report = null;
+    try {
+      const line = out.trim().split(/\r?\n/).filter(Boolean).pop() || "";
+      report = JSON.parse(line);
+    } catch (e) {
+      return finish(503, { ok: false, error: "Could not parse compare output. " + (errOut.slice(0, 300) || "") });
+    }
+    if (report && report.ok === false) return finish(200, { ok: false, error: report.error || "compare failed" });
+    finish(200, { ok: true, report });
+  });
+  // Safety timeout
+  setTimeout(() => { if (!done) { try { proc.kill(); } catch(e){} finish(504, { ok: false, error: "Compare timed out" }); } }, 90000);
 });
 
 // ─── KEYWORD ADVISOR ────────────────────────────────────────────────
@@ -6426,7 +7141,7 @@ Respond with ONLY a JSON object like this (no other text):
           AND tr.created_at > NOW() - INTERVAL '90 days'
           AND tc.steps IS NOT NULL
         ORDER BY tc.id, tr.created_at DESC
-        LIMIT 30
+        LIMIT 150
       `, [project_id || null]);
 
       const byAction = {};
@@ -6439,9 +7154,10 @@ Respond with ONLY a JSON object like this (no other text):
         }
       }
 
+      const MAX_EXAMPLES_PER_ACTION = 8;
       for (const answer of answers) {
         const matches = byAction[answer.action] || [];
-        answer.real_examples = matches.slice(0, 2).map(({ test_name, step }) => {
+        const built = matches.map(({ test_name, step }) => {
           const ex = { test_name, fields: {} };
           if (step.selector)  ex.fields['Selector']  = step.selector;
           if (step.value && !String(step.value).startsWith('http')) ex.fields['Value'] = step.value;
@@ -6453,6 +7169,17 @@ Respond with ONLY a JSON object like this (no other text):
             ex.fields['Mappings'] = step.json_mappings.map(m => `${m.path}→${m.variable}`).join(', ');
           return ex;
         });
+        // De-dupe identical examples (same field values across different steps/tests)
+        // so the list isn't padded with near-identical repeats — keeps variety.
+        const seen = new Set();
+        const deduped = built.filter(ex => {
+          const key = JSON.stringify(ex.fields);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        answer.real_examples = deduped.slice(0, MAX_EXAMPLES_PER_ACTION);
+        answer.example_total = deduped.length;
         if (matches.length > 0) answer.from_test = matches[0].test_name;
       }
 
@@ -6596,14 +7323,36 @@ app.get("/api/extension/download", requireAuth, (req, res) => {
   try {
     const AdmZip = require("adm-zip");
     const extDir = path.join(__dirname, "../chrome-test-runner");
-    const files  = ["manifest.json", "background.js", "popup.html", "popup.js", "recorder.js", "inspector.js"];
+    // Package the WHOLE extension folder rather than a hardcoded list, so newly
+    // added files (e.g. smart_study_recorder.js, declared in the manifest's
+    // web_accessible_resources) are never accidentally left out of the ZIP.
+    // A hardcoded list previously omitted smart_study_recorder.js, which broke
+    // Smart Recording for everyone who installed via "Get Extension".
+    // Exclude files that are NOT part of the shipped extension:
+    //   - inspector.py        : old Python inspector, not used by the MV3 extension
+    //   - "... - Copy.js"     : editor backup copies
+    //   - syntax_check_stub.js: dev-only helper
+    const EXCLUDE = new Set(["inspector.py", "syntax_check_stub.js"]);
+    const isExcluded = (name) =>
+      EXCLUDE.has(name) ||
+      / - Copy\.[a-z]+$/i.test(name) ||   // "inspector - Copy.js" etc.
+      name.startsWith(".");               // dotfiles
     const zip = new AdmZip();
-    for (const file of files) {
+    let added = 0;
+    for (const file of fs.readdirSync(extDir)) {
       const fullPath = path.join(extDir, file);
-      if (fs.existsSync(fullPath)) {
-        zip.addLocalFile(fullPath);
-      }
+      try {
+        if (!fs.statSync(fullPath).isFile()) continue; // skip any subdirectories
+      } catch { continue; }
+      if (isExcluded(file)) continue;
+      zip.addLocalFile(fullPath);
+      added++;
     }
+    // Safety net: guarantee the manifest is present (extension is invalid without it)
+    if (!fs.existsSync(path.join(extDir, "manifest.json"))) {
+      return res.status(500).json({ error: "Extension manifest.json not found on server" });
+    }
+    console.log(`[Extension download] Packaged ${added} file(s) from ${extDir}`);
     const buffer = zip.toBuffer();
     res.setHeader("Content-Type", "application/zip");
     res.setHeader("Content-Disposition", 'attachment; filename="ATHMA-Extension.zip"');
@@ -6618,6 +7367,66 @@ app.get("/api/extension/download", requireAuth, (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // ─── CI/CD PLUGIN ────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
+// ── MULTILINGUAL IGNORE LIST ─────────────────────────────────────────────────
+// Rows a reviewer has judged to be correct-as-is (medical acronyms, proper names).
+// They stay VISIBLE in the report but are excluded from the score, so the number
+// tracks real translation defects instead of the same known-good strings forever.
+// A row matches when every non-null field matches, so a NULL means "any":
+//   base_text set, selector NULL -> ignore this string everywhere
+//   selector set,  base_text NULL -> ignore this one element only
+pool.query(`
+  CREATE TABLE IF NOT EXISTS multilingual_ignores (
+    id              SERIAL PRIMARY KEY,
+    project_id      INTEGER,
+    test_case_id    INTEGER NOT NULL,
+    language        TEXT,
+    selector        TEXT,
+    base_text       TEXT,
+    reason          TEXT NOT NULL,
+    approval_status TEXT DEFAULT 'approved',
+    created_by      INTEGER,
+    created_by_name TEXT,
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+  )
+`).then(() => pool.query(
+  `CREATE INDEX IF NOT EXISTS idx_ml_ignores_tc ON multilingual_ignores(test_case_id)`
+)).catch(e => console.error('[Multilingual] ignore table init failed:', e.message));
+
+app.get('/api/multilingual/ignores/:test_case_id', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT * FROM multilingual_ignores WHERE test_case_id=$1 ORDER BY created_at DESC`,
+      [req.params.test_case_id]);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/multilingual/ignores/:test_case_id', requireAuth, async (req, res) => {
+  try {
+    const { selector, base_text, language, reason } = req.body;
+    if (!reason || !String(reason).trim())
+      return res.status(400).json({ error: 'A reason is required' });
+    if (!selector && !base_text)
+      return res.status(400).json({ error: 'Need selector or base_text' });
+    const tc = await pool.query('SELECT project_id FROM test_cases WHERE id=$1', [req.params.test_case_id]);
+    const r = await pool.query(`
+      INSERT INTO multilingual_ignores
+        (project_id, test_case_id, language, selector, base_text, reason, created_by, created_by_name)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [tc.rows[0]?.project_id || null, req.params.test_case_id, language || null,
+       selector || null, base_text || null, String(reason).trim(),
+       req.user?.uid || null, req.user?.full_name || req.user?.username || null]);
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/multilingual/ignore/:id', requireAuth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM multilingual_ignores WHERE id=$1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Auto-create ci_api_keys table on startup
 pool.query(`
   CREATE TABLE IF NOT EXISTS ci_api_keys (
@@ -6701,9 +7510,9 @@ app.post('/api/ci/trigger', requireCiKey, async (req, res) => {
       const test = t.rows[0];
       // Create run record — run_by=1 (superadmin) so queue worker org check passes
       const run = await pool.query(
-        `INSERT INTO test_runs (test_case_id, status, browser, triggered_by, run_by, project_id)
-         VALUES ($1, 'queued', $2, 'ci', 1, $3) RETURNING id`,
-        [test.id, browser, test.project_id]
+        `INSERT INTO test_runs (test_case_id, status, browser, triggered_by, run_by, project_id, origin_server)
+         VALUES ($1, 'queued', $2, 'ci', 1, $3, $4) RETURNING id`,
+        [test.id, browser, test.project_id, INSTANCE_ID]
       );
       const runId = run.rows[0].id;
       console.log(`[CI] Triggered test run #${runId} for test ${id} (${test.name})`);
@@ -6755,9 +7564,9 @@ app.post('/api/ci/trigger', requireCiKey, async (req, res) => {
         if (!tc.rows[0]) continue;
         const test = tc.rows[0];
         const run = await pool.query(
-          `INSERT INTO test_runs (test_case_id, project_id, status, browser, triggered_by, run_by, suite_run_id)
-           VALUES ($1, $2, 'queued', $3, 'suite', 1, $4) RETURNING id`,
-          [test.id, test.project_id, browser, suiteRunId]
+          `INSERT INTO test_runs (test_case_id, project_id, status, browser, triggered_by, run_by, suite_run_id, origin_server)
+           VALUES ($1, $2, 'queued', $3, 'suite', 1, $4, $5) RETURNING id`,
+          [test.id, test.project_id, browser, suiteRunId, INSTANCE_ID]
         );
         runIds.push({ runId: run.rows[0].id, test });
       }
@@ -6788,7 +7597,7 @@ app.post('/api/ci/trigger', requireCiKey, async (req, res) => {
           const isLastTest = runIds[runIds.length - 1].runId === runId;
           const config = {
             type: test.type,
-            steps: test.steps || [],
+            steps: await embedDbConnections(test.steps || []),
             browser: browser || test.browser || 'chrome',
             base_url: test.base_url || '',
             variables: fullTest.rows[0]?.variables || [],
@@ -6807,7 +7616,11 @@ app.post('/api/ci/trigger', requireCiKey, async (req, res) => {
           await pool.query("UPDATE test_runs SET status='running', started_at=NOW() WHERE id=$1", [runId]);
 
           await new Promise((resolve) => {
-            const proc = spawn(PYTHON_CMD, [RUNNER_PATH, '--run-id', String(runId), '--config', JSON.stringify(config)], {
+            // Config FILE (not inline arg) — Windows caps command lines at ~32K
+            // chars; large tests silently failed to spawn with inline JSON.
+            const ciCfgPath = path.join(LOGS_PATH, `config_${runId}.json`);
+            fs.writeFileSync(ciCfgPath, JSON.stringify(config), 'utf8');
+            const proc = spawn(PYTHON_CMD, [RUNNER_PATH, '--run-id', String(runId), '--config-file', ciCfgPath], {
               detached: false, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true,
               env: { ...process.env, PYTHONUNBUFFERED: '1' },
             });
@@ -6824,23 +7637,34 @@ app.post('/api/ci/trigger', requireCiKey, async (req, res) => {
             });
             proc.on('close', async () => {
               activeRunPids.delete(runId);
-              const runRow = await pool.query('SELECT status,steps_passed,steps_total FROM test_runs WHERE id=$1', [runId]);
-              const runStatus = runRow.rows[0]?.status || 'unknown';
-              broadcast(suiteRunId, {
-                type: 'test_done', run_id: runId,
-                status: runStatus,
-                steps_passed: runRow.rows[0]?.steps_passed || 0,
-                steps_total: runRow.rows[0]?.steps_total || 0,
-              });
-              const totals = await pool.query(
-                `SELECT COUNT(*) FILTER(WHERE status='passed') as passed,
-                        COUNT(*) FILTER(WHERE status IN ('failed','error')) as failed,
-                        COUNT(*) FILTER(WHERE status IN ('queued','running')) as pending
-                 FROM test_runs WHERE suite_run_id=$1`, [suiteRunId]
-              );
-              const t = totals.rows[0];
-              broadcast(suiteRunId, { type: 'progress', passed: +t.passed, failed: +t.failed, pending: +t.pending, run_id: runId });
-              resolve();
+              // Wrapped in try/catch/finally — a DB hiccup here must never freeze
+              // this CI suite loop forever; resolve() always runs so it advances.
+              try {
+                const runRow = await pool.query('SELECT status,steps_passed,steps_total FROM test_runs WHERE id=$1', [runId]);
+                const runStatus = runRow.rows[0]?.status || 'unknown';
+                broadcast(suiteRunId, {
+                  type: 'test_done', run_id: runId,
+                  status: runStatus,
+                  steps_passed: runRow.rows[0]?.steps_passed || 0,
+                  steps_total: runRow.rows[0]?.steps_total || 0,
+                });
+                const totals = await pool.query(
+                  `SELECT COUNT(*) FILTER(WHERE status='passed') as passed,
+                          COUNT(*) FILTER(WHERE status IN ('failed','error')) as failed,
+                          COUNT(*) FILTER(WHERE status IN ('queued','running')) as pending
+                   FROM test_runs WHERE suite_run_id=$1`, [suiteRunId]
+                );
+                const t = totals.rows[0];
+                broadcast(suiteRunId, { type: 'progress', passed: +t.passed, failed: +t.failed, pending: +t.pending, run_id: runId });
+              } catch (closeErr) {
+                console.error(`[CI Suite ${suiteRunId}] close-handler error for run ${runId}: ${closeErr.message}`);
+                try {
+                  await pool.query("UPDATE test_runs SET status='error', finished_at=NOW() WHERE id=$1 AND status='running'", [runId]);
+                } catch(e) {}
+                broadcast(suiteRunId, { type:"test_done", run_id:runId, status:"error", steps_passed:0, steps_total:0 });
+              } finally {
+                resolve();
+              }
             });
           });
         }
@@ -7090,6 +7914,12 @@ cron.schedule('0 * * * *', async () => {
 // ─── MULTILINGUAL TESTING ROUTES ─────────────────────────────────────────────
 
 // Save baseline snapshot (called from runner after capture_page_text)
+// Tracks which run_id last wrote each (test_case, language, url) baseline. A NEW run
+// replaces the baseline outright; every further capture_page_text within the SAME run
+// merges into it. Without this, "merge" would accumulate elements across every run
+// forever and stale strings from old app states would never age out.
+const _mlBaselineRun = new Map();
+
 app.post('/api/multilingual/baseline', async (req, res) => {
   try {
     const { run_id, language, url: rawUrl, page_title, elements } = req.body;
@@ -7119,33 +7949,86 @@ app.post('/api/multilingual/baseline', async (req, res) => {
     }
     // Get test_case_id and project_id from run
     const run = await pool.query('SELECT test_case_id FROM test_runs WHERE id=$1', [run_id]);
-    if (!run.rows.length) return res.json({ ok: true }); // run not found - ignore
+    if (!run.rows.length) {
+      // Silent until now: returned a bare {ok:true} that the runner logged as
+      // "action=None", indistinguishable from a crash. Say so.
+      console.warn(`[Multilingual] baseline SKIPPED: run_id=${run_id} not found in test_runs`);
+      return res.json({ ok: true, action: 'skipped', reason: `run_id ${run_id} not found in test_runs` });
+    }
     const tc = await pool.query('SELECT project_id FROM test_cases WHERE id=$1', [run.rows[0].test_case_id]);
     const project_id   = tc.rows[0]?.project_id;
     const test_case_id = run.rows[0].test_case_id;
 
-    // Upsert baseline - replace if same test+language+url
-    // Get existing elements for this URL and MERGE (don't replace)
+    // Upsert baseline - replace if same test+language+url.
+    // Each capture_page_text call OVERWRITES the baseline for this URL+language with
+    // exactly what it just found — no merging with older captures. This avoids stale
+    // elements from a different screen/tab (same URL, different app state) lingering
+    // forever in the baseline (previously this merged and never dropped anything).
     const existing = await pool.query(`
       SELECT id, elements FROM multilingual_baselines
       WHERE test_case_id=$1 AND language=$2 AND url=$3
       ORDER BY captured_at DESC LIMIT 1
     `, [test_case_id, language, url]);
 
-    if (existing.rows.length > 0) {
-      // Merge new elements into existing — keep old ones not in new capture
-      const oldElements  = existing.rows[0].elements || [];
-      const newSelectors = new Set(elements.map(e => e.selector + '||' + e.type));
-      const uniqueOld    = oldElements.filter(e => !newSelectors.has(e.selector + '||' + e.type));
-      const merged       = [...uniqueOld, ...elements];
+    // First capture of this run resets the baseline; later ones merge into it, so a
+    // script that captures several times on one URL (modal open, tooltip hovers, tab
+    // switches) keeps ALL of them instead of only the last.
+    const mergeKey  = `${test_case_id}|${language}|${url}`;
+    const sameRun   = _mlBaselineRun.get(mergeKey) === run_id;
+    _mlBaselineRun.set(mergeKey, run_id);
 
+    if (existing.rows.length > 0) {
+      let finalEls = elements;
+      let collided = [];
+      let repeats = 0;
+      if (sameRun) {
+        // Merge on selector — /compare pairs base vs target by selector, so that is the
+        // identity that has to stay unique. Newer capture wins for the same selector.
+        // Key on el.key (section-namespaced) when present. Keying on selector alone made
+        // 'span._1' from one screen overwrite 'span._1' from another — 15 strings lost in a
+        // single run. Older baselines have no key, so fall back to selector for those.
+        const idOf = el => el.key || el.selector;
+        const bySel = new Map();
+        // Shared page furniture (nav links, header, breadcrumb) is present on EVERY screen, so
+        // once identity is namespaced by section it would be stored once per capture — 13 nav
+        // links x 3 screens = 39 rows of the same strings, tripling their weight in the score.
+        // Same selector AND same text = the same string seen again; keep the first sighting.
+        const seenContent = new Set();
+        for (const el of (existing.rows[0].elements || [])) {
+          bySel.set(idOf(el), el);
+          seenContent.add(el.selector + '||' + (el.text || ''));
+        }
+        for (const el of elements) {
+          const content = el.selector + '||' + (el.text || '');
+          const prev = bySel.get(idOf(el));
+          if (!prev && seenContent.has(content)) { repeats++; continue; }
+          seenContent.add(content);
+          // Same selector, DIFFERENT text => the incoming capture reused a selector that
+          // already meant something else, and the older string is about to be lost. This
+          // is the failure mode where an earlier screen's strings "disappear" after a
+          // later capture. Logged so it is visible instead of silent.
+          if (prev && (prev.text || '') !== (el.text || '') && collided.length < 15) {
+            collided.push(`${idOf(el)}: "${prev.text}" -> "${el.text}"`);
+          }
+          // Page-level strings are re-captured by every step, so the LAST step note would
+          // otherwise win. Keep the note from where the string was FIRST seen.
+          if (prev && prev.section && !el.section) el.section = prev.section;
+          else if (prev && prev.section) el.section = prev.section;
+          bySel.set(idOf(el), el);
+        }
+        finalEls = Array.from(bySel.values());
+      }
       await pool.query(`
         UPDATE multilingual_baselines
-        SET elements=$1, captured_at=NOW()
-        WHERE id=$2
-      `, [JSON.stringify(merged), existing.rows[0].id]);
+        SET elements=$1, page_title=$2, captured_at=NOW()
+        WHERE id=$3
+      `, [JSON.stringify(finalEls), page_title, existing.rows[0].id]);
 
-      console.log(`[Multilingual] Merged baseline: ${uniqueOld.length} old + ${elements.length} new = ${merged.length} total`);
+      const prevCount = (existing.rows[0].elements || []).length;
+      console.log(`[Multilingual] Baseline ${sameRun ? 'merged' : 'RESET'} run=${run_id} url=${url} prev=${prevCount} incoming=${elements.length} final=${finalEls.length} clobbered=${collided.length} repeats=${repeats}`);
+      if (collided.length) console.log(`[Multilingual]   selector collisions: ${collided.join(' | ')}`);
+      return res.json({ ok: true, action: sameRun ? 'merged' : 'reset', incoming: elements.length,
+                        previous: prevCount, total: finalEls.length, clobbered: collided.length });
     } else {
       // No existing row — insert fresh
       await pool.query(`
@@ -7155,10 +8038,23 @@ app.post('/api/multilingual/baseline', async (req, res) => {
       `, [project_id, test_case_id, language, url, page_title, JSON.stringify(elements), userId]);
 
       console.log(`[Multilingual] New baseline saved: ${elements.length} elements`);
+      return res.json({ ok: true, action: 'created', incoming: elements.length,
+                        previous: 0, total: elements.length, clobbered: 0 });
     }
 
     res.json({ ok: true });
-  } catch(e) { console.error('[Multilingual] baseline save error:', e.message); res.json({ ok: true }); }
+  } catch(e) {
+    // e.message is frequently empty on pg errors — the useful part is code/detail/constraint.
+    console.error('[Multilingual] baseline save error:', {
+      message: e?.message || '(empty)', code: e?.code, detail: e?.detail,
+      constraint: e?.constraint, table: e?.table, column: e?.column, where: e?.where,
+      routine: e?.routine, name: e?.name
+    });
+    if (e?.stack) console.error(e.stack.split('\n').slice(0, 5).join('\n'));
+    // Surface it to the runner log too, so it shows up next to the capture it belongs to.
+    res.json({ ok: false, action: 'error',
+               error: e?.message || e?.detail || e?.code || String(e) || 'unknown' });
+  }
 });
 
 // Get all baselines for a test case
@@ -7191,7 +8087,22 @@ app.get('/api/multilingual/baseline/:test_case_id/:language', requireAuth, async
 // Run comparison between two language baselines
 app.post('/api/multilingual/compare', requireAuth, async (req, res) => {
   try {
-    const { test_case_id, base_language, target_language } = req.body;
+    const { test_case_id, base_language, target_language, score_grid_data } = req.body;
+
+    // Reviewer-approved ignores, and whether grid RECORD data counts toward the score.
+    // Both only affect the SCORE — every row still appears in the report.
+    const scoreGrid = score_grid_data === true;
+    let ignores = [];
+    try {
+      const ig = await pool.query(
+        `SELECT * FROM multilingual_ignores
+          WHERE test_case_id=$1 AND approval_status='approved'
+            AND (language IS NULL OR language=$2)`, [test_case_id, target_language]);
+      ignores = ig.rows;
+    } catch (e) { console.warn('[Multilingual] ignore load failed:', e.message); }
+    const isIgnored = (sel, txt) => ignores.find(g =>
+      (g.selector  == null || g.selector  === sel) &&
+      (g.base_text == null || g.base_text === txt));
 
     // Get base (English) snapshots - latest per URL only
     const base = await pool.query(`
@@ -7215,6 +8126,7 @@ app.post('/api/multilingual/compare', requireAuth, async (req, res) => {
     // Compare page by page
     const pages = [];
     let totalElements = 0, totalTranslated = 0, totalNotTranslated = 0, totalOverflow = 0;
+    let totalIgnored = 0, totalDataRows = 0, rawElements = 0, rawTranslated = 0;
 
     for (const basePage of base.rows) {
       // Find matching target page by URL (strip lang params)
@@ -7222,13 +8134,30 @@ app.post('/api/multilingual/compare', requireAuth, async (req, res) => {
       const targetPage = target.rows.find(t => t.url.replace(/[?&]lang=[^&]*/g, '') === baseUrl);
       if (!targetPage) continue;
 
-      const baseEls   = basePage.elements   || [];
       const targetEls = targetPage.elements || [];
+
+      // Report order used to follow the capture script's sweep order (all labels, then
+      // all buttons, then all th...), which jumps around the screen and is painful to
+      // review. Sort by capture section, then reading order: top to bottom, left to
+      // right. Y is bucketed to 8px so one visual row doesn't jitter out of sequence.
+      // Sorting uses the BASE snapshot only, so both languages stay aligned.
+      const sectionOrder = new Map();
+      for (const e of (basePage.elements || []))
+        if (!sectionOrder.has(e.section || '')) sectionOrder.set(e.section || '', sectionOrder.size);
+      const baseEls = [...(basePage.elements || [])].sort((a, b) => {
+        const sa = sectionOrder.get(a.section || '') ?? 0, sb = sectionOrder.get(b.section || '') ?? 0;
+        if (sa !== sb) return sa - sb;
+        const ya = Math.round((a.rect?.top ?? 0) / 8), yb = Math.round((b.rect?.top ?? 0) / 8);
+        if (ya !== yb) return ya - yb;
+        return (a.rect?.left ?? 0) - (b.rect?.left ?? 0);
+      });
 
       // Match elements by selector
       const pageResults = [];
       for (const baseEl of baseEls) {
-        const targetEl = targetEls.find(t => t.selector === baseEl.selector);
+        // Pair on the section-namespaced key when both sides have one; selector otherwise.
+        const baseId = baseEl.key || baseEl.selector;
+        const targetEl = targetEls.find(t => (t.key || t.selector) === baseId);
         if (!targetEl) continue;
 
         const baseText   = baseEl.text   || baseEl.placeholder || '';
@@ -7239,25 +8168,43 @@ app.post('/api/multilingual/compare', requireAuth, async (req, res) => {
                              targetText.length > baseText.length * 1.5 &&
                              targetEl.rect?.width >= (targetEl.rect?.width || 999);
 
-        totalElements++;
-        if (isTranslated)  totalTranslated++;
-        else               totalNotTranslated++;
-        if (isOverflow)    totalOverflow++;
+        // Shown either way; only 'scored' rows move the percentage.
+        const ignoreHit = isIgnored(baseEl.selector, baseText);
+        const isDataRow = baseEl.type === 'grid_data' && !scoreGrid;
+        const scored    = !ignoreHit && !isDataRow;
+
+        if (scored) {
+          totalElements++;
+          if (isTranslated)  totalTranslated++;
+          else               totalNotTranslated++;
+          if (isOverflow)    totalOverflow++;
+        } else if (ignoreHit) { totalIgnored++; }
+        else                  { totalDataRows++; }
+
+        rawElements++;
+        if (isTranslated) rawTranslated++;
 
         pageResults.push({
           selector:    baseEl.selector,
           type:        baseEl.type,
+          section:     baseEl.section || targetEl.section || null,
+          scored:      scored,
+          ignored:     !!ignoreHit,
+          ignore_id:     ignoreHit ? ignoreHit.id : null,
+          ignore_reason: ignoreHit ? ignoreHit.reason : null,
+          ignored_by:    ignoreHit ? ignoreHit.created_by_name : null,
           base_text:   baseText,
           target_text: targetText,
-          status:        isTranslated ? 'translated' : 'not_translated',
+          status:        ignoreHit ? 'ignored' : (isDataRow ? 'data' : (isTranslated ? 'translated' : 'not_translated')),
           overflow:      isOverflow,
           base_rect:     baseEl.rect,
           target_rect:   targetEl.rect
         });
       }
 
-      const pageScore = pageResults.length > 0
-        ? Math.round((pageResults.filter(r => r.status === 'translated').length / pageResults.length) * 100)
+      const pageScored = pageResults.filter(r => r.scored);
+      const pageScore = pageScored.length > 0
+        ? Math.round((pageScored.filter(r => r.status === 'translated').length / pageScored.length) * 100)
         : 0;
 
       pages.push({
@@ -7265,14 +8212,21 @@ app.post('/api/multilingual/compare', requireAuth, async (req, res) => {
         page_title: basePage.page_title,
         score:      pageScore,
         elements:   pageResults,
-        translated:     pageResults.filter(r => r.status === 'translated').length,
-        not_translated: pageResults.filter(r => r.status === 'not_translated').length,
-        overflow:       pageResults.filter(r => r.overflow).length
+        translated:     pageScored.filter(r => r.status === 'translated').length,
+        not_translated: pageScored.filter(r => r.status === 'not_translated').length,
+        overflow:       pageScored.filter(r => r.overflow).length,
+        ignored:        pageResults.filter(r => r.status === 'ignored').length,
+        data_rows:      pageResults.filter(r => r.status === 'data').length
       });
     }
 
-    const overallScore = totalElements > 0
+    // 'overallScore' is ADJUSTED — ignored rows and unscored data rows excluded.
+    // 'rawScore' is what it would be counting everything, always returned alongside so
+    // an ignore list can never quietly inflate the headline number.
+    let overallScore = totalElements > 0
       ? Math.round((totalTranslated / totalElements) * 100) : 0;
+    const rawScore = rawElements > 0
+      ? Math.round((rawTranslated / rawElements) * 100) : 0;
 
     // Get project_id
     const tc = await pool.query('SELECT project_id FROM test_cases WHERE id=$1', [test_case_id]);
@@ -7282,8 +8236,15 @@ app.post('/api/multilingual/compare', requireAuth, async (req, res) => {
       const toVerify = [];
       for (const page of pages) {
         for (const el of page.elements || []) {
-          if (el.base_text && el.target_text) {
-            toVerify.push({ base: el.base_text, target: el.target_text, status: el.status, selector: el.selector });
+          // Verify any element that has base text. Previously this also required
+          // target_text to be truthy, which silently skipped not_translated
+          // elements whose target was EMPTY ("") — so they got no AI reason or
+          // suggestion. base_text alone is enough to ask for the translation.
+          // Ignored and unscored data rows can't fail, so verifying them is wasted
+          // Claude spend — and it produced the "proper name, no translation needed"
+          // noise that filled the report.
+          if (el.base_text && el.scored) {
+            toVerify.push({ base: el.base_text, target: el.target_text || '', status: el.status, selector: el.selector });
           }
         }
       }
@@ -7316,12 +8277,16 @@ ${batch.map(v => `base:"${v.base}" | target:"${v.target}" | status:${v.status}`)
                 'anthropic-version': '2023-06-01'
               },
               body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 2000,
+                model: 'claude-sonnet-4-6',
+                max_tokens: 4000,
                 messages: [{ role: 'user', content: prompt }]
               })
             });
             const aiData  = await aiResp.json();
+            if (!aiResp.ok || !aiData.content) {
+              console.error(`[Multilingual AI] Batch ${Math.floor(b/batchSize)+1} API error:`,
+                JSON.stringify(aiData).slice(0, 300));
+            }
             const aiText  = aiData.content?.[0]?.text || '[]';
             console.log(`[Multilingual AI] Batch ${Math.floor(b/batchSize)+1}/${Math.ceil(toVerify.length/batchSize)}: ${aiText.slice(0,100)}`);
             const cleaned = aiText.replace(/```json\n?|```/g, '').trim();
@@ -7332,24 +8297,29 @@ ${batch.map(v => `base:"${v.base}" | target:"${v.target}" | status:${v.status}`)
           }
         }
 
-        // Map AI results back to page elements
+        // Map AI results back to page elements. Index by base+target AND by
+        // base alone, so not_translated rows (empty or echoed target) still map.
         const verMap = {};
         for (const v of allVerifications) {
-          verMap[v.base + '||' + v.target] = v;
-          if (v.base === v.target) verMap[v.base + '||' + v.base] = v;
+          verMap[v.base + '||' + (v.target || '')] = v;
+          verMap[v.base + '||' + v.base] = v;
+          if (verMap['B::' + v.base] === undefined) verMap['B::' + v.base] = v; // base-only fallback
         }
 
         let wrongTranslation = 0;
         for (const page of pages) {
           for (const el of page.elements || []) {
-            const key = el.status === 'not_translated'
-              ? el.base_text + '||' + el.base_text
-              : el.base_text + '||' + el.target_text;
-            const ver = verMap[key] || verMap[el.base_text + '||' + el.base_text];
+            const ver = verMap[el.base_text + '||' + (el.target_text || '')]
+                     || verMap[el.base_text + '||' + el.base_text]
+                     || verMap['B::' + el.base_text];
             if (ver) {
               el.ai_correct = ver.correct;
-              el.ai_reason  = ver.reason;
-              el.suggested  = (ver.suggested && ver.suggested !== el.base_text) ? ver.suggested : null;
+              el.ai_reason  = ver.reason || null;
+              // Keep the suggestion whenever it differs from the CURRENT target
+              // (what's on screen). For not_translated the target is the English
+              // leftover/empty, so a Greek suggestion is meaningful even if it
+              // equals base only when base is genuinely non-translatable.
+              el.suggested  = (ver.suggested && ver.suggested !== el.target_text) ? ver.suggested : null;
               if (el.status === 'translated') {
                 el.status = ver.correct ? 'translated' : 'wrong_translation';
                 if (!ver.correct) wrongTranslation++;
@@ -7394,11 +8364,16 @@ ${batch.map(v => `base:"${v.base}" | target:"${v.target}" | status:${v.status}`)
     res.json({
       ok: true,
       result_id:     saved.rows[0].id,
-      overall_score: overallScore,
+      overall_score: overallScore,     // adjusted — ignored + unscored data excluded
+      raw_score:     rawScore,         // what it would be counting everything
       total:         totalElements,
+      raw_total:     rawElements,
       translated:    totalTranslated,
       not_translated:totalNotTranslated,
       overflow:      totalOverflow,
+      ignored:       totalIgnored,
+      data_rows:     totalDataRows,
+      score_grid_data: scoreGrid,
       pages
     });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -7439,8 +8414,154 @@ app.delete('/api/multilingual/baseline/:test_case_id/:language', requireAuth, as
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ─── FILE LIBRARY ROUTES ─────────────────────────────────────────────────────
+// Allows users to upload local files to the server so they can be used in
+// upload_attachment test steps without needing server-side paths.
+const multer = (() => { try { return require('multer'); } catch(e) { return null; } })();
+const UPLOADS_DIR = path.join(__dirname, '../runner/uploads');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+if (multer) {
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+    filename:    (req, file, cb) => {
+      // Preserve original name but sanitise it — strip path separators and dangerous chars
+      const safe = file.originalname.replace(/[/\\:*?"<>|]/g, '_');
+      // If a file with the same name already exists, keep the existing one (idempotent)
+      const dest = path.join(UPLOADS_DIR, safe);
+      cb(null, safe);
+    },
+  });
+  const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } }); // 50 MB max
+
+  // POST /api/file-library — upload a file
+  app.post('/api/file-library', requireAuth, upload.single('file'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file received' });
+    const serverPath = path.join(UPLOADS_DIR, req.file.filename);
+    res.json({
+      filename:    req.file.filename,
+      originalname:req.file.originalname,
+      size:        req.file.size,
+      server_path: serverPath,
+      uploaded_at: new Date().toISOString(),
+    });
+    console.log(`[file-library] uploaded: ${req.file.filename} (${req.file.size} bytes)`);
+  });
+
+  // GET /api/file-library — list all uploaded files
+  app.get('/api/file-library', requireAuth, (req, res) => {
+    try {
+      const files = fs.readdirSync(UPLOADS_DIR)
+        .filter(f => !f.startsWith('.'))
+        .map(f => {
+          const fp   = path.join(UPLOADS_DIR, f);
+          const stat = fs.statSync(fp);
+          return {
+            filename:    f,
+            size:        stat.size,
+            server_path: fp,
+            uploaded_at: stat.mtime.toISOString(),
+          };
+        })
+        .sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at));
+      res.json({ files });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+  });
+
+  // DELETE /api/file-library/:filename — remove a file
+  app.delete('/api/file-library/:filename', requireAuth, (req, res) => {
+    try {
+      const safe = req.params.filename.replace(/[/\\:*?"<>|]/g, '_');
+      const fp   = path.join(UPLOADS_DIR, safe);
+      if (!fs.existsSync(fp)) return res.status(404).json({ error: 'File not found' });
+      fs.unlinkSync(fp);
+      res.json({ ok: true });
+      console.log(`[file-library] deleted: ${safe}`);
+    } catch(e) { res.status(500).json({ error: e.message }); }
+  });
+
+  console.log('✅ File library routes ready (uploads → ', UPLOADS_DIR, ')');
+} else {
+  // multer not installed yet — routes return helpful error
+  const _noMulter = (req, res) => res.status(503).json({
+    error: 'multer package not installed. Run: cd backend && npm install multer'
+  });
+  app.post('/api/file-library', requireAuth, _noMulter);
+  app.get('/api/file-library',  requireAuth, _noMulter);
+  app.delete('/api/file-library/:filename', requireAuth, _noMulter);
+  console.warn('⚠️  multer not found — run: cd backend && npm install multer');
+}
+
+// ─── SMART AUTHOR ROUTE ──────────────────────────────────────────────────────
+// Three-layer Smart Author:
+//   Layer 1: Knowledge base (study screen output + widget patterns)
+//   Layer 2: One Claude call: plain English goal → field-value list
+//   Layer 3: Deterministic execution using widget patterns
+// The user just types plain English. No selectors. No keywords.
+app.post('/api/agent-tests/smart-author', requireAuth, async (req, res) => {
+  const { goal, base_url, project_id, name, login_user, login_password } = req.body;
+  if (!goal || !base_url) return res.status(400).json({ error: 'goal and base_url required' });
+
+  // Fixed: was reading a nonexistent PYTHON_CMD env var and defaulting to bare 'python',
+  // which hits the Windows Store alias stub. Now reuses the module-level PYTHON_CMD
+  // (from PYTHON_PATH in .env) that every other runner invocation already uses.
+  const scriptPath = path.join(__dirname, '../runner/agent/smart_author.py');
+
+  const args = [
+    scriptPath,
+    '--url',      base_url,
+    '--goal',     goal,
+    '--user',     login_user     || 'admin',
+    '--password', login_password || 'admin',
+  ];
+
+  let stdout = '', stderr = '';
+  const proc = require('child_process').spawn(PYTHON_CMD, args, {
+    cwd: path.join(__dirname, '../runner/agent'),
+    env: { ...process.env },
+  });
+  proc.stdout.on('data', d => { stdout += d.toString(); process.stdout.write(d); });
+  proc.stderr.on('data', d => { stderr += d.toString(); process.stderr.write(d); });
+
+  // Kill timer: 10 min max (layer 2 is one fast AI call, layer 3 is deterministic)
+  const killTimer = setTimeout(() => { try { proc.kill(); } catch {} }, 10 * 60 * 1000);
+
+  proc.on('close', async (code) => {
+    clearTimeout(killTimer);
+    try {
+      const m = stdout.match(/SCRIPT_PATH=(.+\.json)\s*$/m);
+      if (!m) {
+        console.error('[smart-author] stdout:', stdout.slice(-3000));
+        console.error('[smart-author] stderr:', stderr.slice(-1000));
+        return res.status(500).json({
+          error: 'Smart author did not produce a script.',
+          detail: (stderr || stdout).slice(-3000)
+        });
+      }
+      const doc   = JSON.parse(fs.readFileSync(m[1].trim(), 'utf8'));
+      const steps = (doc.steps || []).map(st => {
+        const o = {}; for (const k in st) if (!k.startsWith('_')) o[k] = st[k]; return o;
+      });
+      if (!steps.length) {
+        return res.status(500).json({ error: 'Smart author produced an empty script.' });
+      }
+      // Save to agent_test_cases
+      const r = await pool.query(
+        `INSERT INTO agent_test_cases
+           (project_id, name, goal, base_url, steps, status, created_at, updated_at)
+         VALUES ($1,$2,$3,$4,$5,'draft',NOW(),NOW()) RETURNING id`,
+        [project_id || null, name || goal.slice(0, 80), goal, base_url,
+         JSON.stringify(steps)]
+      );
+      res.json({ ok: true, id: r.rows[0].id, step_count: steps.length, steps });
+    } catch(e) { res.status(500).json({ error: e.message, detail: stderr.slice(-1000) }); }
+  });
+});
+
 // ─── JIRA ROUTES ─────────────────────────────────────────────────────────────
 require('./jira_routes')(app, pool, requireAuth);
+require('./control_routes')(app, pool, requireAuth);
+//app.use('/api/auto-scan', require('./auto_scan_routes'));
 
 const PORT = process.env.PORT || 6001;
 server.listen(PORT,'0.0.0.0',async () => {
@@ -7452,6 +8573,20 @@ server.listen(PORT,'0.0.0.0',async () => {
   // On startup: reset orphaned runs from previous server session
   // Mark as 'error' (not 'failed') so users know these were interrupted by restart
   try {
+    // If the previous instance died non-gracefully (crash, hard kill, etc.) any
+    // runner.py process it spawned can still be alive right now as an orphan —
+    // this Node instance's activeRunPids map starts empty, so it has no idea
+    // those PIDs exist. Kill them BEFORE marking their rows 'error', so they
+    // can't keep running in the background and later post a stale/confusing
+    // result back for a run the UI already shows as finished.
+    const stillMidFlight = await pool.query(
+      `SELECT id FROM test_runs WHERE status IN ('queued','running')`
+    );
+    if (stillMidFlight.rows.length > 0) {
+      console.log(`🔪 Attempting to kill ${stillMidFlight.rows.length} leftover runner process(es) from previous session...`);
+      await Promise.all(stillMidFlight.rows.map(r => killRunnerProcessByRunId(r.id).catch(()=>{})));
+    }
+
     const orphaned = await pool.query(
       `UPDATE test_runs SET status='error', finished_at=NOW()
        WHERE status IN ('queued','running')

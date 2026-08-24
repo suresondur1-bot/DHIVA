@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { api, s, C, WS } from "./shared.jsx";
 
-const EXT_ID = "pjnhkoeckhddakkeadpdgmliconkebak";
+const EXT_ID = "kjcdbdllalehljpjdfljcekgikompmkf";
 
 // ─── EXISTING Quick Scan prompt (unchanged) ───────────────────────────────────
 function buildPrompt(pm) {
@@ -27,6 +27,11 @@ function buildPrompt(pm) {
     `RADIO "${g.label}" options:[${g.options.join(',')}] sel:"${g.selector}"`
   ).join('\n');
 
+  const checkboxes = (pm.checkboxes||[]);
+  const checkboxLines = checkboxes.map(c =>
+    `CHECKBOX "${c.label}" sel:"${c.selector}"${c.checked?' [currently checked]':''}`
+  ).join('\n');
+
   const tabLines = tabs.map(t => `TAB "${t.label}"${t.active?' [ACTIVE]':''}`).join(' | ');
 
   return `You are an ATHMA test automation expert. ATHMA uses Angular + ng-select components.
@@ -41,6 +46,9 @@ ${fieldLines}
 
 ${radioGroups.length ? `RADIO GROUPS:
 ${radioLines}
+` : ''}
+${checkboxes.length ? `CHECKBOXES (${checkboxes.length}) — include check/uncheck steps for relevant ones:
+${checkboxLines}
 ` : ''}
 BUTTONS: ${(pm.buttons||[]).map(b => `"${b.text}"${(b.isBranchTrigger||b.isBranch)?' [BRANCH]':''}`).join(' | ')}
 TABLES: ${(pm.tableColumns||[]).map(t => `[${t.headers?.join('|')}] inp:${t.hasInputs} ng:${t.hasNgSelect}`).join(' | ')||'none'}
@@ -183,7 +191,7 @@ function processRecording(rawEvents) {
         c.variable = varName;
         c.example = step.value;
         variables.push({ name: varName, label: step.label || step.selector,
-          example: step.value, dynamic: true, confidence: c.confidence,
+          example: step.value, dynamic: null, suggestedDynamic: true, confidence: c.confidence,
           type: /date|dob|birth/i.test(step.label) ? 'date' : 'string' });
       }
       return c;
@@ -222,12 +230,38 @@ function classifyStep(step) {
 }
 
 function makeVarName(label, usedNames) {
-  const base = (label||'field').toLowerCase().replace(/[^a-z0-9\s]/g,'').trim().replace(/\s+/g,'_').slice(0,25)||'field';
+  const base = (label||'field').toLowerCase().replace(/[^a-z0-9\s]/g,'').trim().replace(/\s+/g,'_').slice(0,40)||'field';
   let n = base, i = 2;
   while (usedNames.has(n)) n = `${base}_${i++}`;
   usedNames.add(n);
   return n;
 }
+
+// ─── Quick Scan: extract {{variable}} tokens from a generated script's steps ──
+// The AI puts {{var}} placeholders into step values; this pulls them out into a
+// variables list (deduped, with a guessed type) so they can be shown at the top
+// in an editable variable column. Mirrors Smart Record's variables list.
+function extractScriptVariables(script) {
+  const seen = new Set();
+  const vars = [];
+  (script.steps || []).forEach(step => {
+    const val = step.value || '';
+    const matches = val.match(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g) || [];
+    matches.forEach(m => {
+      const name = m.replace(/[{}\s]/g, '');
+      if (seen.has(name)) return;
+      seen.add(name);
+      // Guess type from the variable name / the step.
+      const lname = name.toLowerCase();
+      let type = 'string';
+      if (/date|dob|birth|from|to|start|end/.test(lname)) type = 'date';
+      else if (/amount|qty|quantity|price|rate|count|number|age|dose/.test(lname)) type = 'number';
+      vars.push({ name, label: step.label || name, example: '', type });
+    });
+  });
+  return vars;
+}
+
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function SmartPageStudy({ user, projects }) {
@@ -242,6 +276,7 @@ export default function SmartPageStudy({ user, projects }) {
   const [qsCurQ,      setQsCurQ]      = useState(0);  // current question index
   const [qsExtraContext, setQsExtraContext] = useState(''); // free text extra info
   const [qsEditNames, setQsEditNames] = useState({}); // edited script names
+  const [qsVars,    setQsVars]    = useState({}); // idx -> [{name,label,type,example}] editable variables per script
   const [qsSaving,  setQsSaving]  = useState({});
   const [qsSaved,   setQsSaved]   = useState({});
   const [qsError,   setQsError]   = useState('');
@@ -250,6 +285,7 @@ export default function SmartPageStudy({ user, projects }) {
   const [srPhase,   setSrPhase]   = useState('idle');   // idle|recording|processing|review|done
   const [srSessionId,setSrSessionId]=useState(null);
   const [srEvents,  setSrEvents]  = useState([]);       // live event stream
+  const srEventsRef = useRef([]);                        // ref mirror — always current in async closures
   const [srProcessed,setSrProcessed]=useState(null);    // output of processRecording()
   const [srScripts, setSrScripts] = useState([]);
   const [srError,   setSrError]   = useState('');
@@ -275,7 +311,11 @@ export default function SmartPageStudy({ user, projects }) {
       try {
         const msg = JSON.parse(e.data);
         if (msg.type === 'smart_study_event' && msg.events?.length) {
-          setSrEvents(prev => [...prev, ...msg.events].slice(-500));
+          setSrEvents(prev => {
+            const next = [...prev, ...msg.events].slice(-500);
+            srEventsRef.current = next;
+            return next;
+          });
         }
       } catch(err) {}
     };
@@ -291,7 +331,7 @@ export default function SmartPageStudy({ user, projects }) {
 
   // ── Smart Record: Start ───────────────────────────────────────────────────
   async function startSmartRecord() {
-    setSrError(''); setSrEvents([]); setSrProcessed(null);
+    setSrError(''); setSrEvents([]); srEventsRef.current = []; setSrProcessed(null);
     setSrScripts([]); setSrSaved({}); setSrSaving({});
     setSrPhase('recording');
     try {
@@ -300,15 +340,31 @@ export default function SmartPageStudy({ user, projects }) {
       const sessionId = resp.sessionId;
       setSrSessionId(sessionId);
       // Tell extension directly to start recording with this session ID
+      let extResult = null;
       await new Promise((resolve) => {
         try {
+          if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+            console.warn('[SmartRecord] chrome.runtime not available — extension may not be connected');
+            return resolve();
+          }
           chrome.runtime.sendMessage(EXT_ID, { type: 'smart_study_start', sessionId }, (r) => {
-            if (chrome.runtime.lastError) console.warn('Ext msg error:', chrome.runtime.lastError.message);
+            if (chrome.runtime.lastError) {
+              console.warn('[SmartRecord] Ext msg error:', chrome.runtime.lastError.message);
+            } else {
+              extResult = r;
+              console.log('[SmartRecord] Extension responded:', JSON.stringify(r));
+            }
             resolve(r);
           });
-          setTimeout(resolve, 3000);
-        } catch(e) { resolve(); }
+          setTimeout(resolve, 5000); // increased from 3000
+        } catch(e) {
+          console.warn('[SmartRecord] sendMessage threw:', e.message);
+          resolve();
+        }
       });
+      if (extResult && !extResult.ok) {
+        throw new Error(extResult.error || 'Extension failed to start recording');
+      }
       connectSmartStudyWS(sessionId);
     } catch(e) {
       setSrError(e.message);
@@ -321,47 +377,50 @@ export default function SmartPageStudy({ user, projects }) {
   async function stopSmartRecord() {
     if (!srSessionId) return;
     setSrPhase('processing');
-    // DON'T disconnect WS yet — extension may still send events via WS after stop
+    disconnectSmartStudyWS(); // stop WS first — collect remaining srEvents
     try {
-      // Step 1: Tell extension directly to stop (removes banner + pushes events)
+      // Step 1: Tell extension to stop + flush its events to server
+      let extEvents = [];
       await new Promise((resolve) => {
         try {
           chrome.runtime.sendMessage(EXT_ID, { type: 'smart_study_stop' }, (r) => {
             if (chrome.runtime.lastError) console.warn('Ext stop:', chrome.runtime.lastError.message);
             resolve(r);
           });
-          setTimeout(resolve, 2000);
+          setTimeout(resolve, 3000); // give ext 3s to stop + push
         } catch(e) { resolve(); }
       });
 
-      // Step 2: Wait for extension to push events to server
-      await new Promise(r => setTimeout(r, 1000));
+      // Step 2: Give extension extra time to finish pushing events to server
+      await new Promise(r => setTimeout(r, 2000));
 
-      // Step 3: Tell server session is done (no WS broadcast needed)
-      const resp = await api(`/api/smart-study/session/${srSessionId}/stop`, { method: 'POST', body: {} });
-
-      // Step 4: Disconnect WS
-      disconnectSmartStudyWS();
-      
-      // Fetch events from server
-      const evResp = await api(`/api/smart-study/session/${srSessionId}/events`, { method: 'GET' });
-      const serverEvents = evResp?.events || resp?.events || [];
-
-      // Also try getting events directly from extension as final fallback
-      let extEvents = [];
-      try {
-        await new Promise((resolve) => {
+      // Step 3: Get events directly from extension memory (most reliable source)
+      await new Promise((resolve) => {
+        try {
           chrome.runtime.sendMessage(EXT_ID, { type: 'smart_study_get_events' }, (r) => {
             if (!chrome.runtime.lastError && r?.events?.length) extEvents = r.events;
             resolve();
           });
           setTimeout(resolve, 2000);
-        });
-      } catch(e) {}
-      console.log(`[SmartStudy] Sources — server:${serverEvents.length} ws:${srEvents.length} ext:${extEvents.length}`);
+        } catch(e) { resolve(); }
+      });
 
-      // Merge all sources
-      const allEvents = [...serverEvents, ...srEvents, ...extEvents];
+      // Step 4: Tell server the session is done
+      const resp = await api(`/api/smart-study/session/${srSessionId}/stop`, { method: 'POST', body: {} });
+
+      // Step 5: Fetch events from server (retry up to 3x to handle push delay)
+      let serverEvents = [];
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const evResp = await api(`/api/smart-study/session/${srSessionId}/events`, { method: 'GET' });
+        serverEvents = evResp?.events || resp?.events || [];
+        if (serverEvents.length > 0) break;
+        if (attempt < 2) await new Promise(r => setTimeout(r, 1500)); // wait and retry
+      }
+
+      console.log(`[SmartStudy] Sources — server:${serverEvents.length} ws:${srEventsRef.current.length} ext:${extEvents.length}`);
+
+      // Step 6: Merge all sources (server + WS live feed ref + extension memory)
+      const allEvents = [...serverEvents, ...srEventsRef.current, ...extEvents];
       const seen = new Set();
       const deduped = allEvents
         .filter(e => {
@@ -371,10 +430,10 @@ export default function SmartPageStudy({ user, projects }) {
         })
         .sort((a,b) => (a.ts||0) - (b.ts||0));
 
-      console.log(`[SmartStudy] Events — server:${serverEvents.length} ws:${srEvents.length} total:${deduped.length}`);
+      console.log(`[SmartStudy] Total deduped events: ${deduped.length}`);
 
       if (!deduped.length) {
-        setSrError('No events captured. Please record again.');
+        setSrError('No events captured. Make sure you performed actions in the app during recording.');
         setSrPhase('recording');
         return;
       }
@@ -443,6 +502,19 @@ export default function SmartPageStudy({ user, projects }) {
     setSrSaving(p => ({ ...p, [idx]: true }));
     try {
       const baseUrl = srProcessed?.pages?.[0]?.url || '';
+
+      // Map Smart Record variable types to runner-understood types:
+      // dynamic  -> dynamic  (resolve_dynamic_value: "Suresh$" style patterns)
+      // fixed    -> fixed    (static hardcoded value)
+      // anything else (including null/undefined) -> random_text
+      const mapVarType = (v) => {
+        if (!v.dynamic) return 'fixed';           // user marked Static
+        const t = (v.type || '').toLowerCase();
+        if (t === 'dynamic') return 'dynamic';
+        if (t === 'fixed')   return 'fixed';
+        return 'random_text';                     // default for dynamic vars
+      };
+
       await api('/api/tests', { method: 'POST', body: {
         project_id:  parseInt(selProj),
         name:        script.name,
@@ -450,8 +522,15 @@ export default function SmartPageStudy({ user, projects }) {
         type:        'ui', browser: 'chrome', base_url: baseUrl,
         steps:       script.steps || [],
         variables:   (srProcessed?.variables || [])
-          .filter(v => v.dynamic)
-          .map(v => ({ name: v.name, value: v.example || '', type: 'runtime' })),
+          .map(v => ({
+            name:   v.name,
+            value:  v.dynamic ? String(v.example || '') : String(v.example || ''),
+            type:   mapVarType(v),
+            // Pass length as config for random_text so runner uses it
+            config: mapVarType(v) === 'random_text'
+              ? String(v.example ? v.example.length || 8 : 8)
+              : String(v.example || ''),
+          })),
         tags:        ['smart-study','smart-record'],
         priority:    'high',
       }});
@@ -462,7 +541,8 @@ export default function SmartPageStudy({ user, projects }) {
 
   function resetSmartRecord() {
     disconnectSmartStudyWS();
-    setSrPhase('idle'); setSrSessionId(null); setSrEvents([]);
+    setSrPhase('idle'); setSrSessionId(null);
+    setSrEvents([]); srEventsRef.current = [];
     setSrProcessed(null); setSrScripts([]); setSrError('');
     setSrSaved({}); setSrSaving({});
   }
@@ -470,14 +550,52 @@ export default function SmartPageStudy({ user, projects }) {
   // ── EXISTING Quick Scan handlers (unchanged logic) ────────────────────────
   const qsLog = msg => setQsScanLog(p => [...p, msg]);
 
+  // Ask the extension in THE USER'S OWN browser to scan its active tab,
+  // mirroring how Smart Record messages the extension directly. This avoids the
+  // backend poll queue, where another browser (e.g. one on the server) could
+  // answer with the wrong screen. Falls back to the old server path only if the
+  // direct message can't be delivered.
+  function scanViaExtension() {
+    return new Promise((resolve) => {
+      try {
+        if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+          return resolve({ ok: false, error: '__no_ext__' });
+        }
+        chrome.runtime.sendMessage(EXT_ID, { type: 'nat_scan_page' }, (r) => {
+          if (chrome.runtime.lastError) {
+            return resolve({ ok: false, error: '__no_ext__' });
+          }
+          resolve(r || { ok: false, error: 'No response from extension' });
+        });
+        // Safety timeout — if the extension never calls back
+        setTimeout(() => resolve({ ok: false, error: '__no_ext__' }), 15000);
+      } catch (e) {
+        resolve({ ok: false, error: '__no_ext__' });
+      }
+    });
+  }
+
   async function scanPage() {
     setQsError(''); setQsScanLog([]); setQsPhase('scanning');
-    qsLog('📡 Sending scan request to server...');
+    qsLog('📡 Asking the extension to scan your active tab...');
     try {
-      const resp = await api('/api/smart-study/scan', { method: 'POST', body: {} });
-      if (!resp?.ok) throw new Error(resp?.error || 'Scan failed');
-      if (!resp.result) throw new Error('No data returned — is the target page fully loaded?');
-      const sc = resp.result;
+      // 1) Preferred: direct message to the user's own extension (like Smart Record)
+      let sc = null;
+      const direct = await scanViaExtension();
+      if (direct && direct.ok && direct.result) {
+        sc = direct.result;
+        qsLog('✅ Scanned your active tab directly');
+      } else if (direct && direct.error && direct.error !== '__no_ext__') {
+        // Extension responded with a real error (e.g. no target tab) — surface it.
+        throw new Error(direct.error);
+      } else {
+        // 2) Fallback: old server-queue path (only when the extension can't be reached directly)
+        qsLog('ℹ️ Extension not reachable directly — falling back to server...');
+        const resp = await api('/api/smart-study/scan', { method: 'POST', body: {} });
+        if (!resp?.ok) throw new Error(resp?.error || 'Scan failed');
+        if (!resp.result) throw new Error('No data returned — is the target page fully loaded?');
+        sc = resp.result;
+      }
       qsLog(`✅ ${sc.fields.length} fields, ${sc.buttons.length} buttons, ${sc.tableColumns.length} tables`);
       setPageMap(sc);
       setQsPhase('studied');
@@ -524,6 +642,11 @@ export default function SmartPageStudy({ user, projects }) {
         return { ...script, steps };
       });
       setQsScripts(parsed);
+      // Extract {{variable}} tokens from each script into an editable list so they
+      // show in the variable column at the top (user can change type before save).
+      const varsByIdx = {};
+      parsed.forEach((sc, i) => { varsByIdx[i] = extractScriptVariables(sc); });
+      setQsVars(varsByIdx);
       setQsPhase('done');
     } catch(e) { setQsError('Generation failed: ' + e.message); setQsPhase('studied'); }
   }
@@ -537,7 +660,8 @@ export default function SmartPageStudy({ user, projects }) {
         project_id: parseInt(selProj), name: scriptName,
         description: script.description||'Smart Page Study',
         type:'ui', browser:'chrome', base_url: pageMap?.url||'',
-        steps: script.steps||[], variables:[],
+        steps: script.steps||[],
+        variables: (qsVars[idx] || []).map(v => ({ name: v.name, value: v.example || '', type: v.type || 'string' })),
         tags:['smart-study',(pageMap?.pageType||'').toLowerCase()],
         priority: script.branchType==='happy_path'?'high':'medium',
       }});
@@ -551,6 +675,14 @@ export default function SmartPageStudy({ user, projects }) {
       }
     }
     setQsSaving(p => ({...p,[idx]:false}));
+  }
+
+  // Update one variable's field (type / example / name) for a given script idx.
+  function updateQsVar(idx, varName, field, value) {
+    setQsVars(prev => {
+      const list = (prev[idx] || []).map(v => v.name === varName ? { ...v, [field]: value } : v);
+      return { ...prev, [idx]: list };
+    });
   }
 
   // ── Style helpers ─────────────────────────────────────────────────────────
@@ -843,6 +975,50 @@ export default function SmartPageStudy({ user, projects }) {
                     </div>
                     {isExp && (
                       <div style={{ borderTop:'1px solid #f0f2f5',padding:'12px 16px',background:'#fafbfc' }}>
+                        {/* Variable column — extracted {{variables}}, type editable before save */}
+                        {(qsVars[idx] || []).length > 0 && (
+                          <div style={{ marginBottom:14 }}>
+                            <div style={{ fontSize:10,fontWeight:700,color:C.textMid,marginBottom:8,textTransform:'uppercase' }}>
+                              Variables ({(qsVars[idx]||[]).length}) — set type &amp; default value before saving
+                            </div>
+                            <table style={{ width:'100%',borderCollapse:'collapse',marginBottom:4 }}>
+                              <thead>
+                                <tr style={{ background:'#f1f5f9' }}>
+                                  {['Variable','Type','Default value'].map(h=>(
+                                    <th key={h} style={{ ...s.th,padding:'6px 10px',fontSize:10 }}>{h}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(qsVars[idx]||[]).map(v => (
+                                  <tr key={v.name}>
+                                    <td style={{ ...s.td,padding:'6px 10px' }}>
+                                      <span style={{ fontFamily:'monospace',fontSize:11,color:'#6c5ce7',
+                                        background:'#ede9fe',padding:'2px 7px',borderRadius:4 }}>{`{{${v.name}}}`}</span>
+                                    </td>
+                                    <td style={{ ...s.td,padding:'6px 10px' }}>
+                                      <select value={v.type} onChange={e=>updateQsVar(idx, v.name, 'type', e.target.value)}
+                                        onClick={e=>e.stopPropagation()}
+                                        style={{ ...s.input,width:120,padding:'4px 8px',fontSize:11 }}>
+                                        <option value="string">string</option>
+                                        <option value="number">number</option>
+                                        <option value="date">date</option>
+                                        <option value="runtime">runtime (ask each run)</option>
+                                      </select>
+                                    </td>
+                                    <td style={{ ...s.td,padding:'6px 10px' }}>
+                                      <input value={v.example||''} placeholder="optional"
+                                        onChange={e=>updateQsVar(idx, v.name, 'example', e.target.value)}
+                                        onClick={e=>e.stopPropagation()}
+                                        style={{ ...s.input,width:160,padding:'4px 8px',fontSize:11 }} />
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                        <div style={{ fontSize:10,fontWeight:700,color:C.textMid,marginBottom:8,textTransform:'uppercase' }}>Steps</div>
                         {(sc.steps||[]).map((step,si)=>(
                           <div key={si} style={{ display:'flex',gap:8,alignItems:'center',padding:'4px 10px',background:'#fff',borderRadius:6,border:'1px solid #f0f2f5',marginBottom:2 }}>
                             <span style={{ color:C.textDim,minWidth:20,fontSize:10 }}>{si+1}</span>
@@ -1001,7 +1177,7 @@ export default function SmartPageStudy({ user, projects }) {
                             </td>
                             <td style={{ ...s.td }}>
                               <span style={{ fontSize:11,color:confColor[v.confidence],fontWeight:600 }}>
-                                {v.dynamic === true ? '🔵 Dynamic' : v.dynamic === false ? '🟡 Static' : '❓ Unsure'}
+                                {v.suggestedDynamic === true ? '🔵 Dynamic' : v.suggestedDynamic === false ? '🟡 Static' : '❓ Unsure'}
                                 <span style={{ color:C.textDim,fontWeight:400,marginLeft:4 }}>({confLabel[v.confidence]})</span>
                               </span>
                             </td>

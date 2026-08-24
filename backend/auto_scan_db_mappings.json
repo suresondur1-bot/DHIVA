@@ -1,0 +1,49 @@
+{
+  "http://172.19.1.11:4001": [
+    {
+      "urlMatch": "/admin/surveys",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    },
+    {
+      "urlMatch": "/admin/surveys/create",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    },
+    {
+      "urlMatch": "/admin/surveys/743632b3-546b-40fc-be4b-bbf3dfa8ff7a/preview",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    },
+    {
+      "urlMatch": "/admin/surveys/743632b3-546b-40fc-be4b-bbf3dfa8ff7a/edit",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    },
+    {
+      "urlMatch": "/admin/surveys/4a3e7545-5112-490d-8dd0-74747c51a560/preview",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    },
+    {
+      "urlMatch": "/admin/surveys/4a3e7545-5112-490d-8dd0-74747c51a560/edit",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    },
+    {
+      "urlMatch": "/admin/surveys/6e59567e-080b-4ac5-a3c5-61da1e545f42/preview",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    },
+    {
+      "urlMatch": "/admin/surveys/6e59567e-080b-4ac5-a3c5-61da1e545f42/edit",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    },
+    {
+      "urlMatch": "/admin/surveys/e8dd8e93-b54d-407c-9fb8-ad946da6c876/preview",
+      "label": "Practice Plus Group — Patient Feedback",
+      "query": "select count(*) from surveys"
+    }
+  ]
+}

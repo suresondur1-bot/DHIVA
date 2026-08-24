@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useRef, useEffect } from "react";
+import { API } from "./shared";
 
 const KEYWORDS = [
   // ── UI Actions ──────────────────────────────────────────────────────────────
@@ -1385,7 +1386,14 @@ export function KeywordAdvisor({ onClose, projectId }) {
     "Content-Type": "application/json",
     "Authorization": `Bearer ${localStorage.getItem("autoqa_token") || ""}`
   });
-  const API_BASE = window.__API_BASE__ || "http://localhost:6001";
+  // Was hardcoded to window.__API_BASE__ || "http://localhost:6001" — that global
+  // is never set anywhere in the app, so this ALWAYS fell back to localhost:6001,
+  // which only works when the browser and backend are on the same machine. Once
+  // deployed, a user's browser resolves "localhost" to their own PC, not the
+  // server, hence ERR_CONNECTION_REFUSED. Use the same dynamic API resolution
+  // every other page in the app already relies on (shared.jsx: window.location.origin
+  // in production, since the backend serves the built frontend on the same port).
+  const API_BASE = API;
 
   const askAI = async () => {
     if (!query.trim()) return;
@@ -1434,7 +1442,12 @@ export function KeywordAdvisor({ onClose, projectId }) {
       <div style={st.modal}>
         <div style={st.header}>
           <div>
-            <div style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>🤖 Keyword Advisor</div>
+            <div style={{ color: "#fff", fontWeight: 700, fontSize: 16, display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ background: "#fff", borderRadius: 6, padding: "3px 8px", display: "flex", alignItems: "center" }}>
+                <img src="/qavya.png" alt="QAVYA" style={{ height: 16, width: "auto", display: "block" }} />
+              </span>
+              Keyword Advisor
+            </div>
             <div style={{ color: "#c7d2fe", fontSize: 12, marginTop: 2 }}>80 keywords — tell me what you want to do</div>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 20, cursor: "pointer" }}>✕</button>
@@ -1452,8 +1465,8 @@ export function KeywordAdvisor({ onClose, projectId }) {
               <button style={{ ...st.btn(true), background: "#7c3aed" }} onClick={askFromTests} disabled={smartLoading || !query.trim()}>
                 {smartLoading ? "⏳ Searching tests..." : "🧪 From your tests"}
               </button>
-              <button style={st.btn(false)} onClick={askAI} disabled={aiLoading || !query.trim()}>
-                {aiLoading ? "⏳ Asking AI..." : "🤖 Ask AI"}
+              <button style={{ ...st.btn(false), display: "flex", alignItems: "center", gap: 6 }} onClick={askAI} disabled={aiLoading || !query.trim()}>
+                {aiLoading ? "⏳ Asking AI..." : (<><img src="/qavya.png" alt="" style={{ height: 14, width: "auto", display: "block" }} /> Ask AI</>)}
               </button>
               <div style={{ fontSize: 12, color: "#9ca3af", alignSelf: "center" }}>or type to search instantly ↑</div>
             </div>
@@ -1585,27 +1598,41 @@ export function KeywordAdvisor({ onClose, projectId }) {
                           </div>
                         )}
 
-                        {/* Real examples from passed tests */}
+                        {/* Real examples from passed tests — rendered as a mini preview of the
+                            actual step card (action badge + boxed field values), so it's clear
+                            at a glance which keyword was used and exactly what was typed into
+                            each field, not just a plain data table. */}
                         {answer.real_examples?.length > 0 && (
                           <div style={{ marginTop: 10 }}>
                             <div style={{ fontSize: 12, fontWeight: 700, color: "#7c3aed", marginBottom: 6 }}>
-                              🧪 Real examples from your passed tests:
+                              🧪 Real examples from your passed tests ({answer.real_examples.length}{answer.example_total > answer.real_examples.length ? ` of ${answer.example_total}` : ""}):
                             </div>
                             {answer.real_examples.map((ex, ei) => (
-                              <div key={ei} style={{ background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 6, padding: 10, marginBottom: 6 }}>
-                                <div style={{ fontSize: 11, color: "#7c3aed", fontWeight: 700, marginBottom: 6 }}>
-                                  🧪 {ex.test_name} — <span style={{ color: "#10b981" }}>PASSED ✅</span>
+                              <div key={ei} style={{ background: "#fff", border: "1px solid #e2e6ed", borderRadius: 8, padding: 12, marginBottom: 8, boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}>
+                                {/* Mimics the header row of the real step editor card: step
+                                    number placeholder + the action as it appears in the
+                                    keyword dropdown */}
+                                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+                                  <span style={{ fontSize: 10, color: "#8a96a8", fontFamily: "'IBM Plex Mono',monospace" }}>step</span>
+                                  <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6, background: color + "18", border: `1px solid ${color}55`, color }}>
+                                    {kw.label || answer.action}
+                                  </span>
+                                  <span style={{ marginLeft: "auto", fontSize: 10.5, color: "#7c3aed", fontWeight: 600 }}>
+                                    🧪 {ex.test_name}
+                                  </span>
+                                  <span style={{ fontSize: 10, background: "#d1fae5", color: "#065f46", padding: "1px 8px", borderRadius: 10, fontWeight: 700 }}>PASSED ✅</span>
                                 </div>
-                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
-                                  <tbody>
-                                    {Object.entries(ex.fields).map(([field, value], fi) => (
-                                      <tr key={fi}>
-                                        <td style={{ padding: "3px 8px", fontWeight: 600, color: "#374151", width: "30%", borderBottom: "1px solid #e9d5ff" }}>{field}</td>
-                                        <td style={{ padding: "3px 8px", fontFamily: "'IBM Plex Mono',monospace", color: "#059669", wordBreak: "break-all", borderBottom: "1px solid #e9d5ff" }}>{value}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
+                                {/* Mimics the real field inputs: label above, boxed value below */}
+                                <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                                  {Object.entries(ex.fields).map(([field, value], fi) => (
+                                    <div key={fi}>
+                                      <div style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", marginBottom: 2, textTransform: "uppercase", letterSpacing: 0.3 }}>{field}</div>
+                                      <div style={{ fontSize: 12, fontFamily: "'IBM Plex Mono',monospace", color: "#111827", background: "#f9fafb", border: "1px solid #d1d5db", borderRadius: 5, padding: "6px 10px", wordBreak: "break-all" }}>
+                                        {value}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -1666,19 +1693,98 @@ export function KeywordAdvisor({ onClose, projectId }) {
 }
 
 // ─── Floating button ───────────────────────────────────────────────────────────
+// Small, draggable icon — previously a fixed pill glued to the bottom-right
+// corner of every page, which regularly covered Save/Submit buttons and
+// pagination controls that also like that corner. Now it's a compact circle
+// that can be dragged anywhere, and remembers where you left it (per browser)
+// via localStorage so it stays out of the way on every page from then on.
+const KW_ADVISOR_POS_KEY = "qavya_kw_advisor_pos";
+const KW_ADVISOR_BTN_SIZE = 48;
+const KW_ADVISOR_MOVE_THRESHOLD = 4; // px — below this, a drag counts as a click
+
+function clampAdvisorPos(pos) {
+  const margin = 4;
+  const maxRight  = Math.max(margin, window.innerWidth  - KW_ADVISOR_BTN_SIZE - margin);
+  const maxBottom = Math.max(margin, window.innerHeight - KW_ADVISOR_BTN_SIZE - margin);
+  return {
+    right:  Math.min(Math.max(pos.right,  margin), maxRight),
+    bottom: Math.min(Math.max(pos.bottom, margin), maxBottom),
+  };
+}
+
 export function KeywordAdvisorButton({ projectId }) {
   const [open, setOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [pos, setPos] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(KW_ADVISOR_POS_KEY) || "null");
+      if (saved && typeof saved.right === "number" && typeof saved.bottom === "number") return saved;
+    } catch {}
+    return { right: 24, bottom: 24 };
+  });
+  const dragRef = useRef({ dragging: false, moved: false, startX: 0, startY: 0, startRight: 0, startBottom: 0 });
+
+  // Keep the button on-screen if the window is resized after it was dragged.
+  useEffect(() => {
+    const onResize = () => setPos(p => clampAdvisorPos(p));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  function onPointerMove(e) {
+    if (!dragRef.current.dragging) return;
+    if (e.cancelable) e.preventDefault();
+    const point = e.touches ? e.touches[0] : e;
+    const dx = point.clientX - dragRef.current.startX;
+    const dy = point.clientY - dragRef.current.startY;
+    if (Math.abs(dx) > KW_ADVISOR_MOVE_THRESHOLD || Math.abs(dy) > KW_ADVISOR_MOVE_THRESHOLD) dragRef.current.moved = true;
+    setPos(clampAdvisorPos({
+      right:  dragRef.current.startRight  - dx,
+      bottom: dragRef.current.startBottom - dy,
+    }));
+  }
+
+  function onPointerUp() {
+    if (!dragRef.current.dragging) return;
+    dragRef.current.dragging = false;
+    setIsDragging(false);
+    window.removeEventListener("mousemove", onPointerMove);
+    window.removeEventListener("mouseup", onPointerUp);
+    window.removeEventListener("touchmove", onPointerMove);
+    window.removeEventListener("touchend", onPointerUp);
+    if (dragRef.current.moved) {
+      setPos(p => { try { localStorage.setItem(KW_ADVISOR_POS_KEY, JSON.stringify(p)); } catch {} return p; });
+    } else {
+      setOpen(true);
+    }
+  }
+
+  function onPointerDown(e) {
+    const point = e.touches ? e.touches[0] : e;
+    dragRef.current = {
+      dragging: true, moved: false,
+      startX: point.clientX, startY: point.clientY,
+      startRight: pos.right, startBottom: pos.bottom,
+    };
+    setIsDragging(true);
+    window.addEventListener("mousemove", onPointerMove);
+    window.addEventListener("mouseup", onPointerUp);
+    window.addEventListener("touchmove", onPointerMove, { passive: false });
+    window.addEventListener("touchend", onPointerUp);
+  }
+
   return (
     <>
-      <button onClick={() => setOpen(true)} title="Keyword Advisor — Find the right action"
+      <button onMouseDown={onPointerDown} onTouchStart={onPointerDown}
+        title="Keyword Advisor — Find the right action (drag to move)"
         style={{
-          position: "fixed", bottom: 24, right: 24, zIndex: 9000,
-          width: 52, height: 52, borderRadius: "50%", border: "none",
-          background: "linear-gradient(135deg, #1e40af, #7c3aed)",
-          color: "#fff", fontSize: 22, cursor: "pointer",
+          position: "fixed", right: pos.right, bottom: pos.bottom, zIndex: 9000,
+          width: KW_ADVISOR_BTN_SIZE, height: KW_ADVISOR_BTN_SIZE, borderRadius: "50%",
+          padding: 0, border: "none", background: "#fff",
+          cursor: isDragging ? "grabbing" : "grab", userSelect: "none", touchAction: "none",
           boxShadow: "0 4px 16px rgba(30,64,175,0.5)",
           display: "flex", alignItems: "center", justifyContent: "center",
-        }}>🤖</button>
+        }}><img src="/qavya.png" alt="QAVYA" style={{ height: 24, width: "auto", display: "block", pointerEvents: "none" }} /></button>
       {open && <KeywordAdvisor projectId={projectId} onClose={() => setOpen(false)} />}
     </>
   );

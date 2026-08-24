@@ -512,5 +512,205 @@ ATHMA Run: #${run.id}`;
     } catch(e) { res.status(500).json({error:e.message}); }
   });
 
+  // ── Post Visual Scan difference(s) to JIRA (NEW, ISOLATED) ─────────────────
+  // Unlike /post-bug this is NOT tied to a test_run. The UI sends the issue
+  // summary + description text (one difference, or several combined). We build
+  // the SAME JIRA payload that /post-bug uses (same required custom fields), so
+  // it posts exactly the way that already works. Optionally attaches a screenshot.
+  app.post('/api/jira/post-visual', requireAuth, async (req, res) => {
+    try {
+      const { summary, description, severity, affect_version, screenshot } = req.body || {};
+      if (!summary || !description) return res.status(400).json({ error: 'summary and description are required' });
+      const cfg = (await pool.query('SELECT * FROM jira_config WHERE id=1')).rows[0];
+      if (!cfg?.jira_url||!cfg?.jira_email||!cfg?.jira_api_token||!cfg?.project_key)
+        return res.status(400).json({ error:'JIRA not configured' });
+
+      const priorityMap = { Critical:'Highest', High:'High', Medium:'Medium', Low:'Low' };
+      const sevVal = (severity || cfg.default_severity || 'High').trim();
+      const affVer = (affect_version||'').trim() || (cfg.default_affectver||'').trim() || '4.55.0-RC3';
+
+      const auth = Buffer.from(`${cfg.jira_email}:${cfg.jira_api_token}`).toString('base64');
+
+      // Fetch the project's CURRENT non-archived, non-released versions so we never
+      // try to assign an archived version (the hardcoded id can go stale over time).
+      // Returns { id, name } of the best version to use, or null if none usable.
+      async function pickVersion() {
+        try {
+          const vr = await nodeFetch(`${cfg.jira_url}/rest/api/3/project/${cfg.project_key}/versions`, {
+            headers: { Authorization: `Basic ${auth}`, Accept: 'application/json' },
+          });
+          if (!vr.ok) return null;
+          const all = await vr.json();
+          if (!Array.isArray(all) || !all.length) return null;
+          const usable = all.filter(v => !v.archived);
+          if (!usable.length) return null;
+          // Prefer the configured/default version name if it's still usable.
+          const wanted = (affect_version||'').trim() || (cfg.default_affectver||'').trim();
+          const match = wanted && usable.find(v => v.name === wanted);
+          const chosen = match || usable.filter(v => !v.released).pop() || usable[usable.length-1];
+          return { id: String(chosen.id), name: chosen.name };
+        } catch (e) { return null; }
+      }
+      const goodVersion = await pickVersion();
+      const versionFid = (cfg.fid_affectversion || 'versions').trim();
+
+      // Resolve a custom-field option id by its display value. Primary source is
+      // the createmeta API (the allowedValues it returns are exactly what the
+      // create endpoint accepts for THIS project + issue type). Falls back to the
+      // customField option API, then to a value-only object. Returns { id } when
+      // an id is found (JIRA prefers id for option fields), else { value }.
+      let _createMetaFields = null;
+      async function loadCreateMetaFields() {
+        if (_createMetaFields) return _createMetaFields;
+        try {
+          const itResp = await nodeFetch(`${cfg.jira_url}/rest/api/3/issue/createmeta/${cfg.project_key}/issuetypes`, {
+            headers: { Authorization: `Basic ${auth}`, Accept: 'application/json' },
+          });
+          if (!itResp.ok) return null;
+          const itData = await itResp.json();
+          const types = itData.issueTypes || itData.values || [];
+          const want = (cfg.val_worktype||'Bug').trim();
+          const it = types.find(t => t.name === want) || types.find(t => t.name === 'Bug') || types[0];
+          if (!it) return null;
+          const fResp = await nodeFetch(`${cfg.jira_url}/rest/api/3/issue/createmeta/${cfg.project_key}/issuetypes/${it.id}`, {
+            headers: { Authorization: `Basic ${auth}`, Accept: 'application/json' },
+          });
+          if (!fResp.ok) return null;
+          const fData = await fResp.json();
+          _createMetaFields = fData.fields || fData.values || [];
+          return _createMetaFields;
+        } catch (e) { return null; }
+      }
+
+      async function resolveOption(fieldId, wantValue) {
+        const want = (wantValue || '').trim();
+        if (!fieldId || !want) return null;
+        const fid = String(fieldId).trim();
+        // 1) createmeta allowedValues (most reliable for create).
+        try {
+          const metaFields = await loadCreateMetaFields();
+          if (Array.isArray(metaFields)) {
+            const f = metaFields.find(x => x.fieldId === fid || x.key === fid);
+            const av = f && (f.allowedValues || []);
+            if (av && av.length) {
+              const opt = av.find(o => String(o.value || o.name || '').trim() === want);
+              if (opt && opt.id != null) return { id: String(opt.id) };
+            }
+          }
+        } catch (e) {}
+        // 2) customField option API.
+        try {
+          const numId = fid.replace(/\D/g, '');
+          const r = await nodeFetch(`${cfg.jira_url}/rest/api/3/customField/${numId}/option`, {
+            headers: { Authorization: `Basic ${auth}`, Accept: 'application/json' },
+          });
+          if (r.ok) {
+            const d = await r.json();
+            const opt = (d.values || []).find(o => String(o.value || o.name || '').trim() === want);
+            if (opt && opt.id != null) return { id: String(opt.id) };
+          }
+        } catch (e) {}
+        // 3) Last resort: send the value (JIRA may accept it).
+        return { value: want };
+      }
+
+      const fields = {
+        project:     { key: cfg.project_key },
+        summary:     summary,
+        description: { type:'doc',version:1,content:[{type:'paragraph',content:[{type:'text',text:String(description)}]}] },
+        issuetype:   { name: (cfg.val_worktype||'Bug').trim() },
+        priority:    { name: priorityMap[sevVal]||'High' },
+        labels:      ['automation','athma','visual_scan'],
+      };
+
+      // Source — skipped on purpose: this field is not on the project's create
+      // screen (JIRA rejects it), and Visual Scan tickets don't need it. Leaving
+      // it out lets the issue create on the FIRST attempt.
+      // Defect Type — only if configured (fid_defecttype + val_defecttype).
+      if ((cfg.fid_defecttype||'').trim()) {
+        const dt = await resolveOption(cfg.fid_defecttype, cfg.val_defecttype || 'Functional');
+        if (dt) fields[cfg.fid_defecttype.trim()] = dt;
+      }
+      // Affect version — only if we found a valid non-archived one.
+      if (goodVersion) fields[versionFid] = [{ id: goodVersion.id, name: goodVersion.name }];
+      // Severity — only if configured (fid_severity).
+      if ((cfg.fid_severity||'').trim()) {
+        const sv = await resolveOption(cfg.fid_severity, sevVal);
+        if (sv) fields[cfg.fid_severity.trim()] = sv;
+      }
+
+      const postToJira = async (payload) => {
+        const r = await nodeFetch(`${cfg.jira_url}/rest/api/3/issue`, {
+          method:'POST',
+          headers:{Authorization:`Basic ${auth}`,'Content-Type':'application/json',Accept:'application/json'},
+          body:JSON.stringify(payload),
+        });
+        return { resp:r, data:await r.json() };
+      };
+
+      let { resp: jiraResp, data: jiraData } = await postToJira({ fields });
+      console.log('[JIRA] post-visual attempt 1:', jiraResp.status, JSON.stringify(jiraData).slice(0,400));
+
+      // Attempt 2: remove ONLY the fields JIRA complained about, keep mandatory.
+      if (!jiraResp.ok && jiraResp.status === 400 && jiraData?.errors) {
+        const clean = { ...fields };
+        for (const bf of Object.keys(jiraData.errors)) delete clean[bf];
+        clean.project = fields.project; clean.issuetype = fields.issuetype;
+        clean.summary = fields.summary; clean.description = fields.description;
+        // Keep the configured defect type + version if they weren't the rejected ones.
+        if ((cfg.fid_defecttype||'').trim() && fields[cfg.fid_defecttype.trim()] && !jiraData.errors[cfg.fid_defecttype.trim()])
+          clean[cfg.fid_defecttype.trim()] = fields[cfg.fid_defecttype.trim()];
+        if (goodVersion && !jiraData.errors[versionFid]) clean[versionFid] = [{ id: goodVersion.id, name: goodVersion.name }];
+        const retry = await postToJira({ fields: clean });
+        jiraResp = retry.resp; jiraData = retry.data;
+        console.log('[JIRA] post-visual attempt 2:', jiraResp.status, JSON.stringify(jiraData).slice(0,400));
+      }
+
+      // Attempt 3: bare minimum — project, issuetype, summary, description, plus
+      // the configured required fields (defect type + version) if present.
+      if (!jiraResp.ok && jiraResp.status === 400) {
+        const bareFields = {
+          project:     { key: cfg.project_key },
+          issuetype:   { name: (cfg.val_worktype||'Bug').trim() },
+          summary:     fields.summary,
+          description: fields.description,
+        };
+        if ((cfg.fid_defecttype||'').trim() && fields[cfg.fid_defecttype.trim()])
+          bareFields[cfg.fid_defecttype.trim()] = fields[cfg.fid_defecttype.trim()];
+        if (goodVersion) bareFields[versionFid] = [{ id: goodVersion.id, name: goodVersion.name }];
+        const retry2 = await postToJira({ fields: bareFields });
+        jiraResp = retry2.resp; jiraData = retry2.data;
+        console.log('[JIRA] post-visual attempt 3:', jiraResp.status, JSON.stringify(jiraData).slice(0,400));
+      }
+
+      if (!jiraResp.ok) {
+        const err = jiraData?.errors ? JSON.stringify(jiraData.errors) : (jiraData?.errorMessages?.join(', ')||JSON.stringify(jiraData));
+        return res.status(400).json({ error:`JIRA error: ${err}` });
+      }
+
+      const ticketKey = jiraData.key;
+
+      // Optional: attach the captured screenshot (base64 data URL from the UI).
+      if (screenshot) {
+        try {
+          const b64 = String(screenshot).replace(/^data:image\/\w+;base64,/, '');
+          const fc = Buffer.from(b64, 'base64');
+          const bd = '----ATHMA'+Date.now().toString(36);
+          const body = Buffer.concat([
+            Buffer.from(`--${bd}\r\nContent-Disposition: form-data; name="file"; filename="visual_scan.png"\r\nContent-Type: image/png\r\n\r\n`),
+            fc, Buffer.from(`\r\n--${bd}--\r\n`),
+          ]);
+          await nodeFetch(`${cfg.jira_url}/rest/api/3/issue/${ticketKey}/attachments`, {
+            method:'POST',
+            headers:{Authorization:`Basic ${auth}`,'X-Atlassian-Token':'no-check','Content-Type':`multipart/form-data; boundary=${bd}`,'Content-Length':body.length},
+            body,
+          });
+        } catch(e){ console.warn('[JIRA] Visual screenshot attach failed:', e.message); }
+      }
+
+      res.json({ ok:true, ticket_key:ticketKey, ticket_url:`${cfg.jira_url}/browse/${ticketKey}` });
+    } catch(e) { console.error('[JIRA] post-visual error:', e.message); res.status(500).json({ error:e.message }); }
+  });
+
   console.log('[JIRA] Routes registered \u2705');
 };

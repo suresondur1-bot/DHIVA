@@ -29,6 +29,12 @@ export default function MultilingualTest() {
   const [activeResult, setActiveResult] = useState(null);
   const [expandedPage, setExpandedPage] = useState(null);
   const [tab,          setTab]          = useState("setup"); // setup | results
+  const [scoreGrid,    setScoreGrid]    = useState(false);   // count grid record data in the score?
+  const [failFirst,    setFailFirst]    = useState(false);   // triage order instead of reading order
+  const [ignores,      setIgnores]      = useState([]);
+  const [pendingIgnore,setPendingIgnore]= useState([]);      // rows ticked but not yet applied
+  const [showIgnored,  setShowIgnored]  = useState(false);   // the rules panel
+  const [showIgnoredRows, setShowIgnoredRows] = useState(false); // ignored rows inline in the table
 
   useEffect(() => {
     api("/api/projects").then(r => setProjects(r || []));
@@ -44,7 +50,12 @@ export default function MultilingualTest() {
     if (!testCaseId) return;
     loadBaselines();
     loadResults();
+    loadIgnores();
   }, [testCaseId]);
+
+  function loadIgnores() {
+    api(`/api/multilingual/ignores/${testCaseId}`).then(r => setIgnores(r || [])).catch(() => setIgnores([]));
+  }
 
   function loadBaselines() {
     api(`/api/multilingual/baselines/${testCaseId}`)
@@ -67,7 +78,8 @@ export default function MultilingualTest() {
       const r = await api("/api/multilingual/compare", { method:'POST', body: {
         test_case_id:    testCaseId,
         base_language:   baseLang,
-        target_language: targetLang
+        target_language: targetLang,
+        score_grid_data: scoreGrid
       } });
       setActiveResult(r);
       setTab("results");
@@ -77,6 +89,55 @@ export default function MultilingualTest() {
     } finally {
       setComparing(false);
     }
+  }
+
+  // Tick a row for ignoring. Nothing is saved until "Apply" — so a mis-click costs nothing.
+  function toggleIgnore(el) {
+    setPendingIgnore(p => p.some(x => x.selector === el.selector && x.base_text === el.base_text)
+      ? p.filter(x => !(x.selector === el.selector && x.base_text === el.base_text))
+      : [...p, { selector: el.selector, base_text: el.base_text, scope: "text" }]);
+  }
+  const isPending = el => pendingIgnore.some(x => x.selector === el.selector && x.base_text === el.base_text);
+
+  async function applyIgnores() {
+    if (!pendingIgnore.length) return;
+    const reason = prompt(`Why are these ${pendingIgnore.length} row(s) correct as-is?\n(e.g. "medical acronym, unchanged in Greek")`);
+    if (!reason || !reason.trim()) return;   // reason is mandatory — it is what makes the list reviewable later
+    try {
+      for (const row of pendingIgnore) {
+        await api(`/api/multilingual/ignores/${testCaseId}`, { method: 'POST', body: {
+          // scope "text" ignores the string everywhere; "element" pins it to one selector
+          selector:  row.scope === "element" ? row.selector : null,
+          base_text: row.base_text,
+          language:  null,
+          reason:    reason.trim()
+        }});
+      }
+      setPendingIgnore([]);
+      loadIgnores();
+      await runComparison();     // recompute so the adjusted score reflects them immediately
+    } catch (e) {
+      alert("Could not save ignores: " + (e.response?.data?.error || e.message));
+    }
+  }
+
+  // One click for everything the AI already judged correct-as-is (acronyms, proper names).
+  function ignoreAllAiApproved() {
+    const rows = [];
+    (activeResult?.pages || []).forEach(pg => (pg.elements || []).forEach(el => {
+      if (el.status !== "not_translated") return;
+      const r = (el.ai_reason || el.reason || "").toLowerCase();
+      if (/acronym|proper name|no translation needed|kept as-is|as-is/.test(r))
+        rows.push({ selector: el.selector, base_text: el.base_text, scope: "text" });
+    }));
+    if (!rows.length) return alert("No rows carry an AI verdict that says they are correct as-is.");
+    setPendingIgnore(rows);
+  }
+
+  async function restoreIgnore(id) {
+    await api(`/api/multilingual/ignore/${id}`, { method: 'DELETE' });
+    loadIgnores();
+    await runComparison();
   }
 
   async function deleteBaseline(lang) {
@@ -246,6 +307,17 @@ export default function MultilingualTest() {
                 }}>
                   {comparing ? "⏳ Comparing..." : "▶ Run Comparison"}
                 </button>
+
+                {/* Scoring choice — applied when the comparison is BUILT, so flipping it
+                    and re-comparing is instant. No re-run of the test needed. */}
+                <label style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer",
+                                fontSize: 12, color: "#475569", marginLeft: 14 }}
+                       title="Grid record data (patient name, MRN, dates) is never translated by the app, so counting it only adds guaranteed failures. The rows stay visible either way.">
+                  <input type="checkbox" checked={scoreGrid}
+                         onChange={e => setScoreGrid(e.target.checked)}
+                         style={{ width: 14, height: 14, cursor: "pointer" }} />
+                  Score grid data
+                </label>
               </div>
 
               {/* Baseline status indicators */}
@@ -345,6 +417,22 @@ export default function MultilingualTest() {
                   <span style={{ fontSize: 14, marginLeft: 8, color: "#94a3b8" }}>
                     {scoreLabel(activeResult.overall_score)}
                   </span>
+                  {/* Raw is always shown next to adjusted, so an ignore list can never
+                      quietly inflate the headline number. Derived from the rows when a saved
+                      result is reopened (multilingual_results has no column for it). */}
+                  {(() => {
+                    const rows = (activeResult.pages || []).flatMap(p => p.elements || []);
+                    const ign  = activeResult.ignored   ?? rows.filter(e => e.status === "ignored").length;
+                    const dat  = activeResult.data_rows ?? rows.filter(e => e.status === "data").length;
+                    const raw  = activeResult.raw_score ?? (rows.length
+                      ? Math.round(rows.filter(e => e.status === "translated").length / rows.length * 100) : null);
+                    if (raw == null || (!ign && !dat)) return null;
+                    return (
+                      <span style={{ fontSize: 13, marginLeft: 12, color: "#94a3b8", fontWeight: 600 }}>
+                        raw {raw}%{ign ? ` · ${ign} ignored` : ""}{dat ? ` · ${dat} data` : ""}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
               <div style={{ display: "flex", gap: 24 }}>
@@ -354,6 +442,8 @@ export default function MultilingualTest() {
                   { label: "Not Translated", value: activeResult.not_translated, color: "#f87171" },
                   { label: "Wrong Translation", value: activeResult.pages?.reduce((s,p) => s + (p.wrong_translation||0), 0) || 0, color: "#fbbf24" },
                   { label: "Overflow",       value: activeResult.overflow,       color: "#fbbf24" },
+                  { label: "Ignored",        value: activeResult.ignored ?? (activeResult.pages || []).flatMap(p => p.elements || []).filter(e => e.status === "ignored").length,   color: "#a78bfa" },
+                  { label: "Data (unscored)",value: activeResult.data_rows ?? (activeResult.pages || []).flatMap(p => p.elements || []).filter(e => e.status === "data").length, color: "#94a3b8" },
                 ].map(stat => (
                   <div key={stat.label} style={{ textAlign: "center" }}>
                     <div style={{ fontSize: 24, fontWeight: 800, color: stat.color }}>{stat.value}</div>
@@ -398,20 +488,132 @@ export default function MultilingualTest() {
               {/* Element details */}
               {expandedPage === pi && (
                 <div style={{ marginTop: 16, borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
+
+                  {/* Review toolbar */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#475569", cursor: "pointer" }}
+                           title="Reading order walks the screen top-to-bottom. Failures first is for triage.">
+                      <input type="checkbox" checked={failFirst} onChange={e => setFailFirst(e.target.checked)}
+                             style={{ width: 14, height: 14, cursor: "pointer" }} />
+                      Failures first
+                    </label>
+                    <button onClick={ignoreAllAiApproved}
+                            style={{ ...s.btn("ghost", true), fontSize: 11, padding: "4px 10px" }}
+                            title="Tick every row the AI already judged correct as-is (acronyms, proper names)">
+                      ✨ Select AI-approved
+                    </button>
+                    {pendingIgnore.length > 0 && (
+                      <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12,
+                                     color: "#6d28d9", background: "#f5f3ff", border: "1px solid #ddd6fe",
+                                     borderRadius: 6, padding: "4px 10px" }}>
+                        ⚑ {pendingIgnore.length} marked to ignore
+                        <button onClick={applyIgnores}
+                                style={{ ...s.btn("primary", true), fontSize: 11, padding: "3px 10px" }}>
+                          Apply & recompute
+                        </button>
+                        <button onClick={() => setPendingIgnore([])}
+                                style={{ ...s.btn("ghost", true), fontSize: 11, padding: "3px 8px" }}>
+                          Clear
+                        </button>
+                      </span>
+                    )}
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#475569", cursor: "pointer" }}
+                           title="Ignored rows are excluded from the score. Tick to see them inline.">
+                      <input type="checkbox" checked={showIgnoredRows}
+                             onChange={e => setShowIgnoredRows(e.target.checked)}
+                             style={{ width: 14, height: 14, cursor: "pointer" }} />
+                      Show ignored rows
+                      {(() => {
+                        const n = (page.elements || []).filter(e => e.status === "ignored").length;
+                        return n ? <span style={{ color: "#a78bfa", fontWeight: 700 }}>({n})</span> : null;
+                      })()}
+                    </label>
+                    {ignores.length > 0 && (
+                      <button onClick={() => setShowIgnored(v => !v)}
+                              style={{ ...s.btn("ghost", true), fontSize: 11, padding: "4px 10px", marginLeft: "auto" }}>
+                        🚫 {showIgnored ? "Hide" : "Show"} ignore rules ({ignores.length})
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Ignore list — who, when, why, and a way back */}
+                  {showIgnored && (
+                    <div style={{ marginBottom: 12, border: "1px solid #ede9fe", borderRadius: 6, background: "#faf9ff", padding: "8px 10px" }}>
+                      {ignores.map(g => (
+                        <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 11,
+                                                 padding: "4px 0", borderBottom: "1px solid #f3f0ff" }}>
+                          <code style={{ color: "#6d28d9", fontWeight: 700, minWidth: 140 }}>
+                            {g.base_text || g.selector}
+                          </code>
+                          <span style={{ color: "#64748b", flex: 1 }}>{g.reason}</span>
+                          <span style={{ color: "#94a3b8" }}>
+                            {g.created_by_name || "—"} · {g.created_at ? String(g.created_at).slice(0, 10) : ""}
+                          </span>
+                          <button onClick={() => restoreIgnore(g.id)}
+                                  style={{ ...s.btn("ghost", true), fontSize: 10, padding: "2px 8px" }}>
+                            Restore
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {!showIgnoredRows && (page.elements || []).some(e => e.status === "ignored") && (
+                    <div style={{ fontSize: 11, color: "#a78bfa", marginBottom: 6 }}>
+                      🚫 {(page.elements || []).filter(e => e.status === "ignored").length} ignored row(s) hidden — tick “Show ignored rows” to see them
+                    </div>
+                  )}
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                     <thead>
                       <tr style={{ background: "#f8fafc" }}>
-                        {["Type", "Selector", `Value (${(LANG_MAP[activeResult.base_language]?.label || activeResult.base_language || "EN").toUpperCase()})`, `Value (${(LANG_MAP[activeResult.target_language]?.label || activeResult.target_language || "EL").toUpperCase()})`, "Status", "AI Reason / Suggestion", "Overflow"].map(h => (
+                        {["Screen / Step", "Type", "Selector", `Value (${(LANG_MAP[activeResult.base_language]?.label || activeResult.base_language || "EN").toUpperCase()})`, `Value (${(LANG_MAP[activeResult.target_language]?.label || activeResult.target_language || "EL").toUpperCase()})`, "Status", "AI Reason / Suggestion", "Overflow", "Ignore"].map(h => (
                           <th key={h} style={{ padding: "7px 10px", textAlign: "left", color: "#64748b", fontWeight: 600, borderBottom: "1px solid #e2e8f0" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {(page.elements || []).map((el, ei) => (
-                        <tr key={ei} style={{
+                      {(() => {
+                        // The backend already returns rows in reading order, grouped by the
+                        // capture step's note. Failures-first is a review-mode override.
+                        // 66 ignored rows drowned the ~24 real failures. They are not hidden —
+                        // they are one toggle away, and the raw score is always on screen.
+                        const all  = page.elements || [];
+                        const hidden = showIgnoredRows ? 0 : all.filter(e => e.status === "ignored").length;
+                        const rows = showIgnoredRows ? [...all] : all.filter(e => e.status !== "ignored");
+                        if (failFirst) {
+                          const rank = r => r.status === "not_translated" ? 0
+                                          : r.status === "wrong_translation" ? 1
+                                          : r.overflow ? 2
+                                          : r.status === "translated" ? 3 : 4;
+                          rows.sort((a, b) => rank(a) - rank(b));
+                        }
+                        let lastSection = null;
+                        return rows.map((el, ei) => {
+                          const newSection = !failFirst && (el.section || "") !== lastSection;
+                          if (newSection) lastSection = el.section || "";
+                          return (
+                          <React.Fragment key={ei}>
+                          {newSection && el.section && (
+                            <tr>
+                              <td colSpan={9} style={{ padding: "10px 10px 4px", fontSize: 11, fontWeight: 800,
+                                                       color: "#475569", background: "#f8fafc",
+                                                       borderTop: "1px solid #e2e8f0" }}>
+                                ▸ {el.section}
+                              </td>
+                            </tr>
+                          )}
+                        <tr style={{
                           borderBottom: "1px solid #f8fafc",
-                          background: el.status === "not_translated" ? "#fff5f5" : el.overflow ? "#fffbeb" : "transparent"
+                          opacity: el.scored === false ? 0.65 : 1,
+                          background: isPending(el) ? "#f5f3ff"
+                                    : el.status === "ignored" ? "#fafafa"
+                                    : el.status === "data" ? "#fbfbfc"
+                                    : el.status === "not_translated" ? "#fff5f5"
+                                    : el.overflow ? "#fffbeb" : "transparent"
                         }}>
+                          <td style={{ padding: "6px 10px", color: el.section ? "#334155" : "#cbd5e1", fontSize: 11, maxWidth: 150 }}>
+                            {el.section || "—"}
+                          </td>
                           <td style={{ padding: "6px 10px" }}>
                             <span style={{
                               fontSize: 10, padding: "2px 6px", borderRadius: 4, fontWeight: 600,
@@ -425,7 +627,11 @@ export default function MultilingualTest() {
                           <td style={{ padding: "6px 10px", color: "#1e293b" }}>{el.base_text}</td>
                           <td style={{ padding: "6px 10px", color: "#1e293b" }}>{el.target_text}</td>
                           <td style={{ padding: "6px 10px" }}>
-                            {el.status === "translated"
+                            {el.status === "ignored"
+                              ? <span style={{ color: "#8b5cf6", fontWeight: 600 }} title={el.ignore_reason || ""}>🚫 Ignored</span>
+                              : el.status === "data"
+                              ? <span style={{ color: "#94a3b8", fontWeight: 600 }} title="Record data — the app does not translate this, so it is not scored">ℹ️ Data</span>
+                              : el.status === "translated"
                               ? <span style={{ color: "#10b981", fontWeight: 600 }}>✅ Correct</span>
                               : el.status === "wrong_translation"
                               ? <span style={{ color: "#f59e0b", fontWeight: 600 }}>⚠️ Wrong</span>
@@ -456,8 +662,28 @@ export default function MultilingualTest() {
                               ? <span style={{ color: "#f59e0b", fontWeight: 600 }}>⚠️ Overflow</span>
                               : <span style={{ color: "#94a3b8" }}>—</span>}
                           </td>
+
+                          {/* Ignore — ticking only stages the row; nothing is saved until Apply */}
+                          <td style={{ padding: "6px 10px", textAlign: "center" }}>
+                            {el.status === "ignored" ? (
+                              <button onClick={() => restoreIgnore(el.ignore_id)}
+                                      title={`${el.ignore_reason || ""}${el.ignored_by ? " — " + el.ignored_by : ""}`}
+                                      style={{ ...s.btn("ghost", true), fontSize: 10, padding: "2px 8px", color: "#8b5cf6" }}>
+                                Restore
+                              </button>
+                            ) : el.status === "data" ? (
+                              <span style={{ color: "#cbd5e1" }}>—</span>
+                            ) : (
+                              <input type="checkbox" checked={isPending(el)}
+                                     onChange={() => toggleIgnore(el)}
+                                     title="Mark this string as correct as-is — it stays in the report but stops counting against the score"
+                                     style={{ width: 14, height: 14, cursor: "pointer" }} />
+                            )}
+                          </td>
                         </tr>
-                      ))}
+                        </React.Fragment>
+                        ); });
+                      })()}
                     </tbody>
                   </table>
                 </div>

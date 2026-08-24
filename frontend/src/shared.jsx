@@ -7,6 +7,43 @@ const API = window.location.port === "5176"
   : window.location.origin;   // e.g. http://10.8.7.176:6001
 const WS = API.replace(/^http/, "ws");
 
+// ── Date/time formatting — locale driven by VITE_DATE_LOCALE ────────────────
+// Previously every page hardcoded its own locale string (or omitted one
+// entirely, which silently falls back to the browser/OS default — that's how
+// dates ended up showing MM/DD/YYYY for some users). Now it's one setting in
+// frontend/.env; change VITE_DATE_LOCALE there and every page picks it up on
+// the next build. Defaults to "en-IN" (DD/MM/YYYY) if the .env var is unset.
+const DATE_LOCALE = import.meta.env.VITE_DATE_LOCALE || "en-IN";
+
+// Default to zero-padded numeric fields when the caller doesn't specify their
+// own options — some locales (e.g. "ja-JP", used for YYYY/MM/DD) don't
+// zero-pad single-digit months/days by default, so "2026/8/7" instead of
+// "2026/08/07". Callers that pass their own opts (e.g. {month:"short"} for a
+// compact display) are left exactly as they asked — this only fills the gap
+// when nothing was specified at all.
+const DEFAULT_DATE_OPTS = { year: "numeric", month: "2-digit", day: "2-digit" };
+
+function formatDate(value, opts) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(DATE_LOCALE, opts || DEFAULT_DATE_OPTS);
+}
+
+function formatDateTime(value, opts) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleString(DATE_LOCALE, opts || { ...DEFAULT_DATE_OPTS, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+}
+
+function formatTime(value, opts) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString(DATE_LOCALE, { hour12: false, ...opts });
+}
+
 // Page size helpers — kept for backward compatibility
 const APP_PAGE_SIZE = 10;
 const _cfg = { pageSize: parseInt(localStorage.getItem("athma_page_size") || "10") };
@@ -346,4 +383,5 @@ export { API, WS, APP_PAGE_SIZE, C, s, api, getToken, getUser, GlobalStyle,
          Spinner, Badge, Empty, Pagination,
          statusColor, statusBg, priorityColor,
          getAppPageSize, setAppPageSize, smartSel,
+         formatDate, formatDateTime, formatTime,
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { api, s, APP_PAGE_SIZE, C, Badge, Empty, getToken, API, WS } from "./shared.jsx";
+import { api, s, APP_PAGE_SIZE, C, Badge, Empty, getToken, API, WS, formatDateTime } from "./shared.jsx";
 import { StepEditor, ACTIONS, ACTION_GROUPS, VAR_TYPES, API_ASSERTIONS } from "./Editors.jsx";
 
 const CRON_PRESETS = [
@@ -218,7 +218,7 @@ function Schedules({ suites, projects, user }) {
                   {/* Last run */}
                   <td style={{ ...s.td, fontSize:11, color:"#8a96a8" }}>
                     {sc.last_run_at
-                      ? new Date(sc.last_run_at).toLocaleString()
+                      ? formatDateTime(sc.last_run_at)
                       : <span style={{ color:"#cbd5e0" }}>Never</span>}
                   </td>
 
@@ -2112,15 +2112,15 @@ function HelpDocs() {
         <div>
           <div style={{ background:"linear-gradient(135deg,#1a2332 0%,#1a6fc4 100%)",
             borderRadius:12, padding:"28px 32px", color:"#fff", marginBottom:24 }}>
-            <div style={{ fontSize:28, fontWeight:800, marginBottom:8, color:"#8B0000" }}>Daiva Health — AI-Powered Test Automation</div>
+            <div style={{ fontSize:28, fontWeight:800, marginBottom:8, color:"#8B0000" }}>QAVYA — AI-Powered Test Automation</div>
             <div style={{ fontSize:14, opacity:0.8, lineHeight:1.8 }}>
-              A full-stack, browser-based test automation platform built specifically for<br/>
-              the ATHMA healthcare application suite. No coding knowledge required.
+              A full-stack, browser-based test automation platform for any web application.<br/>
+              No coding knowledge required.
             </div>
           </div>
-          <H2>What is ATHMA?</H2>
-          <P>ATHMA (Automation Tool for Healthcare Management Applications) is a purpose-built web testing platform that allows QA engineers, testers, and business analysts to create, manage, run, and schedule automated UI and API tests — all from a browser interface.</P>
-          <P>Unlike Selenium or Playwright standalone, ATHMA provides a complete workflow: from recording user actions to generating detailed HTML reports and emailing them to stakeholders after scheduled runs.</P>
+          <H2>What is QAVYA?</H2>
+          <P>QAVYA is a purpose-built web testing platform that allows QA engineers, testers, and business analysts to create, manage, run, and schedule automated UI and API tests — all from a browser interface.</P>
+          <P>Unlike Selenium or Playwright standalone, QAVYA provides a complete workflow: from recording user actions to generating detailed HTML reports and emailing them to stakeholders after scheduled runs.</P>
           <H2>Key Capabilities</H2>
           <Table
             headers={["Feature","Description"]}
@@ -2142,7 +2142,7 @@ function HelpDocs() {
           />
           <H2>Who is it for?</H2>
           <Table
-            headers={["Role","How they use ATHMA"]}
+            headers={["Role","How they use QAVYA"]}
             rows={[
               ["QA Engineer","Create and maintain automated regression tests for all application flows"],
               ["Business Analyst","Record user journeys and validate expected behaviours"],
@@ -2289,7 +2289,7 @@ npm run dev
       case "controlflow": return (
         <div>
           <H2>Control Flow</H2>
-          <P>ATHMA supports full programming-style control flow inside test cases. All blocks are added via the <b>Insert Block</b> toolbar at the bottom of the Steps tab.</P>
+          <P>QAVYA supports full programming-style control flow inside test cases. All blocks are added via the <b>Insert Block</b> toolbar at the bottom of the Steps tab.</P>
           <H3>🔁 Loop (Repeat N times)</H3>
           <P>Repeats a block of steps a fixed number of times. Use <Code>{"{{__loop_index__}}"}</Code> to get the current iteration (0-based).</P>
           <P><b>Use case:</b> Create 5 patients with different random names in one test run.</P>
@@ -2359,7 +2359,7 @@ Step 2: Assert URL contains → value: /patient/{{pid}}`}</CodeBlock>
       case "selectors": return (
         <div>
           <H2>Finding Selectors</H2>
-          <P>A selector tells ATHMA which element on the page to interact with. ATHMA supports multiple selector formats.</P>
+          <P>A selector tells QAVYA which element on the page to interact with. QAVYA supports multiple selector formats.</P>
           <H3>Selector Formats</H3>
           <Table headers={["Format","Example","When to use"]} rows={[
             ["CSS ID","#username","Element has a unique id attribute"],
@@ -2376,13 +2376,13 @@ Step 2: Assert URL contains → value: /patient/{{pid}}`}</CodeBlock>
             ["get_by_placeholder","get_by_placeholder(\"Enter name\")","Input placeholder"],
           ]} />
           <H3>How to Find a Selector</H3>
-          <P><b>Method 1 — CSS Inspector (recommended):</b> Click the 🎯 button next to any selector field → a browser opens → hover over the element and press F2 → multiple selectors are sent to ATHMA, pick the best one.</P>
+          <P><b>Method 1 — CSS Inspector (recommended):</b> Click the 🎯 button next to any selector field → a browser opens → hover over the element and press F2 → multiple selectors are sent to QAVYA, pick the best one.</P>
           <P><b>Method 2 — Browser DevTools:</b> Right-click element → Inspect → right-click in DevTools → Copy → Copy selector.</P>
           <P><b>Method 3 — Recorder:</b> Record your actions and selectors are captured automatically.</P>
           <H3>Selector Best Practices</H3>
           <Note type="info">Prefer <Code>get_by_role</Code>, <Code>get_by_label</Code>, and <Code>get_by_placeholder</Code> — they are stable even when CSS classes change.</Note>
           <Note type="warn">Avoid auto-generated selectors like <Code>#mat-input-47</Code> — these numbers change after each Angular component re-render.</Note>
-          <Note type="danger">Never use XPath in ATHMA — use CSS selectors or Playwright locators instead.</Note>
+          <Note type="danger">Never use XPath in QAVYA — use CSS selectors or Playwright locators instead.</Note>
         </div>
       );
 
@@ -2396,12 +2396,12 @@ Step 2: Assert URL contains → value: /patient/{{pid}}`}</CodeBlock>
           <Step n={2}>Optionally enter a Start URL and click <b>Open Inspector Browser</b></Step>
           <Step n={3}>A Chrome window opens — navigate to your page, login if needed</Step>
           <Step n={4}>Hover over the element you want to target</Step>
-          <Step n={5}>Press <b>F2</b> — the element's selectors are sent to ATHMA</Step>
+          <Step n={5}>Press <b>F2</b> — the element's selectors are sent to QAVYA</Step>
           <Step n={6}>A panel shows multiple selector options — click the best one to use it</Step>
           <Step n={7}>The browser stays open — press F2 on another element for <b>Pick Again</b></Step>
           <Step n={8}>Click <b>Cancel & Close Browser</b> when done</Step>
           <H3>Selector Priority</H3>
-          <P>ATHMA shows selectors in this order of reliability: <b>get_by_role</b> → <b>get_by_placeholder</b> → <b>aria-label</b> → <b>id</b> → <b>name attribute</b> → <b>text match</b>. The first option (marked BEST) is recommended.</P>
+          <P>QAVYA shows selectors in this order of reliability: <b>get_by_role</b> → <b>get_by_placeholder</b> → <b>aria-label</b> → <b>id</b> → <b>name attribute</b> → <b>text match</b>. The first option (marked BEST) is recommended.</P>
           <Note>The Inspector browser must stay open until you pick a selector. It closes automatically when you click a selector option or Cancel.</Note>
         </div>
       );
@@ -2417,7 +2417,7 @@ Step 2: Assert URL contains → value: /patient/{{pid}}`}</CodeBlock>
             display:"flex", alignItems:"center", justifyContent:"space-between", gap:16 }}>
             <div>
               <div style={{ fontSize:16, fontWeight:800, color:"#fff", marginBottom:4 }}>
-                🧩 ATHMA Chrome Extension
+                🧩 QAVYA Chrome Extension
               </div>
               <div style={{ fontSize:12, color:"#93c5fd", lineHeight:1.7 }}>
                 Download and install the extension to record test steps directly in Chrome.
@@ -2446,22 +2446,22 @@ Step 2: Assert URL contains → value: /patient/{{pid}}`}</CodeBlock>
           <Step n={3}>Open Chrome and go to <Code>chrome://extensions</Code></Step>
           <Step n={4}>Enable <b>Developer mode</b> (toggle in top-right corner)</Step>
           <Step n={5}>Click <b>Load unpacked</b> and select the extracted folder</Step>
-          <Step n={6}>The ATHMA extension icon appears in Chrome toolbar</Step>
+          <Step n={6}>The QAVYA extension icon appears in Chrome toolbar</Step>
 
           <H3>How to Record</H3>
-          <Step n={1}>Log in to <b>ATHMA NAT</b> first (required for auth)</Step>
+          <Step n={1}>Log in to <b>QAVYA NAT</b> first (required for auth)</Step>
           <Step n={2}>Navigate to the page you want to test in Chrome</Step>
-          <Step n={3}>Click the <b>ATHMA extension</b> icon in the toolbar</Step>
+          <Step n={3}>Click the <b>QAVYA extension</b> icon in the toolbar</Step>
           <Step n={4}>Click <b>⏺ Start Recording Here</b> — recording starts on the current page</Step>
           <Step n={5}>Perform your test actions (click, type, navigate)</Step>
           <Step n={6}>Click <b>⏹ Stop</b> in the extension popup</Step>
-          <Step n={7}>Click <b>💾 Save to NAT</b> — steps load automatically in ATHMA</Step>
+          <Step n={7}>Click <b>💾 Save to NAT</b> — steps load automatically in QAVYA</Step>
           <Step n={8}>Enter a name, select a project, click <b>Save</b></Step>
 
           <H3>Record More Steps</H3>
           <P>After stopping, click <b>⏺ Record More Steps</b> to go back and record additional actions. All sessions are accumulated and sent together when you click Save to NAT.</P>
 
-          <Note>Only users logged into ATHMA NAT can use the recorder. The extension verifies your session before allowing any recording.</Note>
+          <Note>Only users logged into QAVYA NAT can use the recorder. The extension verifies your session before allowing any recording.</Note>
         </div>
       );
 
@@ -2552,7 +2552,7 @@ Step 2: Assert URL contains → value: /patient/{{pid}}`}</CodeBlock>
             ["Every Sunday at midnight","0 0 * * 0","Weekly on Sunday"],
           ]} />
           <H3>Email Reports</H3>
-          <P>If <b>Notify Email</b> is set, after each suite run ATHMA will:</P>
+          <P>If <b>Notify Email</b> is set, after each suite run QAVYA will:</P>
           <Step n={1}>Generate a Katalon-style HTML report with full logs</Step>
           <Step n={2}>Email it to the configured address as an attachment</Step>
           <Note type="warn">Email requires SMTP settings in your <Code>.env</Code> file: <Code>SMTP_HOST</Code>, <Code>SMTP_PORT</Code>, <Code>SMTP_USER</Code>, <Code>SMTP_PASS</Code></Note>
@@ -2630,7 +2630,7 @@ Expected:  1`}</CodeBlock>
         <div>
           <H2>Reports & Email Notifications</H2>
           <H3>HTML Report Format</H3>
-          <P>After any suite run, ATHMA generates a standalone Katalon-style HTML report that includes:</P>
+          <P>After any suite run, QAVYA generates a standalone Katalon-style HTML report that includes:</P>
           <Table headers={["Section","Contents"]} rows={[
             ["Execution Environment","Host name, OS, browser, suite name, start/end time, elapsed duration"],
             ["Summary","Total tests, passed (green), failed (red), skipped — with large number display"],
@@ -2653,7 +2653,7 @@ SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=your@gmail.com
 SMTP_PASS=your-app-password    # Gmail: use App Password
-SMTP_FROM=ATHMA Reports <your@gmail.com>`}</CodeBlock>
+SMTP_FROM=QAVYA Reports <your@gmail.com>`}</CodeBlock>
           <Note type="warn">For Gmail, generate an <b>App Password</b> at myaccount.google.com → Security → App passwords. Do not use your regular Gmail password.</Note>
         </div>
       );
@@ -2684,10 +2684,10 @@ SMTP_FROM=ATHMA Reports <your@gmail.com>`}</CodeBlock>
       // ─────────────────────────────────────────────────────────────────────
       case "architecture": return (
         <div>
-          <H2>ATHMA Architecture</H2>
+          <H2>QAVYA Architecture</H2>
           <H3>System Overview</H3>
           <CodeBlock>{`┌─────────────────────────────────────────────────────────────────┐
-│                        ATHMA Platform                          │
+│                        QAVYA Platform                          │
 │                                                                 │
 │  ┌──────────────────┐     HTTP/WS      ┌──────────────────┐   │
 │  │   React Frontend  │ ◄────────────── │  Node.js Backend  │   │
@@ -2829,7 +2829,7 @@ If notify_email set → send email with attachment`}</CodeBlock>
           <P>The selector didn't find the element within 30 seconds.</P>
           <P>• Use the 🎯 Inspector to verify the selector is correct</P>
           <P>• Add a <Code>wait_for_selector</Code> step before the failing step</P>
-          <P>• Check if the element is inside an iframe — ATHMA doesn't currently support iframes</P>
+          <P>• Check if the element is inside an iframe — QAVYA doesn't currently support iframes</P>
           <P>• Increase the step timeout in Settings tab of the step</P>
           <H3>Test fails: "Navigation timeout"</H3>
           <P>Page took too long to load. Options:</P>

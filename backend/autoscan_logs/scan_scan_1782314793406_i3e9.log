@@ -1,0 +1,63 @@
+2026-06-24T15:26:33.420Z  === Auto-scan scan_1782314793406_i3e9 starting [CODE v13: validation+dbresults] ; config: url=https://test-swasthya.narayanaone.health/register, screens=all, dbChecks=0, enableDelete=false ===
+2026-06-24T15:26:33.423Z  Launching browser
+2026-06-24T15:26:33.424Z  Create-and-verify tag for this run: QAVYA_TEST_20260624_oeob
+2026-06-24T15:26:45.881Z  Asking Claude to identify login form
+2026-06-24T15:26:50.447Z  Landed at: https://test-swasthya.narayanaone.health/register
+2026-06-24T15:26:51.991Z  Page 1: Swasthya (1 forms, 7 inputs)
+2026-06-24T15:26:51.996Z  Crawl complete — 1 pages found
+2026-06-24T15:26:51.997Z  Asking Claude to plan test scenarios for each page
+2026-06-24T15:27:50.832Z  Planned 20 scenarios for: Swasthya
+2026-06-24T15:27:50.834Z  Login page not in selected screens — emitting login verification card anyway
+2026-06-24T15:27:50.835Z  Total scenarios planned: 21
+2026-06-24T15:27:50.836Z  Scenario [1/21]: Login with provided credentials
+2026-06-24T15:27:50.836Z    Login (positive): FAIL
+2026-06-24T15:27:54.672Z  Scenario [2/21]: Submit registration form with all valid data
+2026-06-24T15:27:57.583Z    Returned to list page to verify creation
+2026-06-24T15:28:06.610Z  Created test record "QAVYA_TEST_20260624_oeob" on Swasthya — verify: FAIL
+2026-06-24T15:28:06.611Z  Scenario bug [high]: Form interaction failed - no data entry occurred
+2026-06-24T15:28:06.612Z    Result: fail — The scenario failed to complete. The before and after screenshots are identical,
+2026-06-24T15:28:06.612Z  Scenario [3/21]: Validation check — submit form with empty required fields
+2026-06-24T15:28:08.138Z    Validation check: FAIL (could not run)
+2026-06-24T15:28:08.140Z  Scenario [4/21]: Validation — phone number with fewer than 10 digits
+2026-06-24T15:28:09.588Z    Validation check: FAIL (could not run)
+2026-06-24T15:28:09.594Z  Scenario [5/21]: Validation — phone number with more than 10 digits
+2026-06-24T15:28:11.148Z    Validation check: FAIL (could not run)
+2026-06-24T15:28:11.148Z  Scenario [6/21]: Validation — non-numeric phone number
+2026-06-24T15:28:12.576Z    Validation check: FAIL (could not run)
+2026-06-24T15:28:12.577Z  Scenario [7/21]: Validation — age field with zero
+2026-06-24T15:28:14.149Z    Validation check: FAIL (could not run)
+2026-06-24T15:28:14.150Z  Scenario [8/21]: Validation — age field with unrealistic value
+2026-06-24T15:28:15.628Z    Validation check: FAIL (could not run)
+2026-06-24T15:28:15.630Z  Scenario [9/21]: Select Female sex option
+2026-06-24T15:28:25.199Z    Result: pass — The Female button was successfully clicked and is now shown as selected/highligh
+2026-06-24T15:28:25.200Z  Scenario [10/21]: Select Other sex option
+2026-06-24T15:28:33.673Z    Result: pass — Clicking the 'Other' button successfully selected it, as evidenced by the blue/h
+2026-06-24T15:28:33.676Z  Scenario [11/21]: Sex selection toggle — switch from Male to Female
+2026-06-24T15:28:43.114Z    Result: pass — The scenario completed successfully. Male was clicked first, then Female was cli
+2026-06-24T15:28:43.114Z  Scenario [12/21]: Full Name field accepts special characters
+2026-06-24T15:28:45.706Z    Step failed: Enter name with hyphen and apostrophe — fill action failed to set value on #name
+2026-06-24T15:28:54.870Z  Scenario bug [high]: Full Name field strips special characters (hyphen and apostrophe)
+2026-06-24T15:28:54.871Z    Result: partial — The Full Name field was filled, but the value shown is 'MaryJane OBrien' instead
+2026-06-24T15:28:54.872Z  Scenario [13/21]: Age field rejects negative values
+2026-06-24T15:28:56.380Z    Validation check: FAIL (could not run)
+2026-06-24T15:28:56.381Z  Scenario [14/21]: Submit form without selecting sex
+2026-06-24T15:28:58.024Z    Validation check: FAIL (could not run)
+2026-06-24T15:28:58.025Z  Scenario [15/21]: Navigation — page title and header render correctly
+2026-06-24T15:29:07.866Z    Result: pass — The page loaded correctly with the Narayana One Health logo, SWASTHYA banner wit
+2026-06-24T15:29:07.867Z  Scenario [16/21]: Navigation — Begin My Health Assessment button is visible before filling form
+2026-06-24T15:29:16.936Z    Result: pass — The scenario verified the presence of the 'Begin My Health Assessment' button by
+2026-06-24T15:29:16.938Z  Scenario [17/21]: Form submission with Female sex and valid data
+2026-06-24T15:29:32.141Z  Scenario bug [medium]: Test scenario does not account for CAPTCHA and Terms of Use requirements
+2026-06-24T15:29:32.142Z    Result: partial — The form was filled out successfully with all required data and the submit butto
+2026-06-24T15:29:32.143Z  Scenario [18/21]: Height field rejects negative values
+2026-06-24T15:29:33.570Z    Validation check: FAIL (could not run)
+2026-06-24T15:29:33.572Z  Scenario [19/21]: Phone number field — verify country code is not required
+2026-06-24T15:29:42.294Z    Result: pass — The phone number field successfully accepted the 10-digit number '9123456780' wi
+2026-06-24T15:29:42.295Z  Scenario [20/21]: Checkbox fields interaction
+2026-06-24T15:29:51.480Z    Step failed: Check the first checkbox — locator.check: Timeout 8000ms exceeded.
+2026-06-24T15:30:00.050Z    Step failed: Check the second checkbox — locator.check: Timeout 8000ms exceeded.
+2026-06-24T15:30:11.630Z  Scenario bug [medium]: Checkbox check actions failed for both checkbox fields
+2026-06-24T15:30:11.694Z    Result: partial — The form was scrolled and filled out with height (160), weight (58), and Female 
+2026-06-24T15:30:11.696Z  Scenario [21/21]: Validation — submit with name field empty only
+2026-06-24T15:30:13.125Z    Validation check: FAIL (could not run)
+2026-06-24T15:30:13.127Z  Scan complete — 1 pages, 21 scenarios (✅6 ❌12 ⚠️3), 4 bugs

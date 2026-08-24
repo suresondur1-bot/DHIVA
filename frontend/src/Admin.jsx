@@ -2043,5 +2043,135 @@ function AccessRequests() {
   );
 }
 
+// ─── VISUAL PROMPTS EDITOR ──────────────────────────────────────────────────────────────────
+function VisualPrompts() {
+  const [prompts,  setPrompts]  = useState({});
+  const [loading,  setLoading]  = useState(true);
+  const [saving,   setSaving]   = useState(null);
+  const [saved,    setSaved]    = useState(null);
+  const [activeTab, setActiveTab] = useState('ai');
+
+  const LEVELS = [
+    { key:'ai',      label:'AI (Smart)',   icon:'🧠', desc:'AI ignores dynamic data, flags structural differences only' },
+    { key:'layout',  label:'Layout Only',  icon:'📏', desc:'Only checks positions and structure, ignores all text' },
+    { key:'content', label:'Content Only', icon:'📝', desc:'Checks headings and labels, ignores layout and dynamic data' },
+    { key:'strict',  label:'Strict',       icon:'🔍', desc:'Reports every visual difference including colours and fonts' },
+  ];
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const r = await api('/api/visual-prompts');
+      const map = {};
+      (r.prompts||[]).forEach(p => { map[p.match_level] = p.prompt_text; });
+      setPrompts(map);
+    } catch(e) { console.error(e); }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const save = async (level) => {
+    setSaving(level);
+    try {
+      await api(`/api/visual-prompts/${level}`, { method:'PUT', body:{ prompt_text: prompts[level] } });
+      setSaved(level);
+      setTimeout(() => setSaved(null), 2000);
+    } catch(e) { alert(e.message); }
+    setSaving(null);
+  };
+
+  const reset = (level) => {
+    if (!confirm(`Reset "${level}" prompt to default?`)) return;
+    load();
+  };
+
+  const active = LEVELS.find(l => l.key === activeTab);
+
+  return (
+    <div>
+      <div style={{ marginBottom:24 }}>
+        <div style={{ fontSize:22, fontWeight:800, color:'#8B0000' }}>📋 Visual Testing Prompts</div>
+        <div style={{ fontSize:13, color:'#8a96a8', marginTop:2 }}>
+          Edit the AI prompts used for visual comparison. Changes take effect on the next test run.
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign:'center', padding:40, color:'#9ca3af' }}>Loading prompts...</div>
+      ) : (
+        <div style={{ display:'grid', gridTemplateColumns:'200px 1fr', gap:20 }}>
+          {/* Left tabs */}
+          <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+            {LEVELS.map(l => (
+              <button key={l.key}
+                onClick={() => setActiveTab(l.key)}
+                style={{ textAlign:'left', padding:'12px 14px', borderRadius:9,
+                  border:`1.5px solid ${activeTab===l.key?'#1a6fc4':'#e5e7eb'}`,
+                  background: activeTab===l.key?'#eff6ff':'#fff',
+                  cursor:'pointer', transition:'all 0.15s' }}>
+                <div style={{ fontSize:13, fontWeight:700,
+                  color: activeTab===l.key?'#1a6fc4':'#374151' }}>
+                  {l.icon} {l.label}
+                </div>
+                <div style={{ fontSize:11, color:'#9ca3af', marginTop:3, lineHeight:1.4 }}>
+                  {l.desc}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Right editor */}
+          {active && (
+            <div style={{ background:'#fff', borderRadius:12,
+              border:'1px solid #e5e7eb', padding:20 }}>
+              <div style={{ display:'flex', justifyContent:'space-between',
+                alignItems:'center', marginBottom:12 }}>
+                <div>
+                  <div style={{ fontSize:16, fontWeight:700, color:'#1a2332' }}>
+                    {active.icon} {active.label} Prompt
+                  </div>
+                  <div style={{ fontSize:12, color:'#6b7280', marginTop:2 }}>
+                    Used when match_level = "{active.key}" in test steps
+                  </div>
+                </div>
+                {saved===active.key && (
+                  <span style={{ fontSize:12, color:'#16a34a', fontWeight:600 }}>
+                    ✅ Saved!
+                  </span>
+                )}
+              </div>
+
+              <textarea
+                rows={18}
+                value={prompts[active.key] || ''}
+                onChange={e => setPrompts(p => ({ ...p, [active.key]: e.target.value }))}
+                style={{ width:'100%', padding:'12px 14px', borderRadius:8,
+                  border:'1px solid #e2e6ed', fontSize:12, lineHeight:1.7,
+                  fontFamily:"'IBM Plex Mono', 'Courier New', monospace",
+                  color:'#1a2332', resize:'vertical', outline:'none',
+                  boxSizing:'border-box', background:'#fafbfc' }}
+              />
+
+              <div style={{ display:'flex', justifyContent:'flex-end',
+                gap:10, marginTop:12 }}>
+                <button onClick={() => reset(active.key)}
+                  style={{ ...s.btn('ghost'), fontSize:12 }}>
+                  🔄 Reset to Default
+                </button>
+                <button onClick={() => save(active.key)}
+                  disabled={saving===active.key}
+                  style={{ ...s.btn('primary'), fontSize:12 }}>
+                  {saving===active.key ? 'Saving...' : '💾 Save Prompt'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export { ModuleSelector, ModuleMaster, QueryBuilder, QueryPreview,
-         OrgMaster, UserMaster, ChangePasswordModal, AccessRequests };
+         OrgMaster, UserMaster, ChangePasswordModal, AccessRequests, VisualPrompts };

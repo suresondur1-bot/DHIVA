@@ -2163,7 +2163,18 @@ function SuiteRunner({ projects, suites, user }) {
               <tbody>
                 {viewResult.runs?.map((run,i)=>{
                   const failLog = (run.logs||[]).find(l=>l.level==="fail");
-                  const failMsg = failLog?.message?.replace(/^\[FAIL\]\s*/,"") || "";
+                  let failMsg = failLog?.message?.replace(/^\[FAIL\]\s*/,"") || "";
+                  // "error" runs (runner crashed / never started / backend lost track of it)
+                  // never get a level:"fail" log line — the step that would have logged it
+                  // never ran. Fall back to the last log line captured (any level) so there's
+                  // still SOME hint of what happened, instead of a bare "—" that reads as
+                  // "nothing went wrong" when something clearly did.
+                  if (!failMsg && run.status === "error") {
+                    const logs = run.logs || [];
+                    const lastLog = logs[logs.length - 1];
+                    failMsg = lastLog?.message?.replace(/^\[(FAIL|ERROR)\]\s*/i,"") ||
+                      "⚠ Runner crashed or never started — no logs captured";
+                  }
                   return (
                     <tr key={run.id} style={{ background:i%2===0?"#fff":"#f8f9fc" }}>
                       <td style={s.td}>
