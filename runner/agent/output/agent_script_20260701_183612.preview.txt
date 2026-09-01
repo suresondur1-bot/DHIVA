@@ -1,0 +1,18 @@
+# Goal: enter supplier field search "110014_V" and select "GREENCITY OFFICE NEEDS", Currency search and select "INR", Service Category search and select "Digi Workbook". click continue button. wait until Description element visible. enter Description as "Agent test". in Table "Service code | Description" column search as "S-D-AE02-MARKETING-00001" and select "Digi Workbook-Digital marketing-YouTube-Digital Marketing", "Rate Contract" column search and select "SRC175426000006", "Long Description" column search and select "SAI YOUTUBE" using selector #longDescriptionInput, "Qty" column set text as "2". execute javascript to scroll table right: document.querySelector('table').parentElement.scrollLeft=9999. click on #serviceStartDate and type todays date in dd/mm/yyyy format. click on #serviceEndDate and type todays date in dd/mm/yyyy format. search and select "Digital marketing" in Budget Ref No using selector tbody > tr > td:nth-of-type(14) > div > ng-select. click + button using selector table > tbody > tr > td:nth-of-type(15) > button. click Save button. store PR number text as SAIPR.
+# Start: https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new
+# Steps: 14
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  #supplierInput   # Supplier options appear and GREENCITY OFFICE NEEDS is selectable
+ 10. search_select  #currencyList   # Currency shows INR
+ 11. search_select  #serviceCategoryList   # Service Category shows Digi Workbook selected
+ 12. click          #btnNext   # Modal closes and PR Description becomes visible
+ 13. type           #prDescription   # Description field shows 'Agent test'
+ 14. search_select  #longDescriptionInput   # Service code field shows matching option to select

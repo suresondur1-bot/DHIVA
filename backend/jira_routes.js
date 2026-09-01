@@ -356,7 +356,7 @@ ${finalStepsText}
 Environment:
 URL: ${run.base_url||''}
 Browser: ${run.browser||'Chrome'}
-Tool: Daiva Health ATHMA
+Tool: QAVYA
 ${extra_notes?'\nNotes: '+extra_notes:''}
 ATHMA Run: #${run.id}`;
 

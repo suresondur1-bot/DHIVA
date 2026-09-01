@@ -24,9 +24,17 @@ import string
 import threading
 import hashlib
 import requests
+import aiohttp
 from runner_json import JSON_ACTIONS, handle_json_action
-from datetime import datetime
+from datetime import datetime, timezone
 from playwright.async_api import async_playwright, TimeoutError as PWTimeout
+
+
+def utcnow():
+    """Drop-in replacement for the deprecated datetime.utcnow() -- returns the
+    same naive UTC datetime (no tzinfo), just without triggering Python's
+    DeprecationWarning on 3.12+."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 # ── Windows console encoding ──────────────────────────────────────────────────
 if sys.platform == "win32":
@@ -241,16 +249,40 @@ def resolve_variables(variables):
     for var in (variables or []):
         name  = var.get("name", "")
         vtype = var.get("type", "fixed")
+        # Normalise frontend display-name types -> runner snake_case keys
+        # e.g. "Random Text" -> "random_text", "Random Number" -> "random_number"
+        _type_map = {
+            "random text":  "random_text",
+            "random number":"random_number",
+            "random email": "random_email",
+            "from list":    "from_list",
+            "data table":   "data_table",
+            "runtime":      "random_text",   # Smart Record saved as runtime -> treat as random_text
+        }
+        vtype = _type_map.get(vtype.lower().strip(), vtype.lower().strip())
         config = var.get("config", {})
         if not name:
             continue
         try:
-            if "value" in var and var["value"]:
+            # Prefer `config` — that's the field the frontend Variables panel actually
+            # edits (see VariablesPanel in Editors.jsx). `value` is a legacy/alternate
+            # field some other creation paths stamp onto a variable directly. It used
+            # to be checked FIRST, which meant editing a variable's value in the UI —
+            # which only ever writes `config`, never `value` — silently had no effect
+            # whenever a stale `value` was already present: the runner kept resolving
+            # to the old `value` forever, no matter how many times `config` was edited
+            # and saved. Now `config` wins whenever it actually holds something usable;
+            # `value` is only a fallback for variables that never had a `config` set.
+            if isinstance(config, str) and config:
+                cfg_str = config
+            elif isinstance(config, dict) and config.get("value"):
+                cfg_str = str(config.get("value", ""))
+            elif "value" in var and var["value"]:
                 cfg_str = str(var["value"])
             elif isinstance(config, str):
                 cfg_str = config
             else:
-                cfg_str = str(config.get("value", "") if isinstance(config, dict) else config)
+                cfg_str = ""
             if vtype == "random_email":
                 prefix = cfg_str.strip() or "user"
                 resolved[name] = f"{prefix}_{''.join(random.choices(string.digits, k=8))}@test.com"
@@ -301,14 +333,23 @@ def resolve_variables(variables):
 def apply_variables(value, resolved):
     if not isinstance(value, str):
         return value
-    for name, val in resolved.items():
-        if isinstance(val, (dict, list)):
-            str_val = json.dumps(val)
-        elif val is None:
-            str_val = ""
-        else:
-            str_val = str(val)
-        value = value.replace("{{" + name + "}}", str_val)
+    # Repeat passes so a variable whose value references another variable
+    # (e.g. Ehr_MRN = "{{PR_Reg}}") resolves regardless of dict order. A plain
+    # value with no nested {{...}} resolves on the first pass and the loop stops
+    # immediately, so existing behaviour is unchanged. Capped to avoid loops
+    # from self-referencing variables.
+    for _ in range(5):
+        before = value
+        for name, val in resolved.items():
+            if isinstance(val, (dict, list)):
+                str_val = json.dumps(val)
+            elif val is None:
+                str_val = ""
+            else:
+                str_val = str(val)
+            value = value.replace("{{" + name + "}}", str_val)
+        if value == before or "{{" not in value:
+            break
     return value
 
 
@@ -341,7 +382,7 @@ def _flush_logs(run_id):
 
 
 def log(run_id, level, message, step_index=None):
-    ts = datetime.utcnow().isoformat() + "+00:00"
+    ts = utcnow().isoformat() + "+00:00"
     # Print to stdout so the backend's proc.stdout listener can broadcast to WebSocket
     print(f"[{level.upper()}] {message}", flush=True)
     try:
@@ -433,7 +474,7 @@ async def take_screenshot(page, run_id, label):
             try:
                 requests.post(f"{API_BASE}/api/runs/{run_id}/screenshot", json={
                     "label": label, "filename": filename, "data": b64,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": utcnow().isoformat()
                 }, timeout=10)
             except Exception:
                 pass
@@ -446,7 +487,7 @@ def _post_live_async(run_id, b64, label):
     def _post():
         try:
             requests.post(f"{API_BASE}/api/runs/{run_id}/live-screen", json={
-                "data": b64, "label": label, "timestamp": datetime.utcnow().isoformat()
+                "data": b64, "label": label, "timestamp": utcnow().isoformat()
             }, timeout=3)
         except Exception:
             pass
@@ -471,6 +512,36 @@ async def take_live_screenshot(page, run_id, step_label, force=False):
     _post_live_async(run_id, base64.b64encode(raw).decode(), step_label)
 
 
+def _parse_css_color(s):
+    """Parse a CSS color string (hex or rgb/rgba) into an (r,g,b,a) tuple, or
+    None if it isn't a recognizable color. Used so assert_css can compare
+    '#ff7800' against the browser's computed 'rgb(255, 120, 0)' correctly --
+    getComputedStyle() always returns colors as rgb()/rgba(), never hex, so a
+    plain substring match between the two formats fails even when the color
+    is identical.
+    """
+    s = (s or "").strip().lower()
+    m = re.match(r'^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$', s)
+    if m:
+        h = m.group(1)
+        if len(h) == 3:
+            r, g, b = (int(c * 2, 16) for c in h)
+            a = 1.0
+        elif len(h) == 6:
+            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+            a = 1.0
+        else:  # 8 -- #RRGGBBAA
+            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+            a = round(int(h[6:8], 16) / 255, 3)
+        return (r, g, b, a)
+    m = re.match(r'^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)$', s)
+    if m:
+        r, g, b = int(float(m.group(1))), int(float(m.group(2))), int(float(m.group(3)))
+        a = round(float(m.group(4)), 3) if m.group(4) is not None else 1.0
+        return (r, g, b, a)
+    return None
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Async locator helpers  (pure locator resolution — no awaits needed for these)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -480,6 +551,13 @@ def get_locator(page, selector):
     if not selector:
         return page.locator("body")
     sel = selector.strip()
+    # The AI (ai_step / ai_heal) sometimes prefixes a get_by_*(...) call with a
+    # stray leading dot, as if it were a CSS class selector (e.g.
+    # '.get_by_text("SCMC")'). That's never valid CSS -- parentheses/quotes
+    # aren't legal unescaped there -- so it always fell through to Playwright's
+    # raw CSS parser and blew up with "Unexpected token". Strip it before the
+    # get_by_* pattern matching below so the real call resolves normally.
+    sel = _re.sub(r"^\.\s*(?=get_by_|getBy)", "", sel)
     sel = _re.sub(r"\bgetByRole\b",        "get_by_role",        sel)
     sel = _re.sub(r"\bgetByText\b",        "get_by_text",        sel)
     sel = _re.sub(r"\bgetByLabel\b",       "get_by_label",       sel)
@@ -512,7 +590,12 @@ def get_locator(page, selector):
     if m: return page.get_by_text(m.group(1), exact=False)
     if ":has-text(" in sel:
         ht = _re.search(r':has-text\(["\'](.*?)["\'"]\)', sel)
-        if ht:
+        # Only rewrite when :has-text() ENDS the selector. For a scoped form
+        # like  tr:has-text("MRN123") button.patient-transfer  the old code
+        # threw the descendant part away and returned the whole row instead of
+        # the button. Playwright's CSS engine supports :has-text() natively,
+        # so anything with a suffix is passed straight through.
+        if ht and not sel[ht.end():].strip():
             tag_sel = sel[:ht.start()].strip() or "*"
             return page.locator(tag_sel).filter(has_text=ht.group(1))
     nth = _re.search(r">>\s*nth=(\d+)", sel)
@@ -634,9 +717,30 @@ async def ai_heal_step(page, step, run_id, idx, original_error, resolved_vars=No
         return None
 
     log(run_id, "info", f"  [AI Heal] AI suggested {len(suggestions)} selector(s) -- trying each...", idx)
+    # Safety guard: never "heal" a click by substituting a destructive / opposite
+    # button (Cancel, Close, Dismiss, etc.). Healing is meant to find the SAME
+    # element via a new selector — not click a different button that happens to
+    # be visible. Without this, a failed Finish/Done step could be falsely
+    # "healed" by clicking Cancel, producing a false PASS that hides the failure.
+    # This only SKIPS bad suggestions; it never alters a legitimate heal.
+    _BAD_HEAL_WORDS = ("cancel", "close", "dismiss", "discard", "back", "reset", "no", "abort")
+    def _is_destructive_suggestion(sug_obj, sel_str):
+        if action != "click":
+            return False
+        hay = (str(sel_str) + " " + str(sug_obj.get("reason", "")) + " "
+               + str(sug_obj.get("element", "")) + " " + str(sug_obj.get("name", ""))).lower()
+        # Only block when the ORIGINAL step was NOT itself targeting that word.
+        orig = (str(selector) + " " + str(value)).lower()
+        for w in _BAD_HEAL_WORDS:
+            if w in hay and w not in orig:
+                return True
+        return False
     for i, sug in enumerate(suggestions):
         new_sel = sug.get("selector", "")
         if not new_sel:
+            continue
+        if _is_destructive_suggestion(sug, new_sel):
+            log(run_id, "info", f"  [AI Heal] Skipping suggestion [{i+1}] {new_sel} -- looks like a Cancel/Close/opposite button, not a safe heal", idx)
             continue
         log(run_id, "info", f"  [AI Heal] Trying [{i+1}] {new_sel} ({sug.get('confidence','')}) -- {sug.get('reason','')}", idx)
         try:
@@ -668,7 +772,10 @@ async def ai_heal_step(page, step, run_id, idx, original_error, resolved_vars=No
             elif action == "assert_value":
                 assert await loc.input_value() == value
             elif action == "select":
-                await loc.select_option(value, timeout=10000)
+                try:
+                    await loc.select_option(label=value, timeout=10000)
+                except Exception:
+                    await loc.select_option(value=value, timeout=10000)
             elif action == "check":
                 await loc.check(timeout=10000)
             elif action == "uncheck":
@@ -782,7 +889,95 @@ async def translate_value(text_val, lang, run_id=None, idx=None, api_base=None):
         return text_val
 
 
-async def run_step(page, step, run_id, idx, resolved_vars=None):
+# ── Custom controls (ISOLATED, additive) ────────────────────────────────────
+# Loads user-defined control definitions once. If anything fails, the list is
+# empty and the runner behaves EXACTLY as before. Definitions come from a local
+# JSON file (QAVYA_CONTROLS_FILE) or the backend API (/api/controls).
+_CUSTOM_CONTROLS = None        # cached list of valid definitions
+_custom_controls_mod = None    # the engine module, imported lazily
+
+def _load_custom_controls():
+    global _CUSTOM_CONTROLS, _custom_controls_mod
+    if _CUSTOM_CONTROLS is not None:
+        return _CUSTOM_CONTROLS
+    _CUSTOM_CONTROLS = []  # default empty -> no effect on existing behaviour
+    try:
+        import importlib, os as _os
+        _custom_controls_mod = importlib.import_module("custom_controls")
+        defs = []
+        # 1) local file, if provided
+        try:
+            defs = _custom_controls_mod.load_definitions_from_file()
+        except Exception:
+            defs = []
+        # 2) backend API
+        if not defs:
+            try:
+                import requests as _rq
+                base = _os.environ.get("API_BASE", "http://localhost:6001")
+                tok = _os.environ.get("RUNNER_TOKEN", "")
+                headers = {"Authorization": f"Bearer {tok}"} if tok else {}
+                r = _rq.get(f"{base}/api/controls", headers=headers, timeout=8)
+                if r.status_code == 200:
+                    defs = (r.json() or {}).get("controls", []) or []
+                    # backend rows store recognition/keywords as objects already
+            except Exception:
+                defs = []
+        _CUSTOM_CONTROLS = _custom_controls_mod.find_matching_definition_sync(defs)
+    except Exception:
+        _CUSTOM_CONTROLS = []
+    return _CUSTOM_CONTROLS
+
+
+async def _try_custom_control(page, step, action, selector, value, run_id, idx, resolved_vars, timeout):
+    """Return True if a user-defined control handled this step; else False.
+    Safe: any error -> False, so the runner falls back to built-in handling."""
+    try:
+        defs = _load_custom_controls()
+        if not defs or not selector:
+            return False
+        mod = _custom_controls_mod
+        READ_ALIASES = ("get_value", "read", "read_text", "store_value",
+                        "store_text", "assert_text", "assert_value")
+        for d in defs:
+            kws = d.get("keywords") or {}
+            # Control handles this action if it defines it directly, OR if the
+            # action is a read-style alias and the control defines any read recipe.
+            defines_it = action in kws
+            if not defines_it and action in READ_ALIASES:
+                defines_it = any(a in kws for a in READ_ALIASES)
+            if not defines_it:
+                continue
+            if await mod._matches(page, selector, d, get_locator):
+                res = await mod.run_keyword(
+                    page, d, action, selector, value, run_id, idx,
+                    get_locator, apply_variables, log,
+                    resolved_vars=resolved_vars, timeout=timeout)
+                if res.get("handled"):
+                    read_val = res.get("read")
+                    # For store/extract style actions, save the read text into the
+                    # step's target variable so it can be used later.
+                    if read_val is not None:
+                        if action in ("store_value", "store_text"):
+                            # editor's "Store into" is the step value field
+                            var_name = (step.get("value", "") or "").strip().strip("{}")
+                            if var_name:
+                                resolved_vars[var_name] = read_val
+                                log(run_id, "info", f"[custom] stored '{read_val[:60]}' -> {{{{{var_name}}}}}", idx)
+                        else:
+                            store_as = (step.get("store_as", "") or "").strip().strip("{}")
+                            if store_as:
+                                resolved_vars[store_as] = read_val
+                                log(run_id, "info", f"[custom] stored '{read_val[:60]}' -> {{{{{store_as}}}}}", idx)
+                    log(run_id, "pass", f"[OK] {action} via custom control '{d.get('name')}'", idx)
+                    return True
+    except Exception as e:
+        try: log(run_id, "info", f"[custom] fell back to built-in: {e}", idx)
+        except Exception: pass
+    return False
+
+
+async def _run_step_once(page, step, run_id, idx, resolved_vars=None):
     resolved_vars = resolved_vars or {}
     action   = step.get("action", "")
     value    = str(apply_variables(step.get("value", "") or "", resolved_vars))
@@ -820,6 +1015,14 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
     await take_live_screenshot(page, run_id, f"Step {idx+1}: {action}")
 
     try:
+        # Custom-control delegation (additive): if a user-defined control matches
+        # this element AND defines this action, run its recipe and finish.
+        # Otherwise fall through to built-in handling exactly as before.
+        if action not in ("navigate", "wait", "refresh", "back", "forward",
+                          "screenshot", "execute_script", "set_variable"):
+            if await _try_custom_control(page, step, action, selector, value, run_id, idx, resolved_vars, timeout):
+                return {"status": "passed", "step": idx}
+
         # ── NAVIGATE ──────────────────────────────────────────────────────────
         if action == "navigate":
             nav_timeout = max(timeout, 30000)
@@ -827,6 +1030,27 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                 await page.goto(value, timeout=nav_timeout, wait_until="domcontentloaded")
             except PWTimeout:
                 await page.goto(value, timeout=nav_timeout, wait_until="load")
+            except Exception as _nav_err:
+                # net::ERR_ABORTED happens when the server immediately redirects
+                # (root -> login / SSO / http->https) and the original navigation
+                # is cancelled before domcontentloaded fires. It is NOT a timeout,
+                # so it isn't caught above. Retry with wait_until="commit" which
+                # resolves the moment the navigation commits and is immune to a
+                # follow-up redirect aborting the wait. Retry once, then let the
+                # DOM settle. Any other error is re-raised unchanged.
+                _msg = str(_nav_err)
+                if "ERR_ABORTED" in _msg or "NS_BINDING_ABORTED" in _msg or "net::" in _msg:
+                    await asyncio.sleep(0.8)
+                    try:
+                        await page.goto(value, timeout=nav_timeout, wait_until="commit")
+                    except Exception:
+                        await page.goto(value, timeout=nav_timeout, wait_until="load")
+                    try:
+                        await page.wait_for_load_state("domcontentloaded", timeout=nav_timeout)
+                    except Exception:
+                        pass
+                else:
+                    raise
             try:
                 await page.wait_for_load_state("networkidle", timeout=5000)
             except Exception:
@@ -897,7 +1121,38 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                 # Use fill() for translated text — loc.type() may not handle Unicode correctly
                 await loc.fill(type_value, timeout=timeout)
             else:
-                await loc.type(type_value, timeout=timeout)
+                # datetime-local / date / time / month inputs cannot be filled with
+                # loc.type() or loc.fill() — the browser ignores keystroke simulation
+                # on these native date widgets. Use JS to set value + fire events.
+                input_type = await loc.evaluate("el => el.type || el.getAttribute('type') || ''")
+                if input_type in ("datetime-local", "date", "time", "month", "week"):
+                    # Normalise value: accept DD/MM/YYYY, DD-MM-YYYY, DD/MM/YYYY HH:MM
+                    # and convert to the format the input expects:
+                    #   date          -> YYYY-MM-DD
+                    #   datetime-local -> YYYY-MM-DDTHH:mm
+                    import re as _re
+                    v = type_value.strip()
+                    # DD/MM/YYYY or DD-MM-YYYY (with optional HH:MM or HH:MM:SS)
+                    m = _re.match(r'(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})(?:[T ](\d{2}:\d{2})(?::\d{2})?)?', v)
+                    if m:
+                        dd, mm, yyyy = m.group(1).zfill(2), m.group(2).zfill(2), m.group(3)
+                        hhmm = m.group(4) or ""
+                        if input_type == "datetime-local":
+                            v = f"{yyyy}-{mm}-{dd}T{hhmm or '00:00'}"
+                        else:
+                            v = f"{yyyy}-{mm}-{dd}"
+                    # Already ISO format YYYY-MM-DD or YYYY-MM-DDTHH:mm — use as-is
+                    await loc.evaluate(
+                        """(el, val) => {
+                            el.value = val;
+                            el.dispatchEvent(new Event('input', { bubbles: true }));
+                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                        }""",
+                        v
+                    )
+                    log(run_id, "info", f"[type] datetime-local set via JS: '{v}'", idx)
+                else:
+                    await loc.type(type_value, timeout=timeout)
 
         # ── CLEAR ─────────────────────────────────────────────────────────────
         elif action == "clear":
@@ -905,12 +1160,26 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
 
         # ── SELECT ────────────────────────────────────────────────────────────
         elif action == "select":
-            await get_locator(page, selector).select_option(value, timeout=timeout)
+            loc = get_locator(page, selector)
+            # Try by label (visible text) first — avoids UUID/dynamic value dependence.
+            # Fall back to value attribute if label match fails.
+            try:
+                await loc.select_option(label=value, timeout=timeout)
+            except Exception:
+                try:
+                    await loc.select_option(value=value, timeout=timeout)
+                except Exception:
+                    # Last resort: partial label match (handles trailing spaces, case issues)
+                    options = await loc.evaluate("el => Array.from(el.options).map(o => o.text.trim())")
+                    match = next((o for o in options if value.lower() in o.lower()), None)
+                    if match:
+                        await loc.select_option(label=match, timeout=timeout)
+                    else:
+                        raise
 
         # ── SEARCH_SELECT ─────────────────────────────────────────────────────
         elif action == "search_select":
             import re as _re_ss
-            # Always re-resolve from raw step fields so loop variables set after run_step entry are picked up
             raw_value       = step.get("value", "") or ""
             raw_search_text = step.get("search_text", "") or ""
             search_text = apply_variables(raw_search_text if raw_search_text else raw_value, resolved_vars).strip()
@@ -922,83 +1191,255 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                     log(run_id, "info", f"[search_select] Translated search to {_lang}: {search_text}", idx)
                 if option_text:
                     option_text = await translate_value(option_text, _lang, run_id=run_id, idx=idx)
-            loc         = get_locator(page, selector)
-            wait_ms     = int(step.get("wait_ms", 2000))
+            loc     = await get_locator_with_fallback(page, selector, timeout=min(timeout, 8000))
+            wait_ms = int(step.get("wait_ms", 2000))
             log(run_id, "info", f"[search_select] typing={search_text!r} picking={option_text!r}", idx)
 
-            is_ng_select = False
+            # ── Wait for the control to render BEFORE detecting its type or probing
+            # it (a click just before this step, opening the dropdown, can
+            # trigger a re-render that transiently removes/replaces the element;
+            # detecting too early sees nothing and logs "unknown" even though the
+            # element exists moments later). Wait ONCE, up front, using the full
+            # step timeout, so detection reflects the settled DOM -- then use a
+            # short timeout for the exploratory probes that follow.
             try:
-                if "ng-select" in selector.lower():
-                    is_ng_select = True
-                else:
-                    is_ng_select = await page.evaluate(
-                        f"""() => {{ const el = document.querySelector({repr(selector)});
-                            if (!el) return false;
-                            return el.tagName.toLowerCase() === 'ng-select' || el.classList.contains('ng-select') || el.closest('ng-select') !== null; }}"""
-                    ) or False
-            except Exception:
-                is_ng_select = "ng-select" in selector.lower()
+                await loc.wait_for(state="visible", timeout=timeout)
+            except Exception as _e_wait:
+                log(run_id, "info", f"[search_select] element not visible after {timeout}ms wait: {_e_wait}", idx)
+            probe_timeout = min(timeout, 5000)
 
-            if is_ng_select:
-                await loc.click(timeout=timeout)
-                await page.wait_for_timeout(400)
-                typed = False
-                for ng_inp_sel in [".ng-input > input", "input[type=text]"]:
+            # ── Detect control type universally ──────────────────────────────
+            # NOTE: this used to re-look-up the element via
+            # page.evaluate(`document.querySelector({selector})`), which only
+            # understands plain CSS. Any step whose selector is XPath, a
+            # Playwright text=/role= engine string, etc. (e.g. after AI Heal
+            # permanently rewrites a step to `//*[@id="..."]`) made
+            # document.querySelector throw, silently falling back to a naive
+            # substring check on the selector text ('ng-select' in selector)
+            # -- which misclassifies a real ng-select as 'generic' the moment
+            # its selector isn't literal CSS. Evaluating directly on the
+            # already-resolved Playwright locator (`loc`) sidesteps this
+            # entirely -- it works no matter what selector syntax found the
+            # element.
+            ctrl_type = "unknown"
+            try:
+                ctrl_type = await loc.evaluate("""(el) => {
+                    if (!el) return 'unknown';
+                    const tag = el.tagName.toLowerCase();
+                    if (tag === 'select') return 'native';
+                    if (tag === 'ng-select' || el.classList.contains('ng-select') || el.closest('ng-select')) return 'ng-select';
+                    if (el.classList.contains('select2') || el.closest('.select2-container')) return 'select2';
+                    if (el.classList.contains('ant-select') || el.closest('.ant-select')) return 'antd';
+                    if (el.classList.contains('v-select') || el.closest('.v-select')) return 'vue-select';
+                    if (el.closest('[class*="react-select"]') || el.closest('[class*="ReactSelect"]')) return 'react-select';
+                    if (el.closest('.multiselect') || el.classList.contains('multiselect')) return 'multiselect';
+                    const role = el.getAttribute('role');
+                    if (role === 'combobox' || role === 'listbox') return 'aria';
+                    if (el.querySelector('input') || el.tagName === 'INPUT') return 'input-dropdown';
+                    return 'generic';
+                }""", timeout=probe_timeout) or 'unknown'
+            except Exception:
+                ctrl_type = 'ng-select' if 'ng-select' in selector.lower() else 'generic'
+
+            log(run_id, "info", f"[search_select] Control type: {ctrl_type}", idx)
+
+            # ── Step 1: Handle native <select> directly ───────────────────────
+            if ctrl_type == 'native':
+                try:
+                    await loc.select_option(label=option_text, timeout=timeout)
+                    log(run_id, "pass", f"[OK] search_select (native) completed", idx)
+                    return {"status": "passed", "step": idx}
+                except Exception:
                     try:
-                        ng_inp = loc.locator(ng_inp_sel).first
-                        if await ng_inp.is_visible(timeout=500):
-                            await ng_inp.fill("")
-                            await ng_inp.press_sequentially(search_text)
+                        await loc.select_option(value=option_text, timeout=timeout)
+                        log(run_id, "pass", f"[OK] search_select (native) completed", idx)
+                        return {"status": "passed", "step": idx}
+                    except Exception as e:
+                        raise Exception(f"Native select failed: {e}")
+
+            # ── Step 2: Open the dropdown ─────────────────────────────────────
+            opened = False
+            # Try clicking the main element
+            try:
+                await loc.click(timeout=probe_timeout)
+                await page.wait_for_timeout(400)
+                opened = True
+            except Exception:
+                pass
+
+            # For Select2 — click the rendered container not the hidden select
+            if ctrl_type == 'select2' and not opened:
+                try:
+                    sel2_span = page.locator(f".select2-container .select2-selection").first
+                    await sel2_span.click(timeout=probe_timeout)
+                    await page.wait_for_timeout(400)
+                    opened = True
+                except Exception:
+                    pass
+
+            # ── Step 3: Type search text into the input ───────────────────────
+            typed = False
+
+            # ── Type directly into the selector element when it is itself typeable ─
+            # Uses the already-resolved locator (loc), so it works for ANY
+            # selector syntax (CSS, ID, XPath, role, text). Containers
+            # (ng-select wrappers, etc.) are not directly typeable, so this is
+            # skipped for them and the original child/page-wide logic runs.
+            if not typed:
+                try:
+                    is_typeable = await loc.evaluate("""(el) => {
+                        if (!el) return false;
+                        const tag = el.tagName.toLowerCase();
+                        if (tag === 'input' || tag === 'textarea') return true;
+                        if (el.isContentEditable) return true;
+                        if (el.getAttribute('role') === 'combobox') return true;
+                        return false;
+                    }""", timeout=probe_timeout)
+                    if is_typeable:
+                        await loc.click(timeout=probe_timeout)
+                        try:
+                            await loc.fill("", timeout=probe_timeout)
+                        except Exception:
+                            pass
+                        await loc.press_sequentially(search_text, delay=50)
+                        typed = True
+                        log(run_id, "info", "[search_select] typed directly into selector element", idx)
+                except Exception as _e_self:
+                    log(run_id, "info", f"[search_select] direct-type failed, using normal logic: {_e_self}", idx)
+
+            # Priority list of input selectors to try based on control type
+            input_selectors = []
+            if ctrl_type == 'ng-select':
+                input_selectors = [".ng-input > input", "input[type=text]", ".ng-value-container input"]
+            elif ctrl_type == 'react-select':
+                input_selectors = ["input[type=text]", "input[role=combobox]", ".react-select__input input"]
+            elif ctrl_type == 'select2':
+                input_selectors = [".select2-search__field", ".select2-search input", "input.select2-search__field"]
+            elif ctrl_type == 'antd':
+                input_selectors = [".ant-select-selection-search-input", "input[autocomplete]", ".ant-select input"]
+            elif ctrl_type == 'vue-select':
+                input_selectors = [".vs__search", ".vs__search input", "input.vs__search"]
+            elif ctrl_type == 'multiselect':
+                input_selectors = [".multiselect__input", ".multiselect input"]
+            else:
+                # Generic — try common patterns
+                input_selectors = [
+                    "input[type=text]", "input[type=search]", "input[role=combobox]",
+                    "input[autocomplete]", ".search-input", "[class*=search] input"
+                ]
+
+            # Try inputs inside the control
+            if not typed:
+              for inp_sel in input_selectors:
+                try:
+                    inp = loc.locator(inp_sel).first
+                    if await inp.is_visible(timeout=500):
+                        await inp.fill("")
+                        await inp.press_sequentially(search_text, delay=50)
+                        typed = True
+                        break
+                except Exception:
+                    continue
+
+            # Try inputs in the page (for dropdowns that open outside parent)
+            if not typed:
+                page_input_selectors = [
+                    ".ng-input > input", ".select2-search__field",
+                    ".ant-select-selection-search-input", ".vs__search",
+                    ".react-select__input input", ".multiselect__input",
+                    "input[role=combobox]:visible", "input[type=search]:visible"
+                ]
+                for inp_sel in page_input_selectors:
+                    try:
+                        inp = page.locator(inp_sel).first
+                        if await inp.is_visible(timeout=500):
+                            await inp.fill("")
+                            await inp.press_sequentially(search_text, delay=50)
                             typed = True
                             break
                     except Exception:
                         continue
-                if not typed:
-                    for ng_inp_sel in ["ng-select .ng-input input", "ng-select input[type=text]", ".ng-value-container input"]:
-                        try:
-                            ng_inp = page.locator(ng_inp_sel).first
-                            if await ng_inp.is_visible(timeout=500):
-                                await ng_inp.fill("")
-                                await ng_inp.press_sequentially(search_text)
-                                typed = True
-                                break
-                        except Exception:
-                            continue
-                if not typed:
-                    await page.keyboard.type(search_text)
-                await page.wait_for_timeout(300)
-            else:
-                await loc.click(timeout=timeout)
-                await page.wait_for_timeout(200)
+
+            # Last resort — keyboard type
+            if not typed:
                 try:
-                    await loc.focus()
                     await page.keyboard.press("Control+a")
+                    await page.keyboard.type(search_text)
+                    typed = True
                 except Exception:
                     pass
-                await page.keyboard.press("Delete")
-                await page.wait_for_timeout(100)
-                try:
-                    await loc.press_sequentially(search_text)
-                except Exception:
-                    for ch in search_text:
-                        await loc.press(ch)
 
-            # Poll for dropdown — wait for the FILTERED option to appear
+            await page.wait_for_timeout(400)
+
+            # ── Step 4: Find and click the matching option ────────────────────
             matched = None
-            for _attempt in range(25):
-                await page.wait_for_timeout(300)
-                try:
-                    opts = page.locator("ng-dropdown-panel .ng-option")
-                    n = await opts.count()
-                    if n > 0:
-                        filtered = opts.filter(has_text=_re_ss.compile(_re_ss.escape(option_text), _re_ss.I))
+            option_pattern = _re_ss.compile(_re_ss.escape(option_text), _re_ss.I)
+
+            # All possible option selectors — ordered by specificity
+            option_selectors = [
+                # Angular
+                "ng-dropdown-panel .ng-option",
+                "ng-dropdown-panel .ng-option-label",
+                ".ng-option",
+                # Custom ng-select skins: the clickable option row inside the panel.
+                # More specific than the loose [class*='option'] match further down,
+                # so that loose selector never grabs a non-clickable wrapper div.
+                # Existing dropdowns are unaffected — their own selectors match first.
+                ".ng-dropdown-panel .ng-option",
+                "ng-dropdown-panel [role='option']",
+                ".ng-dropdown-panel [role='option']",
+                # Angular Bootstrap typeahead
+                "ngb-typeahead-window button",
+                "ngb-typeahead-window .dropdown-item",
+                # Select2
+                ".select2-results__option",
+                ".select2-dropdown li",
+                # Ant Design
+                ".ant-select-item-option",
+                ".ant-select-item",
+                # React Select
+                ".react-select__option",
+                "[class*='option']:visible",
+                # Vue Select
+                ".vs__dropdown-option",
+                ".vs__dropdown-menu li",
+                # Bootstrap
+                ".dropdown-menu .dropdown-item",
+                ".dropdown-item",
+                # Generic ARIA
+                "[role=option]",
+                "[role=listbox] [role=option]",
+                # Generic list
+                ".dropdown-list li",
+                ".options-list li",
+                "ul.dropdown li",
+                "ul li[data-value]",
+                # Material UI
+                ".MuiMenuItem-root",
+                "[class*=MenuItem]",
+                # PrimeNG / PrimeFaces
+                ".p-dropdown-item",
+                ".p-autocomplete-item",
+            ]
+
+            for _attempt in range(20):
+                await page.wait_for_timeout(200)
+                for opt_sel in option_selectors:
+                    try:
+                        opts = page.locator(opt_sel)
+                        n = await opts.count()
+                        if n == 0:
+                            continue
+                        # Filter by text
+                        filtered = opts.filter(has_text=option_pattern)
                         if await filtered.count() > 0:
                             matched = filtered.first
                             break
+                        # Manual text match
                         for j in range(min(n, 30)):
                             o = opts.nth(j)
                             try:
-                                txt = (await o.inner_text(timeout=300) or "").strip()
+                                txt = (await o.inner_text(timeout=200) or "").strip()
                                 if option_text.lower() in txt.lower():
                                     matched = o
                                     break
@@ -1006,23 +1447,12 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                                 continue
                         if matched:
                             break
-                    if await page.locator("ngb-typeahead-window").count() > 0:
-                        break
-                    if await page.locator("[role=option]:visible").count() > 0:
-                        break
-                except Exception:
-                    pass
-
-            if not matched:
-                for sel2 in ["ngb-typeahead-window button", "ngb-typeahead-window td", "ngb-typeahead-window .dropdown-item"]:
-                    try:
-                        c = page.locator(sel2).filter(has_text=_re_ss.compile(option_text, _re_ss.I)).first
-                        if await c.is_visible(timeout=500):
-                            matched = c
-                            break
                     except Exception:
                         continue
+                if matched:
+                    break
 
+            # Playwright get_by_role fallback
             if not matched:
                 try:
                     c = page.get_by_role("option", name=option_text, exact=False).first
@@ -1031,57 +1461,42 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                 except Exception:
                     pass
 
-            if not matched:
-                for sel2 in [".ng-option", ".dropdown-item", "[role=option]", "[class*=option]", "ul li"]:
-                    try:
-                        c = page.locator(sel2).filter(has_text=_re_ss.compile(option_text, _re_ss.I)).first
-                        if await c.is_visible(timeout=500):
-                            matched = c
-                            break
-                    except Exception:
-                        continue
-
-            if not matched:
+            if matched:
                 try:
-                    spans = page.locator("ng-dropdown-panel .ng-option-label")
-                    sc = await spans.count()
-                    for j in range(min(sc, 30)):
-                        sp = spans.nth(j)
+                    await matched.scroll_into_view_if_needed(timeout=2000)
+                except Exception:
+                    pass
+                try:
+                    await matched.click(timeout=5000)
+                except Exception as _click_err:
+                    # Fallback ONLY runs when the normal click fails (e.g. the
+                    # matched element is a non-clickable wrapper in a custom
+                    # ng-select). Working dropdowns never reach this path.
+                    _clicked = False
+                    # 1) try clicking the inner option row / label
+                    for _inner in (".ng-option", ".ng-option-label", "[role='option']", "span"):
                         try:
-                            txt = (await sp.inner_text(timeout=300) or "").strip()
-                            if option_text.strip().lower() in txt.strip().lower():
-                                matched = sp
+                            _row = matched.locator(_inner).first
+                            if await _row.count() > 0:
+                                await _row.click(timeout=3000)
+                                _clicked = True
                                 break
                         except Exception:
                             continue
-                except Exception:
-                    pass
-            if not matched:
-                try:
-                    opts = page.locator("ng-dropdown-panel .ng-option:visible")
-                    if await opts.count() == 1:
-                        matched = opts.first
-                except Exception:
-                    pass
-            if not matched:
-                raise Exception(f"Search & Select: option '{option_text}' not found after typing '{search_text}'.")
-
-            await matched.scroll_into_view_if_needed()
-            await page.wait_for_timeout(200)
-            _panel_visible = await page.locator("ng-dropdown-panel").count() > 0
-            if _panel_visible:
-                try:
-                    await matched.dispatch_event("mousedown")
-                    await page.wait_for_timeout(50)
-                    await matched.dispatch_event("mouseup")
-                    await page.wait_for_timeout(50)
-                    await matched.dispatch_event("click")
-                except Exception:
-                    await matched.click(force=True, timeout=5000)
+                    # 2) try a direct JS click on the matched element
+                    if not _clicked:
+                        try:
+                            await matched.evaluate("el => el.click()")
+                            _clicked = True
+                        except Exception:
+                            pass
+                    # 3) try force-click as a last resort
+                    if not _clicked:
+                        await matched.click(timeout=3000, force=True)
+                await page.wait_for_timeout(300)
+                log(run_id, "pass", f"[OK] search_select completed — picked '{option_text}'", idx)
             else:
-                await matched.click(force=True, timeout=timeout)
-            await page.wait_for_timeout(600)
-            log(run_id, "pass", f"[OK] Search & Select: selected '{option_text}'", idx)
+                raise Exception(f"search_select: could not find option '{option_text}' in dropdown (control: {ctrl_type})")
 
         # ── OTHER ACTIONS ─────────────────────────────────────────────────────
         elif action == "double_click":
@@ -1152,29 +1567,43 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
         elif action == "scroll":
             x = int(step.get("value2", 0) or 0)
             y = int(value or 0)
-            sel = step.get("value3", "").strip()
+            # NOTE: previously read step.get("value3", ""), but the Scroll step's
+            # editor UI writes the "Scroll element" field into step.selector (like
+            # every other action's selector field), never step.value3. So a
+            # selector typed into the UI was silently ignored. `selector` here is
+            # already the variable-resolved value computed earlier in this function.
+            sel = selector.strip()
+            # NOTE 2 (this replaces the DOM scrollTop-hunting approach from the
+            # previous fix): diagnostics on this exact app showed
+            # document.body/documentElement scrollHeight == clientHeight (720==720)
+            # -- i.e. genuinely zero native overflow anywhere on the page for our
+            # DOM scan to find and move via scrollTop. That's the signature of a
+            # JS-driven/virtualized scroll region (Angular CDK virtual scroll,
+            # ag-Grid, PrimeNG scrollable table, etc.) that repositions its own
+            # content in response to real wheel events rather than exposing a
+            # plain overflow:auto div. Setting scrollTop directly does nothing to
+            # something like that. Switched to Playwright's native
+            # page.mouse.wheel(), which dispatches an actual wheel event at a
+            # given screen position -- exactly what a real user scrolling does --
+            # so it reaches whatever is listening for wheel input regardless of
+            # whether it's native overflow or a JS virtualization library.
             if sel:
-                # Scroll specific element into view
-                await page.evaluate(f"""() => {{
-                    const el = document.querySelector('{sel}');
-                    if (el) el.scrollIntoView({{behavior:'smooth', block:'center'}});
-                }}""")
+                loc = get_locator(page, selector)
+                try:
+                    await loc.scroll_into_view_if_needed(timeout=min(timeout, 5000))
+                except Exception:
+                    pass
+                box = await loc.bounding_box()
+                if box:
+                    await page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+                target_desc = f"selector [{sel}]"
             else:
-                # Try Angular scroll container first, fallback to window
-                await page.evaluate(f"""() => {{
-                    const containers = [
-                        document.querySelector('.main-content'),
-                        document.querySelector('.content-wrapper'),
-                        document.querySelector('mat-sidenav-content'),
-                        document.querySelector('.page-content'),
-                        document.querySelector('main'),
-                        document.querySelector('#scrollBox'),
-                        document.body
-                    ];
-                    const container = containers.find(c => c && c.scrollHeight > c.clientHeight);
-                    if (container) container.scrollTop += {y};
-                    else window.scrollBy(0, {y});
-                }}""")
+                vp = page.viewport_size or {"width": 1280, "height": 720}
+                await page.mouse.move(vp["width"] / 2, vp["height"] / 2)
+                target_desc = "page center"
+            await page.mouse.wheel(x, y)
+            await page.wait_for_timeout(300)  # let lazy-render / virtual-scroll repaint settle
+            log(run_id, "info", f"[scroll] dispatched wheel(x={x}, y={y}) at {target_desc}", idx)
 
         elif action == "refresh":
             await page.reload(timeout=timeout)
@@ -1205,12 +1634,20 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
 
         # ── ASSERT ACTIONS ────────────────────────────────────────────────────
         elif action == "assert_text":
-            loc = await get_locator_with_fallback(page, selector, timeout=min(timeout, 8000))
+            # NOTE: deliberately plain get_locator(), NOT get_locator_with_fallback().
+            # The fallback helper walks backward through the selector's ">" path and
+            # silently substitutes the nearest matching ANCESTOR when the exact
+            # selector doesn't match -- great for a resilient click, wrong for an
+            # assertion (it can make an assertion "pass" against a parent container
+            # while the actual target element never existed). Every other assert_*
+            # action already uses plain get_locator(); this now matches them.
+            loc = get_locator(page, selector)
             actual_text = await loc.inner_text(timeout=timeout)
             assert value in (actual_text or ""), f"Expected '{value}' in element text, got '{actual_text}'"
 
         elif action == "assert_visible":
-            loc = await get_locator_with_fallback(page, selector, timeout=min(timeout, 8000))
+            # See NOTE above on assert_text -- same reasoning applies here.
+            loc = get_locator(page, selector)
             await loc.wait_for(state="visible", timeout=timeout)
             assert await loc.is_visible(), f"Element [{selector}] not visible"
 
@@ -1231,9 +1668,15 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
             assert value == actual, f"Expected input value '{value}', got '{actual}'"
 
         elif action == "assert_attribute":
-            parts = value.split("=", 1)
-            attr_name = parts[0].strip()
-            expected  = parts[1].strip() if len(parts) > 1 else ""
+            _attr_field = apply_variables(step.get("attr_name", ""), resolved_vars).strip()
+            if _attr_field:
+                attr_name = _attr_field
+                expected  = value.strip()
+            else:
+                # Backward-compat: older test cases stored "attrName=expectedValue" combined in `value`
+                parts = value.split("=", 1)
+                attr_name = parts[0].strip()
+                expected  = parts[1].strip() if len(parts) > 1 else ""
             actual    = await get_locator(page, selector).get_attribute(attr_name, timeout=timeout)
             assert expected in (actual or ""), f"Attribute '{attr_name}' expected '{expected}', got '{actual}'"
 
@@ -1283,14 +1726,16 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
             return {"status": "passed", "step": idx}
 
         # ── STORE TEXT / VALUE / URL ───────────────────────────────────────
-        elif action in ("store_text", "store_value", "store_url"):
-            var_name = step.get("value", "").strip()
+        # store_element_text is an alias of store_text (reads visible element text).
+        elif action in ("store_text", "store_element_text", "store_value", "store_url"):
+            # variable name comes from the "value" field; fall back to store_as
+            var_name = (step.get("value", "") or step.get("store_as", "") or "").strip().strip("{}")
             if not var_name:
                 log(run_id, "info", ">> store: no variable name specified, skipping", idx)
                 return {"status": "passed", "step": idx}
             if action == "store_url":
                 stored = page.url
-            elif action == "store_text":
+            elif action in ("store_text", "store_element_text"):
                 stored = await get_locator(page, selector).inner_text()
             else:
                 stored = await get_locator(page, selector).input_value()
@@ -1338,15 +1783,63 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
 
         # ── ASSERT CSS ───────────────────────────────────────────────────────
         elif action == "assert_css":
-            parts = value.split("=", 1)
-            prop     = parts[0].strip()
-            expected = parts[1].strip() if len(parts) > 1 else ""
+            _prop_field = apply_variables(step.get("css_prop", ""), resolved_vars).strip()
+            if _prop_field:
+                prop = _prop_field
+                expected = value.strip()
+            else:
+                # Backward-compat: older test cases stored "property=expectedValue" combined in `value`
+                parts = value.split("=", 1)
+                prop     = parts[0].strip()
+                expected = parts[1].strip() if len(parts) > 1 else ""
             actual = await get_locator(page, selector).evaluate(f"el => window.getComputedStyle(el).getPropertyValue('{prop}')")
-            assert expected in str(actual), f"CSS '{prop}' expected '{expected}', got '{actual}'"
+            exp_color = _parse_css_color(expected)
+            act_color = _parse_css_color(str(actual))
+            if exp_color is not None and act_color is not None:
+                # Both sides are colors (hex or rgb/rgba) -- compare the actual RGBA values,
+                # not the raw text, since the browser always normalizes to rgb()/rgba().
+                assert exp_color == act_color, f"CSS '{prop}' expected color '{expected}' (rgba{exp_color}), got '{actual}' (rgba{act_color})"
+            else:
+                assert expected in str(actual), f"CSS '{prop}' expected '{expected}', got '{actual}'"
 
         # ── ASSERT SELECTED ──────────────────────────────────────────────────
         elif action == "assert_selected":
-            actual = await get_locator(page, selector).input_value(timeout=timeout)
+            loc = get_locator(page, selector)
+            try:
+                await loc.wait_for(state="visible", timeout=min(timeout, 8000))
+            except Exception:
+                pass
+            try:
+                ctrl_type = await loc.evaluate("""(el) => {
+                    if (!el) return 'unknown';
+                    const tag = el.tagName.toLowerCase();
+                    if (tag === 'select') return 'native';
+                    if (tag === 'ng-select' || el.classList.contains('ng-select') || el.closest('ng-select')) return 'ng-select';
+                    return 'generic';
+                }""", timeout=min(timeout, 5000)) or 'unknown'
+            except Exception:
+                ctrl_type = 'ng-select' if 'ng-select' in selector.lower() else 'generic'
+
+            if ctrl_type == 'ng-select':
+                # The selected label lives in a sibling .ng-value-label span, not in
+                # the hidden search/filter <input> that a recorded selector usually
+                # points at -- input_value() on that input is always "" even when a
+                # value IS selected. (search_select / AI-capture already read
+                # .ng-value-label for the same reason elsewhere in this file.)
+                try:
+                    actual = await loc.evaluate("""(el) => {
+                        const root = el.closest('ng-select') || el;
+                        const label = root.querySelector('.ng-value-label');
+                        return label ? label.innerText.trim() : (root.innerText || '').trim();
+                    }""", timeout=timeout)
+                except Exception:
+                    actual = ""
+            else:
+                try:
+                    actual = await loc.input_value(timeout=timeout)
+                except Exception:
+                    # Not a native <input>/<select>/<textarea> -- fall back to its visible text
+                    actual = (await loc.inner_text(timeout=timeout)) or ""
             assert value in actual, f"Select expected '{value}' selected, got '{actual}'"
 
         # ── DOWNLOAD ─────────────────────────────────────────────────────────
@@ -1486,7 +1979,7 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                     loc = page.get_by_text(label_v, exact=exact)
                     n_loc = await loc.count()
                     for ri in range(min(n_loc, 3)):
-                        val = await loc.nth(ri).evaluate("""
+                        val = await loc.nth(ri).evaluate(r"""
                             (el) => {
                                 function clean(s){return(s||'').trim().replace(/,/g,'').replace(/[\u20B9$\u20AC\u00A3\s]/g,'');}
                                 function isNum(s){return/^-?[\d]+(\.\d+)?$/.test(s);}
@@ -1627,11 +2120,19 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
 
         # ── ASSERT COOKIE ─────────────────────────────────────────────────────
         elif action == "assert_cookie":
-            parts    = value.split("=", 1)
-            name_c   = parts[0].strip()
-            expected = parts[1].strip() if len(parts) > 1 else None
+            _val2 = apply_variables(step.get("value2", ""), resolved_vars).strip()
+            if _val2:
+                name_c   = value.strip()
+                expected = _val2
+            else:
+                # Backward-compat: older test cases stored "cookieName=expectedValue" combined in `value`
+                parts    = value.split("=", 1)
+                name_c   = parts[0].strip()
+                expected = parts[1].strip() if len(parts) > 1 else None
             cookies  = {c["name"]: c["value"] for c in await page.context.cookies()}
-            assert name_c in cookies, f"Cookie '{name_c}' not found"
+            if name_c not in cookies:
+                available = ", ".join(sorted(cookies.keys())) or "(no cookies set in this browser session at all)"
+                assert False, f"Cookie '{name_c}' not found. Cookies actually present right now: {available}"
             if expected:
                 assert expected in cookies[name_c], f"Cookie '{name_c}' expected '{expected}', got '{cookies[name_c]}'"
 
@@ -1848,6 +2349,110 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
             log(run_id, "pass", f"[OK] ai_extract: '{extracted[:80]}' → {{{{{store_as}}}}}", idx)
             return {"status": "passed", "step": idx}
 
+        # ── AI STEP (natural-language single step) ───────────────────────────────
+        elif action == "ai_step":
+            instruction = apply_variables(step.get("value", ""), resolved_vars)
+            if not instruction.strip():
+                raise Exception("ai_step: instruction is empty")
+            try:
+                img_bytes = await page.screenshot(type="jpeg", quality=75)
+                screenshot_b64 = base64.b64encode(img_bytes).decode("utf-8")
+            except Exception as e:
+                raise Exception(f"ai_step: could not capture screenshot: {e}")
+
+            log(run_id, "info", f"  [AI Step] \"{instruction}\" -- asking AI to resolve...", idx)
+            try:
+                ai_resp = requests.post(f"{API_BASE}/api/ai/step", json={
+                    "screenshot_base64": screenshot_b64,
+                    "instruction": instruction,
+                    "run_id": run_id,
+                }, timeout=60)
+                resolved = ai_resp.json()
+            except Exception as e:
+                raise Exception(f"ai_step: AI request failed: {e}")
+
+            if resolved.get("error"):
+                raise Exception(f"ai_step: {resolved['error']}")
+
+            r_action   = resolved.get("action", "")
+            r_selector = resolved.get("selector", "")
+            r_value    = resolved.get("value", "")
+            r_reason   = resolved.get("reason", "")
+            if not r_action or not r_selector:
+                raise Exception(f"ai_step: AI could not resolve an element for: '{instruction}'")
+
+            # Safety net: the AI sometimes paraphrases/truncates a long or
+            # multi-line element's visible text into the selector (embedding a
+            # literal "..."), e.g. text="SCMC... ( Spons... ) 9 days, 23...".
+            # An exact match built from that can never succeed -- the real DOM
+            # text has no literal "...". If we see this, extract the verbatim
+            # text before the first "..." and use it as a CONTAINS match
+            # instead of wasting the timeout on a selector that's guaranteed
+            # to fail.
+            if "..." in r_selector:
+                _m = re.search(r'''["'](.*?)\.\.\.''', r_selector)
+                _clean = re.sub(r'[\(\[\s]+$', '', _m.group(1)).strip() if _m else ""
+                if len(_clean) >= 2:
+                    log(run_id, "info",
+                        f"  [AI Step] Selector had truncated/paraphrased text -- "
+                        f"using contains-match on {_clean!r} instead of {r_selector!r}", idx)
+                    r_selector = f'get_by_text("{_clean}")'
+
+            # Safety net: a purely-numeric name/text (e.g. a calendar day
+            # number like "5") matches Playwright's default SUBSTRING rule for
+            # get_by_role/get_by_text -- "5" also matches "15", "25", etc. --
+            # which throws "strict mode violation: resolved to N elements" or,
+            # worse, silently clicks the wrong one. If the AI forgot to add
+            # exact=True for a numeric-only name, add it here automatically.
+            if "exact=True" not in r_selector:
+                _num = re.match(r'^(get_by_role\(["\'](\w+)["\'],\s*name=["\'])(\d+)(["\'])\)$', r_selector)
+                if _num:
+                    r_selector = f'{_num.group(1)}{_num.group(3)}{_num.group(4)}, exact=True)'
+                else:
+                    _num = re.match(r'^(get_by_text\(["\'])(\d+)(["\'])\)$', r_selector)
+                    if _num:
+                        r_selector = f'{_num.group(1)}{_num.group(2)}{_num.group(3)}, exact=True)'
+                if _num:
+                    log(run_id, "info",
+                        f"  [AI Step] Numeric-only name -- forcing exact=True to avoid "
+                        f"substring collisions: {r_selector}", idx)
+
+            log(run_id, "info", f"  [AI Step] Resolved: {r_action} on {r_selector} -- {r_reason}", idx)
+            loc = get_locator(page, r_selector)
+            await loc.wait_for(state="visible", timeout=10000)
+            if r_action == "click":
+                try:
+                    await loc.scroll_into_view_if_needed(timeout=3000)
+                    await page.wait_for_timeout(300)
+                except Exception:
+                    pass
+                try:
+                    await loc.click(timeout=10000)
+                except Exception:
+                    await loc.click(timeout=10000, force=True)
+            elif r_action == "type":
+                await loc.fill(r_value, timeout=10000)
+            elif r_action == "clear":
+                await loc.clear(timeout=10000)
+            elif r_action == "hover":
+                await loc.hover(timeout=10000)
+            elif r_action == "select":
+                try:
+                    await loc.select_option(label=r_value, timeout=10000)
+                except Exception:
+                    await loc.select_option(value=r_value, timeout=10000)
+            elif r_action == "check":
+                await loc.check(timeout=10000)
+            elif r_action == "uncheck":
+                await loc.uncheck(timeout=10000)
+            elif r_action == "press":
+                await loc.press(r_value, timeout=10000)
+            else:
+                raise Exception(f"ai_step: unsupported resolved action '{r_action}'")
+
+            log(run_id, "pass", f"[OK] ai_step: \"{instruction}\" -> {r_action} {r_selector}", idx)
+            return {"status": "passed", "step": idx}
+
         # ── ENCODE / PARSE ────────────────────────────────────────────────────
         elif action in ("encode_base64", "decode_base64", "url_encode", "json_extract", "json_parse"):
             import base64 as _b64, urllib.parse as _up, json as _json
@@ -2025,7 +2630,17 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                     items = ", ".join([f"'{t.strip()}'" for t in ignore_text.split(",") if t.strip()])
                     ignore_extra = f"\nAlso ignore these specific patterns: {items}."
 
-                prompts = {
+                # Fetch custom prompts from server (user-editable via UI)
+                try:
+                    _pr = requests.get(f"{API_BASE}/api/visual-prompts", timeout=5)
+                    if _pr.status_code == 200:
+                        _prdata = _pr.json()
+                        prompts = {p["match_level"]: p["prompt_text"] for p in _prdata.get("prompts", [])}
+                    else:
+                        raise Exception("fallback")
+                except Exception:
+                    # Fallback to hardcoded prompts if server unavailable
+                    prompts = {
                     "layout":  ("MATCH LEVEL: LAYOUT ONLY.\n"
                                 "Instruction: Check only the visual arrangement: positions of boxes, tables, and sections. Do not evaluate any text. Flag mismatches in spacing, alignment, or structure.\n"
                                 "DO NOT flag ANY text differences — not labels, not button text, not headings, not placeholders.\n"
@@ -2074,12 +2689,12 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                                 "- A major button or form element is missing entirely\n"
                                 "- The page layout structure is completely different\n"
                                 "\nRule: If a section EXISTS in both images but shows different data/content, that is NOT a critical issue."),
-                }
+                    }
                 prompt = (
                     "You are a senior QA engineer reviewing two UI screenshots.\n"
                     "Image 1 = EXPECTED (Figma design / baseline) | Image 2 = ACTUAL (live app)\n"
                     + prompts.get(match_level, prompts["ai"]) + ignore_extra +
-                    "\n\nSTRICT RULES:\n"
+                    "\n\nOUTPUT RULES:\n"
                     "- 'expected' field = ONLY describe what Image 1 shows for this element\n"
                     "- 'actual' field = ONLY describe what Image 2 shows for this element\n"
                     "- NEVER put Image 2 content in 'expected' field\n"
@@ -2087,9 +2702,15 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                     "- NEVER duplicate any field\n"
                     "- Each difference must be a SEPARATE element\n"
                     "- Report a MAXIMUM of 10 differences (most important first)\n"
-                    "- CRITICAL = element missing or completely wrong\n"
-                    "- MINOR = element present but styled differently\n"
-                    "- COSMETIC = minor text or color difference\n"
+                    + (
+                        "- CRITICAL = structural element completely missing or moved\n"
+                        "- MINOR = layout position slightly different\n"
+                        "- DO NOT report text values, numbers, or data content as differences\n"
+                        if match_level in ("layout", "content") else
+                        "- CRITICAL = element missing or completely wrong\n"
+                        "- MINOR = element present but styled differently\n"
+                        "- COSMETIC = minor text or color difference\n"
+                    ) +
                     "\nFor EACH difference provide exactly these 4 fields:\n"
                     "- element: name of the UI control\n"
                     "- severity: CRITICAL or MINOR or COSMETIC\n"
@@ -2192,14 +2813,20 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                     log(run_id, "info", f"[visual] Pixel diff error: {_pe}", idx)
 
                 has_critical  = claude_result.get("critical_count", 0) > 0
+                has_minor     = claude_result.get("minor_count", 0) > 0
                 summary       = claude_result.get("summary", "")
                 diffs         = claude_result.get("differences", [])
-                # For AI/Layout/Content modes: only fail on critical AI issues, not pixel diff alone
-                # Pixel diff alone is unreliable when comparing Figma (different user data) vs live app
-                if match_level in ("ai", "layout", "content"):
+                # Per-mode fail behaviour (each match_level acts to its purpose):
+                #   ai/layout -> lenient: only CRITICAL fails
+                #   content   -> CRITICAL or MINOR fails (labels are the point)
+                #   strict    -> CRITICAL or MINOR or pixel diff over threshold
+                # COSMETIC never fails (avoids flaky sub-pixel failures).
+                if match_level in ("ai", "layout"):
                     visual_failed = has_critical
+                elif match_level == "content":
+                    visual_failed = has_critical or has_minor
                 else:  # strict mode: use both
-                    visual_failed = has_critical or diff_pct > threshold
+                    visual_failed = has_critical or has_minor or diff_pct > threshold
 
                 if visual_failed:
                     diff_sent = False
@@ -2367,7 +2994,7 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                             "label":    f"[VISUAL FAIL] {visual_name}",
                             "filename": os.path.basename(diff_path),
                             "data":     _b64d,
-                            "timestamp": datetime.utcnow().isoformat()
+                            "timestamp": utcnow().isoformat()
                         }, timeout=15)
                         log(run_id, "info", f"[visual] Diff image sent (status {resp_sc.status_code})", idx)
                         diff_sent = True
@@ -2384,7 +3011,7 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                                     _b64d = base64.b64encode(_f.read()).decode()
                                 requests.post(f"{API_BASE}/api/runs/{run_id}/screenshot", json={
                                     "label": _lbl, "filename": os.path.basename(_fp),
-                                    "data": _b64d, "timestamp": datetime.utcnow().isoformat()
+                                    "data": _b64d, "timestamp": utcnow().isoformat()
                                 }, timeout=10)
                             except Exception:
                                 pass
@@ -2412,12 +3039,15 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                         )
                     if not diff_lines:
                         diff_lines.append(f"  {summary}")
+                    # Log summary first
+                    log(run_id, "fail", f"[visual] FAILED — {summary}", idx)
+                    log(run_id, "fail", f"[visual] Pixel diff: {diff_pct}% (threshold: {threshold}%) — {len(diff_lines)} issue(s) found", idx)
+                    # Log all issues in ONE call, in order, so async log batching
+                    # cannot reorder them. They are already sorted by severity;
+                    # join into a single message that stays in sequence on screen.
+                    log(run_id, "fail", "\n".join(diff_lines), idx)
                     bug_report = "\n\n".join(diff_lines)
-                    raise AssertionError(
-                        f"[visual] FAILED — {summary}\n"
-                        f"Pixel mismatch: {diff_pct}% (threshold: {threshold}%)\n\n"
-                        + bug_report
-                    )
+                    raise AssertionError(f"[visual] FAILED — {len(diff_lines)} issue(s) found. Diff: {diff_pct}% (threshold: {threshold}%)")
                 else:
                     minor    = claude_result.get("minor_count", 0)
                     cosmetic = claude_result.get("cosmetic_count", 0)
@@ -2430,28 +3060,46 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
             store_as = apply_variables(step.get("store_as", "page_snapshot"), resolved_vars).strip()
             log(run_id, "info", f"[capture_page_text] Scanning page lang={lang}...", idx)
             try:
-                elements = await page.evaluate("""() => {
+                _capture_js = r"""() => {
                     const results = [], seen = new Set();
                     function capture(el, type) {
                         if (!el || el.offsetParent === null) return;
-                        const text = (el.innerText || el.textContent || '').trim();
+                        // Typeahead result panels hold record data, not UI copy
+                        if (el.closest && el.closest('ngb-typeahead-window, .typeahead-window, .autocomplete-results')) return;
+                        let text = (el.innerText || el.textContent || '').trim();
                         const ph = el.placeholder || '';
+                        // Icon-only controls keep their translatable string in title/aria-label
+                        let iconOnly = false;
+                        if (!text) {
+                            text = (el.getAttribute('title') || el.getAttribute('aria-label') || '').trim();
+                            if (text) iconOnly = true;
+                        }
                         if (!text && !ph) return;
                         if (text.length < 2 && ph.length < 2) return;
-                        if (/^[0-9\\s\\-\\/]+$/.test(text)) return;
+                        if (/^[0-9\s\-\/]+$/.test(text)) return;
                         let sel = '';
-                        if (el.id) sel = '#' + el.id;
+                        if (iconOnly) {
+                            var _ic = Array.from(el.classList || []).filter(function(c){ return !/^(ng-|_ng|__ng)/.test(c); });
+                            sel = el.tagName.toLowerCase() + (_ic.length ? '.' + _ic.join('.') : '');
+                        }
+                        else if (el.id) sel = '#' + el.id;
                         else if (el.getAttribute('formcontrolname')) sel = el.tagName.toLowerCase() + '[formcontrolname="' + el.getAttribute('formcontrolname') + '"]';
                         else if (el.getAttribute('for')) sel = 'label[for="' + el.getAttribute('for') + '"]';
                         else if (el.getAttribute('aria-label')) sel = '[aria-label="' + el.getAttribute('aria-label') + '"]';
-                        else sel = el.tagName.toLowerCase() + '.' + (el.className || '').split(' ')[0];
+                        else var _c0 = String(el.className || '').trim().split(/\s+/)[0] || '';
+                            sel = el.tagName.toLowerCase() + (_c0 ? '.' + _c0 : '');
                         if (seen.has(sel + text)) return;
+                        {   // position among same-base elements, so the key is DOM-stable
+                            let idx = -1;
+                            try { idx = Array.from(document.querySelectorAll(sel)).indexOf(el); } catch (e) {}
+                            if (idx > 0) sel = sel + '#' + idx;
+                        }
                         seen.add(sel + text);
                         const rect = el.getBoundingClientRect();
-                        results.push({ selector: sel, tag: el.tagName.toLowerCase(), type: type, text: text, placeholder: ph || null, rect: { width: Math.round(rect.width), height: Math.round(rect.height) } });
+                        results.push({ selector: sel, tag: el.tagName.toLowerCase(), type: type, text: text, placeholder: ph || null, rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top + (window.scrollY || 0)), left: Math.round(rect.left + (window.scrollX || 0)) } });
                     }
                     document.querySelectorAll('label').forEach(el => capture(el, 'label'));
-                    document.querySelectorAll('button:not([disabled])').forEach(el => capture(el, 'button'));
+                    document.querySelectorAll('button').forEach(el => capture(el, 'button'));  // incl. disabled — a greyed-out Save is still translated copy
                     document.querySelectorAll('th').forEach(el => capture(el, 'th'));
                     document.querySelectorAll('h1,h2,h3,h4').forEach(el => capture(el, 'heading'));
                     document.querySelectorAll('ng-select .ng-value-label, ng-select .ng-placeholder').forEach(el => capture(el, 'select_value'));
@@ -2462,23 +3110,299 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
                         let sel = '';
                         if (el.id) sel = '#' + el.id;
                         else if (el.getAttribute('formcontrolname')) sel = el.tagName.toLowerCase() + '[formcontrolname="' + el.getAttribute('formcontrolname') + '"]';
-                        else sel = el.tagName.toLowerCase() + '.' + (el.className || '').split(' ')[0];
+                        else var _c0 = String(el.className || '').trim().split(/\s+/)[0] || '';
+                            sel = el.tagName.toLowerCase() + (_c0 ? '.' + _c0 : '');
                         if (seen.has(sel + ph)) return;
                         seen.add(sel + ph);
                         const rect = el.getBoundingClientRect();
-                        results.push({ selector: sel, tag: el.tagName.toLowerCase(), type: 'placeholder', text: ph, placeholder: ph, rect: { width: Math.round(rect.width), height: Math.round(rect.height) } });
+                        results.push({ selector: sel, tag: el.tagName.toLowerCase(), type: 'placeholder', text: ph, placeholder: ph, rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top + (window.scrollY || 0)), left: Math.round(rect.left + (window.scrollX || 0)) } });
                     });
                     document.querySelectorAll('.toast-message,.alert,.invalid-feedback').forEach(el => capture(el, 'message'));
                     document.querySelectorAll('.modal-title').forEach(el => capture(el, 'modal'));
+                    // JHipster/Angular i18n marker -- covers tabs, fake-table headers, plain links etc.
+                    // that don't use semantic tags/classes but ARE marked as translatable text.
+                    document.querySelectorAll('[jhitranslate]').forEach(el => capture(el, 'i18n'));
+                    // Dropdown / context menus (the '...' row-action menu, ngbDropdown, cdk menus).
+                    // These are <a>/<button>/<div> with no nav or i18n marker, so no earlier
+                    // selector reached them.
+                    document.querySelectorAll('.dropdown-menu a, .dropdown-menu button, .dropdown-menu li,' +
+                        ' .dropdown-item, [ngbdropdownitem], [role="menuitem"], .mat-menu-item,' +
+                        ' .menu-item, [ngbdropdownmenu] a, [ngbdropdownmenu] button, [role="menu"] a,' +
+                        ' [role="menu"] button, [role="menu"] li').forEach(el => capture(el, 'menu'));
+
+                    // ── GENERIC LEAF-TEXT SWEEP ─────────────────────────────────────
+                    // Everything above is an ALLOWLIST of ~12 selectors, so any UI copy
+                    // that isn't a label/button/th/heading was simply invisible to the
+                    // scan — filter chips, pills, tabs, badges, plain <span>/<div>
+                    // captions. Capture short OWN-text leaves as well (own text only, so
+                    // containers don't swallow their children's strings). Grid BODY cells
+                    // are skipped on purpose: that is patient data, not translatable copy.
+                    document.querySelectorAll('span, div, li, a, p, strong, small, em, b, h5, h6, legend, dt, dd, figcaption, [class*="chip"], [class*="tag"], [class*="pill"], [class*="badge"], [class*="tab"]').forEach(function (el) {
+                        if (!el || el.offsetParent === null) return;
+                        // The '...' row-action menu can render INSIDE the row it belongs to.
+                        // Skipping all of <tbody> hid the whole menu, so let menus through.
+                        if (el.closest('tbody') && !el.closest('.dropdown-menu, [ngbdropdownmenu], [role="menu"], .mat-menu-panel, .cdk-overlay-pane, .popover, ngb-popover-window')) return;
+                        // Column headers hold their label in child <span>s, so the <th> pass and
+                        // this one captured the same words twice (7 headers -> ~15 scored rows).
+                        if (el.closest('th')) return;
+                        // Floating layers are handled by the tooltip sweep below, which gives
+                        // them an anchor-based selector. Letting the generic sweep grab them
+                        // too produced a second entry keyed 'div.tooltip-inner' — identical for
+                        // every tooltip on the page, so each capture overwrote the previous.
+                        // A popover can be a TOOLTIP (leave it to the anchor-keyed sweep below)
+                        // or the '...' row-action MENU (must be captured here). Tell them apart by
+                        // content: menus hold lists or controls, tooltips are plain text.
+                        const _fl = el.closest('.tooltip, [role="tooltip"], ngb-tooltip-window, ngb-popover-window, .popover, [class*="tooltip"]');
+                        if (_fl && !_fl.querySelector('input, select, textarea, form, ul, ol, li, table,' +
+                                                      ' .dropdown-item, [role="listbox"], [role="menu"], [role="menuitem"]')) return;
+                        let t = '';
+                        for (let n = 0; n < el.childNodes.length; n++) {
+                            if (el.childNodes[n].nodeType === 3) t += el.childNodes[n].textContent;
+                        }
+                        t = t.trim().replace(/\s+/g, ' ');
+                        if (t.length < 2 || t.length > 60) return;
+                        if (/^[0-9\s\-\/:.,%]+$/.test(t)) return;   // numbers, dates, times
+                        if (/^[A-Z0-9]{6,}$/.test(t)) return;        // MRN-style codes
+                        capture(el, 'text');
+                    });
+
+                    // ── GRID / TABLE-BODY SWEEP ─────────────────────────────────────
+                    // Capture the WHOLE row, cell by cell, each value exactly once. Earlier
+                    // versions guessed which values were "UI copy" (repeats down a column,
+                    // badge classes) and dropped the rest — that silently hid patient name,
+                    // admission date and status. Nothing is guessed now; every cell is
+                    // captured and TYPED, so the report shows the row as it appears on screen:
+                    //   grid_data — record values (patient, consultant, dates): the app does
+                    //               not translate these, so a base==target result is EXPECTED
+                    //   grid_enum — everything else (status, ward, units): genuinely translatable
+                    // Identity is <table-class>[r<row>][c<column>]#<leaf>, i.e. pure DOM
+                    // position — same in every language, independent of capture order.
+                    const GRID_ROW_CAP = 10;
+                    document.querySelectorAll('table').forEach(function (tbl, tblIdx) {
+                        const body = tbl.querySelector('tbody');
+                        if (!body) return;
+                        // Longest non-framework class — 'nursing-station-table' identifies the
+                        // grid, plain 'table' does not and would collide across grids.
+                        const _tc = Array.from(tbl.classList || []).filter(function (c) {
+                            return !/^(ng-|_ng|__ng)/.test(c) && c !== 'table' && c.length > 3;
+                        }).sort(function (a, b) { return b.length - a.length; });
+                        const tcls = _tc[0] || ('t' + tblIdx);
+
+                        function ownText(node) {
+                            let t = '';
+                            for (let k = 0; k < node.childNodes.length; k++) {
+                                if (node.childNodes[k].nodeType === 3) t += node.childNodes[k].textContent;
+                            }
+                            return t.trim().replace(/\s+/g, ' ');
+                        }
+
+                        // Column headers decide grid_data vs grid_enum — nothing is dropped.
+                        const DATA_COL = /patient|consultant|doctor|physician|sponsor|mrn|name|date|time|admission/i;
+                        const headTexts = {};
+                        const headRow = tbl.querySelector('thead tr');
+                        if (headRow) {
+                            Array.from(headRow.children).forEach(function (th, hi) {
+                                headTexts[hi] = (th.innerText || th.textContent || '').trim().replace(/\s+/g, ' ');
+                            });
+                        }
+
+                        const rows = Array.from(body.rows);
+                        if (rows.length > GRID_ROW_CAP) {
+                            results.push({ selector: tcls + '[note]', tag: 'table', type: 'grid_note',
+                                           text: 'Grid truncated: captured ' + GRID_ROW_CAP + ' of ' + rows.length + ' rows',
+                                           placeholder: null, rect: { width: 0, height: 0, top: 999999, left: 0 } });
+                        }
+                        rows.slice(0, GRID_ROW_CAP).forEach(function (tr, ri) {
+                            Array.from(tr.cells).forEach(function (td, ci) {
+                                if (td.offsetParent === null) return;
+                                const isData = DATA_COL.test(headTexts[ci] || '');
+                                const nodes = [td].concat(Array.from(td.querySelectorAll('*')));
+                                let li = 0;
+                                nodes.forEach(function (node) {
+                                    // '...' menus can live inside the row's own <td>; they are UI
+                                    // copy, not cell values, and the menu pass already has them.
+                                    if (node.closest('.dropdown-menu, [ngbdropdownmenu], [role="menu"],' +
+                                                     ' .mat-menu-panel, .popover, ngb-popover-window')) return;
+                                    const t = ownText(node);
+                                    if (!t || t.length < 2 || t.length > 80) return;
+                                    const sel = tcls + '[r' + ri + '][c' + ci + ']' + (li ? '#' + li : '');
+                                    li++;
+                                    if (seen.has(sel)) return;
+                                    seen.add(sel);
+                                    const rect = node.getBoundingClientRect();
+                                    results.push({ selector: sel, tag: node.tagName.toLowerCase(),
+                                                   type: isData ? 'grid_data' : 'grid_enum',
+                                                   text: t, placeholder: null,
+                                                   rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top + (window.scrollY || 0)), left: Math.round(rect.left + (window.scrollX || 0)) } });
+                                });
+                            });
+                        });
+                    });
+
+                    // Tooltips / popovers rendered detached via container="body"
+                    (function () {
+                        // Anchor = deepest element under the mouse. Tooltip windows get a fresh
+                        // id every open, so key on what the script hovered instead — that is
+                        // language-independent.
+                        let hovered = [];
+                        try { hovered = document.querySelectorAll(':hover'); } catch (e) {}
+                        const anchor = hovered.length ? hovered[hovered.length - 1] : null;
+                        let anchorSel = 'unknown';
+                        if (anchor) {
+                            const acls = Array.from(anchor.classList || []).filter(function (c) { return !/^(ng-|_ng|__ng)/.test(c); });
+                            anchorSel = anchor.tagName.toLowerCase() + (acls.length ? '.' + acls.join('.') : '');
+                        }
+
+                        // Collect floating layers STRUCTURALLY, not by class name. Every UI kit
+                        // names tooltips differently (ngb-tooltip-window, .mat-tooltip, .p-tooltip,
+                        // a bare styled div), and with container="body" / cdk-overlay they are
+                        // appended at the END of <body>, outside the app tree. Match both ways.
+                        const floats = new Set();
+                        try {
+                            document.querySelectorAll(
+                                '[role="tooltip"], ngb-tooltip-window, ngb-popover-window, .tooltip, .popover,' +
+                                ' .mat-tooltip, .ant-tooltip, .p-tooltip, .ui-tooltip,' +
+                                ' [class*="tooltip"], [class*="popover"], [class*="Tooltip"]'
+                            ).forEach(function (e) { floats.add(e); });
+                        } catch (e) {}
+                        try {
+                            const roots = [document.body].concat(Array.from(
+                                document.querySelectorAll('.cdk-overlay-container, .overlay-container, [id^="cdk-overlay"]')));
+                            roots.forEach(function (root) {
+                                Array.from(root.children).slice(-8).forEach(function (e) {
+                                    const st = window.getComputedStyle(e);
+                                    if ((st.position === 'absolute' || st.position === 'fixed') &&
+                                        st.visibility !== 'hidden' && st.display !== 'none' && st.opacity !== '0') {
+                                        floats.add(e);
+                                    }
+                                });
+                            });
+                        } catch (e) {}
+
+                        // Modals are floating + fixed too, but they are not tooltips and their
+                        // contents are already captured by the sweeps above.
+                        // Also: ng-bootstrap keeps the PREVIOUS tooltip window mounted while it
+                        // fades out, so at capture time there are often two — the stale one first
+                        // in document order. Labelling that one with the newly-hovered anchor put
+                        // the wrong text under every tooltip selector. Require '.show'.
+                        const active = Array.from(floats).filter(function (e) {
+                            if (e.closest('.modal, ngb-modal-window, .modal-backdrop, ngb-modal-backdrop')) return false;
+                            // A tooltip is a small text box. Typeahead result panels, dropdown
+                            // menus and autocomplete lists are ALSO absolutely positioned at the
+                            // body tail and stay mounted after use — the consultant typeahead
+                            // ("Dr. Hemanth Gan1 Nar1") was being filed under every tooltip
+                            // selector because it sorts first in document order. Anything holding
+                            // form controls or list/menu structure is not a tooltip.
+                            if (e.querySelector('input, select, textarea, form, ul, ol, li, table,' +
+                                                ' .dropdown-item, ng-dropdown-panel, [role="listbox"],' +
+                                                ' [role="menu"], [role="option"]')) return false;
+                            const win = e.closest('.tooltip, [role="tooltip"], ngb-tooltip-window, ngb-popover-window, .popover');
+                            if (win && !win.classList.contains('show')) return false;
+                            try {
+                                const st = window.getComputedStyle(e);
+                                if (st.visibility === 'hidden' || st.display === 'none' || st.opacity === '0') return false;
+                            } catch (x) {}
+                            return true;
+                        });
+
+                        // Keep the innermost node only, so a wrapper and its .tooltip-inner
+                        // don't both land in the baseline.
+                        const activeSet = new Set(active);
+                        const list = active.filter(function (e) {
+                            for (const other of activeSet) { if (other !== e && e.contains(other)) return false; }
+                            return true;
+                        });
+
+                        let fi = 0;
+                        list.forEach(function (el) {
+                            if (typeof seenElements !== 'undefined' && seenElements.has(el)) return;
+                            const t = (el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ');
+                            if (!t || t.length < 2 || t.length > 80) return;
+                            if (/^[0-9\s\-\/:.,%]+$/.test(t)) return;
+                            let sel = 'tooltip@' + anchorSel + (fi ? '#' + fi : '');
+                            fi++;
+                            if (seen.has(sel)) return;
+                            seen.add(sel);
+                            const rect = el.getBoundingClientRect();
+                            results.push({ selector: sel, tag: 'tooltip', type: 'tooltip', text: t, placeholder: null,
+                                           rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top + (window.scrollY || 0)), left: Math.round(rect.left + (window.scrollX || 0)) } });
+                        });
+                    })();
                     return results;
-                }""")
+                }"""
+                elements = []
+                for _frame in page.frames:
+                    try:
+                        elements.extend(await _frame.evaluate(_capture_js))
+                    except Exception:
+                        continue
+                # Stamp the step note (the "Step note (optional)" box in the editor) onto every
+                # element this capture produced, so the report can say WHICH screen/tab a string
+                # came from instead of just listing a selector.
+                # Per-step switch (editor checkbox "Capture grid / table data"). Default ON.
+                # Grid rows are mostly patient records; some tests want them in the baseline for
+                # visibility, others do not want them stored at all.
+                if not step.get("capture_grid", True):
+                    _before = len(elements)
+                    elements = [_e for _e in elements if not str(_e.get("type", "")).startswith("grid")]
+                    _dropped = _before - len(elements)
+                    if _dropped:
+                        log(run_id, "info", f"[capture_page_text] capture_grid=off — dropped {_dropped} grid rows", idx)
+
+                _section = apply_variables(str(step.get("description") or ""), resolved_vars).strip()
+                if _section:
+                    for _e in elements:
+                        _e["section"] = _section
+                # Merge/compare identity. Kept separate from "selector" so the report still
+                # shows a clean selector, while the baseline can hold same-named elements from
+                # different screens without one overwriting the other.
+                for _e in elements:
+                    _e["key"] = (f"{_section} | " if _section else "") + str(_e.get("selector", ""))
+                log(run_id, "info", f"[capture_page_text] section: {_section or '(no step note set)'}", idx)
                 snapshot = {"url": page.url, "title": await page.title(), "language": lang, "elements": elements}
                 resolved_vars[store_as] = _json.dumps(snapshot)
                 log(run_id, "info", f"[capture_page_text] Captured {len(elements)} elements", idx)
+                _types = {}
+                for _e in elements:
+                    _types[_e.get('type','?')] = _types.get(_e.get('type','?'), 0) + 1
+                _hist = ' '.join(f"{k}={v}" for k, v in sorted(_types.items(), key=lambda kv: -kv[1]))
+                log(run_id, "info", f"[capture_page_text] types: {_hist}", idx)
+                _diag_js = r"""() => {
+                    const q = s => { try { return document.querySelectorAll(s).length; } catch (e) { return -1; } };
+                    let hov = [];
+                    try {
+                        hov = Array.from(document.querySelectorAll(':hover')).slice(-3).map(function (e) {
+                            return e.tagName.toLowerCase() + (e.className ? '.' + String(e.className).trim().split(/\s+/).join('.') : '');
+                        });
+                    } catch (e) {}
+                    const tail = Array.from(document.body.children).slice(-6).map(function (e) {
+                        let pos = '?';
+                        try { pos = getComputedStyle(e).position; } catch (x) {}
+                        return e.tagName.toLowerCase()
+                             + (e.className ? '.' + String(e.className).trim().split(/\s+/).join('.') : '')
+                             + '|' + pos + '|"' + (e.innerText || '').trim().replace(/\s+/g, ' ').slice(0, 40) + '"';
+                    });
+                    return {
+                        role_tooltip: q('[role="tooltip"]'), ngb_win: q('ngb-tooltip-window'),
+                        dot_tooltip: q('.tooltip'), any_tooltip_cls: q('[class*="tooltip"]'),
+                        popover: q('.popover'), cdk_overlay: q('.cdk-overlay-container'),
+                        hover_chain: hov, body_tail: tail
+                    };
+                }"""
                 try:
-                    _req.post(f"{API_BASE}/api/multilingual/baseline",
+                    log(run_id, "info", f"[capture_page_text][diag] {await page.evaluate(_diag_js)}", idx)
+                except Exception as _de:
+                    log(run_id, "info", f"[capture_page_text][diag] unavailable: {_de}", idx)
+                try:
+                    _resp = _req.post(f"{API_BASE}/api/multilingual/baseline",
                         json={"run_id": run_id, "language": lang, "url": page.url, "page_title": snapshot['title'], "elements": elements},
                         headers={"Authorization": f"Bearer {RUNNER_TOKEN}"}, timeout=5)
+                    _st = _resp.json()
+                    log(run_id, "info",
+                        f"[capture_page_text][baseline] {_st.get('action')} "
+                        f"prev={_st.get('previous')} incoming={_st.get('incoming')} "
+                        f"TOTAL={_st.get('total')} clobbered={_st.get('clobbered')}"
+                        + (f"  ERROR: {_st.get('error')}" if _st.get('error') else ""), idx)
                 except Exception: pass
             except Exception as e:
                 log(run_id, "fail", f"[capture_page_text] Error: {e}", idx)
@@ -2497,16 +3421,33 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
 
     except Exception as e:
         err_msg = str(e)
-        # Only attempt AI heal for element-not-found/timeout errors.
-        # AssertionError means element WAS found but content didn't match —
-        # that's a test logic issue, not a selector issue. Don't heal it.
+        # Never attempt AI heal for assert_* actions, period.
+        #
+        # Two separate reasons land here:
+        #  1) AssertionError -- element WAS found but content didn't match.
+        #     That's a test logic issue, not a selector issue.
+        #  2) A Playwright TimeoutError/element-not-found error raised while
+        #     evaluating an assert_* step (e.g. assert_visible's wait_for(),
+        #     assert_text's inner_text(), assert_attribute's get_attribute()
+        #     all raise a plain TimeoutError, NOT an AssertionError, when the
+        #     selector matches nothing). Previously only case (1) was excluded
+        #     from AI heal, so case (2) fell through to ai_heal_step(), which
+        #     then went and found a DIFFERENT, unrelated element (e.g. AI
+        #     "healed" a broken assert_visible selector by substituting a
+        #     "Reset" button it found on the page) and reported the assert as
+        #     PASSED against that substitute element. An assertion's entire
+        #     job is to confirm the exact element/condition exists -- if it
+        #     doesn't, healing it into passing against something else defeats
+        #     the purpose and produces a false pass. So: any exception raised
+        #     by an assert_* action is a plain fail, never a heal candidate.
+        is_assert_action  = action.startswith("assert")
         is_assertion_error = isinstance(e, AssertionError)
         is_value_error     = "Expected" in err_msg and "got" in err_msg and "text" in err_msg.lower()
-        skip_heal = is_assertion_error or is_value_error
+        skip_heal = is_assert_action or is_assertion_error or is_value_error
 
         if skip_heal:
-            log(run_id, "fail", f"  [ASSERT FAILED] {err_msg[:200]}", idx)
-            return {"status": "failed", "step": idx, "error": err_msg[:500]}
+            log(run_id, "fail", f"  [ASSERT FAILED] {err_msg[:2000]}", idx)
+            return {"status": "failed", "step": idx, "error": err_msg[:2000]}
 
         # If step was already healed, skip AI heal — healed selector failed again
         if step.get("_healed"):
@@ -2525,6 +3466,34 @@ async def run_step(page, step, run_id, idx, resolved_vars=None):
             if _line.strip():
                 log(run_id, "fail", _line, idx)
         return {"status": "failed", "step": idx, "error": err_msg[:500]}
+
+
+async def run_step(page, step, run_id, idx, resolved_vars=None):
+    """Thin wrapper around _run_step_once() that honors the step's "Retry on
+    fail" count (step['retry_count'], set in the step editor UI). Previously
+    this value was saved but never read anywhere -- steps only ever ran once
+    before falling through to AI Heal. Now, if the step fails, we wait briefly
+    and re-run the ENTIRE step (dispatch + its own AI-heal attempt) up to
+    retry_count additional times before giving up. Useful for timing/render-
+    delay flakiness in addition to whatever AI Heal already covers.
+    """
+    try:
+        retry_count = int(step.get("retry_count") or 0)
+    except (TypeError, ValueError):
+        retry_count = 0
+
+    result = await _run_step_once(page, step, run_id, idx, resolved_vars)
+    attempt = 0
+    while result.get("status") == "failed" and attempt < retry_count:
+        attempt += 1
+        log(run_id, "info",
+            f"  [Retry on fail] Step {idx+1} failed -- retrying (attempt {attempt}/{retry_count})...", idx)
+        try:
+            await page.wait_for_timeout(1000)
+        except Exception:
+            pass
+        result = await _run_step_once(page, step, run_id, idx, resolved_vars)
+    return result
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -2566,13 +3535,15 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
             condition    = apply_variables(step.get("condition", ""), resolved_vars)
             # FIX: match runner.py exactly — default to "element_visible" (not "") when if_condition is missing
             if_condition = step.get("if_condition", "element_visible")
-            if if_condition in ("var_equals", "var_not_equals", "var_contains"):
+            if if_condition in ("var_equals", "var_not_equals", "var_contains", "var_greater", "var_less"):
                 var_name = step.get("if_var", "").strip("{} ")
                 left     = str(resolved_vars.get(var_name, apply_variables(step.get("if_var", ""), resolved_vars))).strip()
                 right    = apply_variables(step.get("if_value", ""), resolved_vars).strip()
                 if   if_condition == "var_equals":     operator = "=="
                 elif if_condition == "var_not_equals": operator = "!="
                 elif if_condition == "var_contains":   operator = "contains"
+                elif if_condition == "var_greater":    operator = ">"
+                elif if_condition == "var_less":       operator = "<"
             elif if_condition in ("url_contains", "url_not_contains"):
                 left = apply_variables(step.get("if_value", ""), resolved_vars); right = ""; operator = if_condition
             elif if_condition == "page_title_contains":
@@ -2920,7 +3891,7 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                 results.extend(sub)
                 _cond = step.get("if_condition", "element_visible")
                 _sel  = apply_variables(step.get("if_selector", "") or step.get("selector", ""), resolved_vars)
-                _var  = apply_variables(step.get("if_var", ""), resolved_vars)
+                _var  = step.get("if_var", "").strip("{} ")
                 _val  = apply_variables(step.get("if_value", ""), resolved_vars)
                 try:
                     if _cond == "element_visible":
@@ -2933,6 +3904,10 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                         _met = str(resolved_vars.get(_var.strip("{}"), "")).strip() != str(_val).strip()
                     elif _cond == "var_contains":
                         _met = str(_val).strip() in str(resolved_vars.get(_var.strip("{}"), "")).strip()
+                    elif _cond == "var_greater":
+                        _met = float(str(resolved_vars.get(_var.strip("{}"), "")).strip()) > float(str(_val).strip())
+                    elif _cond == "var_less":
+                        _met = float(str(resolved_vars.get(_var.strip("{}"), "")).strip()) < float(str(_val).strip())
                     elif _cond == "url_contains":
                         _met = _val in page.url
                     elif _cond == "url_not_contains":
@@ -2967,7 +3942,7 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
             label      = step.get("if_condition", "element_visible")
             log(run_id, "info", f">> Wait Until: [{label}] timeout={timeout_ms}ms", i)
             _sel = apply_variables(step.get("if_selector", "") or step.get("selector", ""), resolved_vars)
-            _var = apply_variables(step.get("if_var", ""), resolved_vars)
+            _var = step.get("if_var", "").strip("{} ")
             _val = apply_variables(step.get("if_value", ""), resolved_vars)
             met = False
             while _time.time() < deadline:
@@ -2982,6 +3957,10 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                         met = str(resolved_vars.get(_var.strip("{}"), "")).strip() != str(_val).strip()
                     elif label == "var_contains":
                         met = str(_val).strip() in str(resolved_vars.get(_var.strip("{}"), "")).strip()
+                    elif label == "var_greater":
+                        met = float(str(resolved_vars.get(_var.strip("{}"), "")).strip()) > float(str(_val).strip())
+                    elif label == "var_less":
+                        met = float(str(resolved_vars.get(_var.strip("{}"), "")).strip()) < float(str(_val).strip())
                     elif label == "url_contains":
                         met = _val in page.url
                     elif label == "url_not_contains":
@@ -3015,14 +3994,31 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
             store_as = apply_variables(step.get("store_as", "page_snapshot"), resolved_vars).strip()
             log(run_id, "info", f"[capture_page_text] Scanning page in lang={lang}...", i)
             try:
-                elements = await page.evaluate("""() => {
+                _capture_js = r"""() => {
                     const results = [];
                     const seen    = new Set();
+                    const seenElements = new Set(); // tracks actual DOM nodes already captured, so an
+                    // element matched by more than one querySelectorAll (e.g. a <label> that is ALSO
+                    // [jhitranslate]) is only ever captured once instead of being re-added under a
+                    // renamed selector (label.foo, then label.foo_1 for the SAME node).
 
                     function capture(el, type) {
                         if (!el || el.offsetParent === null) return;  // skip hidden
-                        const text = (el.innerText || el.textContent || '').trim();
+                        if (seenElements.has(el)) return;  // already captured this exact element
+                        // Typeahead result panels hold matched RECORD data (a consultant name a
+                        // search returned), not UI copy. ng-select's ng-dropdown-panel is NOT
+                        // excluded — those options are real translatable enums.
+                        if (el.closest && el.closest('ngb-typeahead-window, .typeahead-window, .autocomplete-results')) return;
+                        let text   = (el.innerText || el.textContent || '').trim();
                         const ph   = el.placeholder || '';
+                        // Icon-only controls (<button><i class="icon-x"></i></button>) have NO text
+                        // node at all, so they used to be dropped here even though their visible
+                        // string lives in title/aria-label and IS translated.
+                        let iconOnly = false;
+                        if (!text) {
+                            text = (el.getAttribute('title') || el.getAttribute('aria-label') || '').trim();
+                            if (text) iconOnly = true;
+                        }
                         if (!text && !ph) return;
                         if (text.length < 2 && ph.length < 2) return;
                         if (/^[0-9\s\-\/]+$/.test(text)) return; // skip pure numbers
@@ -3030,7 +4026,15 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                         if (/^[0-9,]+\.[0-9]+$/.test(text)) return;
                         // Build stable selector
                         let sel = '';
-                        if (el.id)                          sel = '#' + el.id;
+                        if (iconOnly) {
+                            // Do NOT key these on aria-label/title — that string is the very thing
+                            // being translated, so the selector would differ between the base and
+                            // target runs and /compare (which matches on selector) would find no
+                            // pair. Key on the classes instead; they are language-independent.
+                            var _ic = Array.from(el.classList || []).filter(function(c){ return !/^(ng-|_ng|__ng)/.test(c); });
+                            sel = el.tagName.toLowerCase() + (_ic.length ? '.' + _ic.join('.') : '');
+                        }
+                        else if (el.id)                     sel = '#' + el.id;
                         else if (el.getAttribute('formcontrolname')) 
                             sel = el.tagName.toLowerCase() + '[formcontrolname="' + el.getAttribute('formcontrolname') + '"]';
                         else if (el.getAttribute('for'))    
@@ -3038,15 +4042,28 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                         else if (el.getAttribute('aria-label')) 
                             sel = '[aria-label="' + el.getAttribute('aria-label') + '"]';
                         else                                
-                            sel = el.tagName.toLowerCase() + '.' + (el.className || '').split(' ')[0];
+                            var _c0 = String(el.className || '').trim().split(/\s+/)[0] || '';
+                            sel = el.tagName.toLowerCase() + (_c0 ? '.' + _c0 : '');
                         
-                        // Make selector unique with counter if duplicate
+                        // Make selector unique with counter if a DIFFERENT element happens to fall
+                        // back to the same selector (still want both -- just need distinct selectors).
                         if (seen.has(sel)) {
-                            let counter = 1;
-                            while (seen.has(sel + '_' + counter)) counter++;
-                            sel = sel + '_' + counter;
+                            // Was: a counter incremented in the order elements happened to be
+                            // discovered, so 'span._1' meant "the 2nd span this capture reached".
+                            // Any change in what was on screen renumbered everything, which is how
+                            // merged captures overwrote each other (clobbered=15 in the run log).
+                            // Position among same-base elements in DOCUMENT order is stable.
+                            let idx = -1;
+                            try { idx = Array.from(document.querySelectorAll(sel)).indexOf(el); } catch (e) {}
+                            if (idx > 0) sel = sel + '#' + idx;
+                            if (seen.has(sel)) {
+                                let counter = 1;
+                                while (seen.has(sel + '_' + counter)) counter++;
+                                sel = sel + '_' + counter;
+                            }
                         }
                         seen.add(sel);
+                        seenElements.add(el);
 
                         const rect = el.getBoundingClientRect();
                         results.push({
@@ -3055,14 +4072,14 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                             type:     type,
                             text:     text,
                             placeholder: ph || null,
-                            rect:     { width: Math.round(rect.width), height: Math.round(rect.height) }
+                            rect:     { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top + (window.scrollY || 0)), left: Math.round(rect.left + (window.scrollX || 0)) }
                         });
                     }
 
                     // Labels
                     document.querySelectorAll('label').forEach(el => capture(el, 'label'));
                     // Buttons
-                    document.querySelectorAll('button:not([disabled])').forEach(el => capture(el, 'button'));
+                    document.querySelectorAll('button').forEach(el => capture(el, 'button'));  // incl. disabled — a greyed-out Save is still translated copy
                     // Table headers
                     document.querySelectorAll('th').forEach(el => capture(el, 'th'));
                     // Headings
@@ -3071,12 +4088,244 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                     document.querySelectorAll('a.nav-link, .sidebar-item, .menu-item, li.nav-item a').forEach(el => capture(el, 'nav'));
                     // ng-select selected values
                     document.querySelectorAll('ng-select .ng-value-label, ng-select .ng-placeholder').forEach(el => capture(el, 'select_value'));
-                    // Input placeholders
-                    document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(el => capture(el, 'placeholder'));
+                    // Input placeholders -- handled separately from capture() because <input>/<textarea>
+                    // elements have no innerText/textContent, so routing them through capture() left
+                    // "text" blank and made the seen-dedup key collide across inputs sharing a fallback selector.
+                    document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(el => {
+                        if (!el || el.offsetParent === null) return; // skip hidden
+                        const ph = el.placeholder || '';
+                        if (!ph || ph.length < 2) return;
+                        let sel = '';
+                        if (el.id) sel = '#' + el.id;
+                        else if (el.getAttribute('formcontrolname'))
+                            sel = el.tagName.toLowerCase() + '[formcontrolname="' + el.getAttribute('formcontrolname') + '"]';
+                        else
+                            var _c0 = String(el.className || '').trim().split(/\s+/)[0] || '';
+                            sel = el.tagName.toLowerCase() + (_c0 ? '.' + _c0 : '');
+                        const dedupeKey = sel + '||' + ph;
+                        if (seen.has(dedupeKey)) return;
+                        seen.add(dedupeKey);
+                        const rect = el.getBoundingClientRect();
+                        results.push({ selector: sel, tag: el.tagName.toLowerCase(), type: 'placeholder', text: ph, placeholder: ph, rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top + (window.scrollY || 0)), left: Math.round(rect.left + (window.scrollX || 0)) } });
+                    });
                     // Toast / alerts
                     document.querySelectorAll('.toast-message, .alert, .jhi-item-count, .invalid-feedback').forEach(el => capture(el, 'message'));
                     // Modal titles
-                    document.querySelectorAll('.modal-title, .modal-header').forEach(el => capture(el, 'modal'));
+                    document.querySelectorAll('.modal-title').forEach(el => capture(el, 'modal'));  // not .modal-header — it duplicates the title and swallows the close ×
+                    // JHipster/Angular i18n marker -- covers tabs, fake-table headers, plain links etc.
+                    // that don't use semantic tags/classes but ARE marked as translatable text.
+                    document.querySelectorAll('[jhitranslate]').forEach(el => capture(el, 'i18n'));
+                    // Dropdown / context menus (the '...' row-action menu, ngbDropdown, cdk menus).
+                    // These are <a>/<button>/<div> with no nav or i18n marker, so no earlier
+                    // selector reached them.
+                    document.querySelectorAll('.dropdown-menu a, .dropdown-menu button, .dropdown-menu li,' +
+                        ' .dropdown-item, [ngbdropdownitem], [role="menuitem"], .mat-menu-item,' +
+                        ' .menu-item, [ngbdropdownmenu] a, [ngbdropdownmenu] button, [role="menu"] a,' +
+                        ' [role="menu"] button, [role="menu"] li').forEach(el => capture(el, 'menu'));
+
+                    // ── GENERIC LEAF-TEXT SWEEP ─────────────────────────────────────
+                    // Everything above is an ALLOWLIST of ~12 selectors, so any UI copy
+                    // that isn't a label/button/th/heading was simply invisible to the
+                    // scan — filter chips, pills, tabs, badges, plain <span>/<div>
+                    // captions. Capture short OWN-text leaves as well (own text only, so
+                    // containers don't swallow their children's strings). Grid BODY cells
+                    // are skipped on purpose: that is patient data, not translatable copy.
+                    document.querySelectorAll('span, div, li, a, p, strong, small, em, b, h5, h6, legend, dt, dd, figcaption, [class*="chip"], [class*="tag"], [class*="pill"], [class*="badge"], [class*="tab"]').forEach(function (el) {
+                        if (!el || el.offsetParent === null) return;
+                        // The '...' row-action menu can render INSIDE the row it belongs to.
+                        // Skipping all of <tbody> hid the whole menu, so let menus through.
+                        if (el.closest('tbody') && !el.closest('.dropdown-menu, [ngbdropdownmenu], [role="menu"], .mat-menu-panel, .cdk-overlay-pane, .popover, ngb-popover-window')) return;
+                        // Column headers hold their label in child <span>s, so the <th> pass and
+                        // this one captured the same words twice (7 headers -> ~15 scored rows).
+                        if (el.closest('th')) return;
+                        // Floating layers are handled by the tooltip sweep below, which gives
+                        // them an anchor-based selector. Letting the generic sweep grab them
+                        // too produced a second entry keyed 'div.tooltip-inner' — identical for
+                        // every tooltip on the page, so each capture overwrote the previous.
+                        // A popover can be a TOOLTIP (leave it to the anchor-keyed sweep below)
+                        // or the '...' row-action MENU (must be captured here). Tell them apart by
+                        // content: menus hold lists or controls, tooltips are plain text.
+                        const _fl = el.closest('.tooltip, [role="tooltip"], ngb-tooltip-window, ngb-popover-window, .popover, [class*="tooltip"]');
+                        if (_fl && !_fl.querySelector('input, select, textarea, form, ul, ol, li, table,' +
+                                                      ' .dropdown-item, [role="listbox"], [role="menu"], [role="menuitem"]')) return;
+                        let t = '';
+                        for (let n = 0; n < el.childNodes.length; n++) {
+                            if (el.childNodes[n].nodeType === 3) t += el.childNodes[n].textContent;
+                        }
+                        t = t.trim().replace(/\s+/g, ' ');
+                        if (t.length < 2 || t.length > 60) return;
+                        if (/^[0-9\s\-\/:.,%]+$/.test(t)) return;   // numbers, dates, times
+                        if (/^[A-Z0-9]{6,}$/.test(t)) return;        // MRN-style codes
+                        capture(el, 'text');
+                    });
+
+                    // ── GRID / TABLE-BODY SWEEP ─────────────────────────────────────
+                    // Capture the WHOLE row, cell by cell, each value exactly once. Earlier
+                    // versions guessed which values were "UI copy" (repeats down a column,
+                    // badge classes) and dropped the rest — that silently hid patient name,
+                    // admission date and status. Nothing is guessed now; every cell is
+                    // captured and TYPED, so the report shows the row as it appears on screen:
+                    //   grid_data — record values (patient, consultant, dates): the app does
+                    //               not translate these, so a base==target result is EXPECTED
+                    //   grid_enum — everything else (status, ward, units): genuinely translatable
+                    // Identity is <table-class>[r<row>][c<column>]#<leaf>, i.e. pure DOM
+                    // position — same in every language, independent of capture order.
+                    const GRID_ROW_CAP = 10;
+                    document.querySelectorAll('table').forEach(function (tbl, tblIdx) {
+                        const body = tbl.querySelector('tbody');
+                        if (!body) return;
+                        // Longest non-framework class — 'nursing-station-table' identifies the
+                        // grid, plain 'table' does not and would collide across grids.
+                        const _tc = Array.from(tbl.classList || []).filter(function (c) {
+                            return !/^(ng-|_ng|__ng)/.test(c) && c !== 'table' && c.length > 3;
+                        }).sort(function (a, b) { return b.length - a.length; });
+                        const tcls = _tc[0] || ('t' + tblIdx);
+
+                        function ownText(node) {
+                            let t = '';
+                            for (let k = 0; k < node.childNodes.length; k++) {
+                                if (node.childNodes[k].nodeType === 3) t += node.childNodes[k].textContent;
+                            }
+                            return t.trim().replace(/\s+/g, ' ');
+                        }
+
+                        // Column headers decide grid_data vs grid_enum — nothing is dropped.
+                        const DATA_COL = /patient|consultant|doctor|physician|sponsor|mrn|name|date|time|admission/i;
+                        const headTexts = {};
+                        const headRow = tbl.querySelector('thead tr');
+                        if (headRow) {
+                            Array.from(headRow.children).forEach(function (th, hi) {
+                                headTexts[hi] = (th.innerText || th.textContent || '').trim().replace(/\s+/g, ' ');
+                            });
+                        }
+
+                        const rows = Array.from(body.rows);
+                        if (rows.length > GRID_ROW_CAP) {
+                            results.push({ selector: tcls + '[note]', tag: 'table', type: 'grid_note',
+                                           text: 'Grid truncated: captured ' + GRID_ROW_CAP + ' of ' + rows.length + ' rows',
+                                           placeholder: null, rect: { width: 0, height: 0, top: 999999, left: 0 } });
+                        }
+                        rows.slice(0, GRID_ROW_CAP).forEach(function (tr, ri) {
+                            Array.from(tr.cells).forEach(function (td, ci) {
+                                if (td.offsetParent === null) return;
+                                const isData = DATA_COL.test(headTexts[ci] || '');
+                                const nodes = [td].concat(Array.from(td.querySelectorAll('*')));
+                                let li = 0;
+                                nodes.forEach(function (node) {
+                                    // '...' menus can live inside the row's own <td>; they are UI
+                                    // copy, not cell values, and the menu pass already has them.
+                                    if (node.closest('.dropdown-menu, [ngbdropdownmenu], [role="menu"],' +
+                                                     ' .mat-menu-panel, .popover, ngb-popover-window')) return;
+                                    const t = ownText(node);
+                                    if (!t || t.length < 2 || t.length > 80) return;
+                                    const sel = tcls + '[r' + ri + '][c' + ci + ']' + (li ? '#' + li : '');
+                                    li++;
+                                    if (seen.has(sel)) return;
+                                    seen.add(sel);
+                                    const rect = node.getBoundingClientRect();
+                                    results.push({ selector: sel, tag: node.tagName.toLowerCase(),
+                                                   type: isData ? 'grid_data' : 'grid_enum',
+                                                   text: t, placeholder: null,
+                                                   rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top + (window.scrollY || 0)), left: Math.round(rect.left + (window.scrollX || 0)) } });
+                                });
+                            });
+                        });
+                    });
+
+                    // Tooltips / popovers. ngbTooltip with container="body" renders the tooltip as
+                    // a DETACHED node at the end of <body>, so none of the selectors above ever
+                    // reached it and hover-then-capture produced nothing. The tooltip's own id
+                    // (ngb-tooltip-7) is regenerated every time, so key it on the element that is
+                    // currently under the mouse — the script controls that, and its classes are
+                    // language-independent.
+                    (function () {
+                        // Anchor = deepest element under the mouse. Tooltip windows get a fresh
+                        // id every open, so key on what the script hovered instead — that is
+                        // language-independent.
+                        let hovered = [];
+                        try { hovered = document.querySelectorAll(':hover'); } catch (e) {}
+                        const anchor = hovered.length ? hovered[hovered.length - 1] : null;
+                        let anchorSel = 'unknown';
+                        if (anchor) {
+                            const acls = Array.from(anchor.classList || []).filter(function (c) { return !/^(ng-|_ng|__ng)/.test(c); });
+                            anchorSel = anchor.tagName.toLowerCase() + (acls.length ? '.' + acls.join('.') : '');
+                        }
+
+                        // Collect floating layers STRUCTURALLY, not by class name. Every UI kit
+                        // names tooltips differently (ngb-tooltip-window, .mat-tooltip, .p-tooltip,
+                        // a bare styled div), and with container="body" / cdk-overlay they are
+                        // appended at the END of <body>, outside the app tree. Match both ways.
+                        const floats = new Set();
+                        try {
+                            document.querySelectorAll(
+                                '[role="tooltip"], ngb-tooltip-window, ngb-popover-window, .tooltip, .popover,' +
+                                ' .mat-tooltip, .ant-tooltip, .p-tooltip, .ui-tooltip,' +
+                                ' [class*="tooltip"], [class*="popover"], [class*="Tooltip"]'
+                            ).forEach(function (e) { floats.add(e); });
+                        } catch (e) {}
+                        try {
+                            const roots = [document.body].concat(Array.from(
+                                document.querySelectorAll('.cdk-overlay-container, .overlay-container, [id^="cdk-overlay"]')));
+                            roots.forEach(function (root) {
+                                Array.from(root.children).slice(-8).forEach(function (e) {
+                                    const st = window.getComputedStyle(e);
+                                    if ((st.position === 'absolute' || st.position === 'fixed') &&
+                                        st.visibility !== 'hidden' && st.display !== 'none' && st.opacity !== '0') {
+                                        floats.add(e);
+                                    }
+                                });
+                            });
+                        } catch (e) {}
+
+                        // Modals are floating + fixed too, but they are not tooltips and their
+                        // contents are already captured by the sweeps above.
+                        // Also: ng-bootstrap keeps the PREVIOUS tooltip window mounted while it
+                        // fades out, so at capture time there are often two — the stale one first
+                        // in document order. Labelling that one with the newly-hovered anchor put
+                        // the wrong text under every tooltip selector. Require '.show'.
+                        const active = Array.from(floats).filter(function (e) {
+                            if (e.closest('.modal, ngb-modal-window, .modal-backdrop, ngb-modal-backdrop')) return false;
+                            // A tooltip is a small text box. Typeahead result panels, dropdown
+                            // menus and autocomplete lists are ALSO absolutely positioned at the
+                            // body tail and stay mounted after use — the consultant typeahead
+                            // ("Dr. Hemanth Gan1 Nar1") was being filed under every tooltip
+                            // selector because it sorts first in document order. Anything holding
+                            // form controls or list/menu structure is not a tooltip.
+                            if (e.querySelector('input, select, textarea, form, ul, ol, li, table,' +
+                                                ' .dropdown-item, ng-dropdown-panel, [role="listbox"],' +
+                                                ' [role="menu"], [role="option"]')) return false;
+                            const win = e.closest('.tooltip, [role="tooltip"], ngb-tooltip-window, ngb-popover-window, .popover');
+                            if (win && !win.classList.contains('show')) return false;
+                            try {
+                                const st = window.getComputedStyle(e);
+                                if (st.visibility === 'hidden' || st.display === 'none' || st.opacity === '0') return false;
+                            } catch (x) {}
+                            return true;
+                        });
+
+                        // Keep the innermost node only, so a wrapper and its .tooltip-inner
+                        // don't both land in the baseline.
+                        const activeSet = new Set(active);
+                        const list = active.filter(function (e) {
+                            for (const other of activeSet) { if (other !== e && e.contains(other)) return false; }
+                            return true;
+                        });
+
+                        let fi = 0;
+                        list.forEach(function (el) {
+                            if (typeof seenElements !== 'undefined' && seenElements.has(el)) return;
+                            const t = (el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ');
+                            if (!t || t.length < 2 || t.length > 80) return;
+                            if (/^[0-9\s\-\/:.,%]+$/.test(t)) return;
+                            let sel = 'tooltip@' + anchorSel + (fi ? '#' + fi : '');
+                            fi++;
+                            if (seen.has(sel)) return;
+                            seen.add(sel);
+                            const rect = el.getBoundingClientRect();
+                            results.push({ selector: sel, tag: 'tooltip', type: 'tooltip', text: t, placeholder: null,
+                                           rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top + (window.scrollY || 0)), left: Math.round(rect.left + (window.scrollX || 0)) } });
+                        });
+                    })();
 
                     // Dropdown options (ng-select open panels)
                     let _optCounter = 0;
@@ -3090,32 +4339,105 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
                         _optCounter++;
                         if (seen.has(sel)) return;
                         seen.add(sel);
-                        results.push({ selector: sel, tag: 'ng-option', type: 'dropdown_option', text: text, option_index: _optCounter - 1, rect: {} });
+                        results.push({ selector: sel, tag: 'ng-option', type: 'dropdown_option', text: text, option_index: _optCounter - 1, rect: { width: 0, height: 0, top: 999999, left: 0 } });
                     });
 
                     return results;
-                }""")
+                }"""
 
+                elements = []
+                for _frame in page.frames:
+                    try:
+                        elements.extend(await _frame.evaluate(_capture_js))
+                    except Exception:
+                        continue
+
+                # Stamp the step note (the "Step note (optional)" box in the editor) onto every
+                # element this capture produced, so the report can say WHICH screen/tab a string
+                # came from instead of just listing a selector.
+                # Per-step switch (editor checkbox "Capture grid / table data"). Default ON.
+                # Grid rows are mostly patient records; some tests want them in the baseline for
+                # visibility, others do not want them stored at all.
+                if not step.get("capture_grid", True):
+                    _before = len(elements)
+                    elements = [_e for _e in elements if not str(_e.get("type", "")).startswith("grid")]
+                    _dropped = _before - len(elements)
+                    if _dropped:
+                        log(run_id, "info", f"[capture_page_text] capture_grid=off — dropped {_dropped} grid rows", i)
+
+                _section = apply_variables(str(step.get("description") or ""), resolved_vars).strip()
+                if _section:
+                    for _e in elements:
+                        _e["section"] = _section
+                # Merge/compare identity. Kept separate from "selector" so the report still
+                # shows a clean selector, while the baseline can hold same-named elements from
+                # different screens without one overwriting the other.
+                for _e in elements:
+                    _e["key"] = (f"{_section} | " if _section else "") + str(_e.get("selector", ""))
+                log(run_id, "info", f"[capture_page_text] section: {_section or '(no step note set)'}", i)
                 snapshot = {
                     "url":       page.url,
                     "title":     await page.title(),
                     "language":  lang,
                     "elements":  elements,
-                    "captured_at": __import__("datetime").datetime.utcnow().isoformat()
+                    "captured_at": utcnow().isoformat()
                 }
                 resolved_vars[store_as] = __import__("json").dumps(snapshot)
                 log(run_id, "info", f"[capture_page_text] Captured {len(elements)} elements → {{{{{store_as}}}}}", i)
+                _types = {}
+                for _e in elements:
+                    _types[_e.get('type','?')] = _types.get(_e.get('type','?'), 0) + 1
+                _hist = ' '.join(f"{k}={v}" for k, v in sorted(_types.items(), key=lambda kv: -kv[1]))
+                log(run_id, "info", f"[capture_page_text] types: {_hist}", i)
+                _diag_js = r"""() => {
+                    const q = s => { try { return document.querySelectorAll(s).length; } catch (e) { return -1; } };
+                    let hov = [];
+                    try {
+                        hov = Array.from(document.querySelectorAll(':hover')).slice(-3).map(function (e) {
+                            return e.tagName.toLowerCase() + (e.className ? '.' + String(e.className).trim().split(/\s+/).join('.') : '');
+                        });
+                    } catch (e) {}
+                    const tail = Array.from(document.body.children).slice(-6).map(function (e) {
+                        let pos = '?';
+                        try { pos = getComputedStyle(e).position; } catch (x) {}
+                        return e.tagName.toLowerCase()
+                             + (e.className ? '.' + String(e.className).trim().split(/\s+/).join('.') : '')
+                             + '|' + pos + '|"' + (e.innerText || '').trim().replace(/\s+/g, ' ').slice(0, 40) + '"';
+                    });
+                    return {
+                        role_tooltip: q('[role="tooltip"]'), ngb_win: q('ngb-tooltip-window'),
+                        dot_tooltip: q('.tooltip'), any_tooltip_cls: q('[class*="tooltip"]'),
+                        popover: q('.popover'), cdk_overlay: q('.cdk-overlay-container'),
+                        hover_chain: hov, body_tail: tail
+                    };
+                }"""
+                # Diagnostic: what floating layers actually exist at capture time. If a hover
+                # tooltip is missing from the baseline this line says whether it was in the DOM
+                # at all (timing / hover failed) or present under a class the sweep missed.
+                try:
+                    log(run_id, "info", f"[capture_page_text][diag] {await page.evaluate(_diag_js)}", i)
+                except Exception as _de:
+                    log(run_id, "info", f"[capture_page_text][diag] unavailable: {_de}", i)
 
                 # Auto-save to DB via API
                 import requests as _req
                 try:
-                    _req.post(f"{API_BASE}/api/multilingual/baseline", json={
+                    _resp = _req.post(f"{API_BASE}/api/multilingual/baseline", json={
                         "run_id":     run_id,
                         "language":   lang,
                         "url":        page.url,
                         "page_title": snapshot["title"],
                         "elements":   elements
                     }, headers={"Authorization": f"Bearer {RUNNER_TOKEN}"}, timeout=5)
+                    # The count above is what THIS capture saw. The accumulated baseline lives
+                    # server-side, so echo it back here — otherwise a later capture that legitimately
+                    # sees fewer elements looks like data loss.
+                    _st = _resp.json()
+                    log(run_id, "info",
+                        f"[capture_page_text][baseline] {_st.get('action')} "
+                        f"prev={_st.get('previous')} incoming={_st.get('incoming')} "
+                        f"TOTAL={_st.get('total')} clobbered={_st.get('clobbered')}"
+                        + (f"  ERROR: {_st.get('error')}" if _st.get('error') else ""), i)
                 except Exception:
                     pass  # non-critical - data is in variable
 
@@ -3415,6 +4737,188 @@ async def run_steps_with_flow(page, steps, run_id, resolved_vars, config,
 # Main async entry point
 # ─────────────────────────────────────────────────────────────────────────────
 
+
+async def async_run_api_test(config, run_id):
+    """Run an API test asynchronously."""
+    results = []
+    
+    # Extract api_config from full config
+    api_config = config.get("api_config", {})
+    if isinstance(api_config, str):
+        try:
+            api_config = json.loads(api_config)
+        except Exception:
+            api_config = {}
+    method     = api_config.get("method", "GET")
+    url        = api_config.get("url", "")
+    headers    = api_config.get("headers", {})
+    body       = api_config.get("body", None)
+    assertions = api_config.get("assertions", [])
+    auth       = api_config.get("auth", {})
+
+    # Get variables - project vars + test vars
+    project_vars = config.get("project_vars", {})
+    test_vars = resolve_variables(config.get("variables", []))
+    variables = {**project_vars, **test_vars}
+
+    # Substitute variables in URL and body
+    url = apply_variables(url, variables)
+    if body:
+        body = apply_variables(body, variables)
+
+    # Convert headers list [{key,value,enabled}] to plain dict
+    final_headers = {}
+    if isinstance(headers, list):
+        for h in headers:
+            if isinstance(h, dict) and h.get("enabled", True) and h.get("key", "").strip():
+                final_headers[h["key"].strip()] = apply_variables(str(h.get("value", "")), variables)
+    elif isinstance(headers, dict):
+        for k, v in headers.items():
+            if k.strip():
+                final_headers[k.strip()] = apply_variables(str(v), variables)
+
+    # Apply auth block: inject Authorization header or query param
+    auth_type = (auth or {}).get("type", "none")
+    query_params = {}
+
+    if auth_type == "bearer":
+        token = apply_variables(str(auth.get("token", "")), variables)
+        if token:
+            final_headers["Authorization"] = f"Bearer {token}"
+            log(run_id, "info", f"[AUTH] Bearer token applied (length {len(token)})")
+        else:
+            log(run_id, "warn", "[AUTH] Bearer auth selected but token is empty")
+
+    elif auth_type == "basic":
+        username = apply_variables(str(auth.get("username", "")), variables)
+        password = apply_variables(str(auth.get("password", "")), variables)
+        if username:
+            encoded = base64.b64encode(f"{username}:{password}".encode()).decode()
+            final_headers["Authorization"] = f"Basic {encoded}"
+            log(run_id, "info", f"[AUTH] Basic auth applied for user '{username}'")
+
+    elif auth_type == "api_key_header":
+        key_name  = apply_variables(str(auth.get("key_name",  "X-API-Key")), variables)
+        key_value = apply_variables(str(auth.get("key_value", "")), variables)
+        if key_name and key_value:
+            final_headers[key_name] = key_value
+            log(run_id, "info", f"[AUTH] API key header '{key_name}' applied")
+
+    elif auth_type == "api_key_query":
+        param_name = apply_variables(str(auth.get("param_name", "api_key")), variables)
+        key_value  = apply_variables(str(auth.get("key_value",  "")), variables)
+        if param_name and key_value:
+            query_params[param_name] = key_value
+            log(run_id, "info", f"[AUTH] API key query param '{param_name}' applied")
+
+    log(run_id, "info", f"[DEBUG] raw api_config type={type(config.get('api_config')).__name__} value={str(config.get('api_config'))[:200]}")
+    log(run_id, "info", f"API Test: {method} {url}")
+    start = time.time()
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            request_kwargs = {
+                "headers": final_headers,
+                "timeout": aiohttp.ClientTimeout(total=30)
+            }
+            
+            if query_params:
+                request_kwargs["params"] = query_params
+            
+            if body:
+                try:
+                    if isinstance(body, str):
+                        request_kwargs["json"] = json.loads(body)
+                    else:
+                        request_kwargs["json"] = body
+                except:
+                    request_kwargs["json"] = body
+            
+            async with session.request(method, url, **request_kwargs) as response:
+                status_code = response.status
+                response_body = await response.text()
+                duration = int((time.time() - start) * 1000)
+                
+                log(run_id, "info", f"Response: {status_code} in {duration}ms")
+                log(run_id, "info", f"Response Body: {response_body[:500]}")
+
+                # Process assertions
+                for i, assertion in enumerate(assertions):
+                    atype  = assertion.get("type", "")
+                    avalue = assertion.get("value", "")
+                    
+                    try:
+                        if atype == "status_code":
+                            assert status_code == int(avalue), f"Expected status {avalue}, got {status_code}"
+                        
+                        elif atype == "response_contains":
+                            assert avalue in response_body, f"Response does not contain '{avalue}'"
+                        
+                        elif atype == "json_key_exists":
+                            data = json.loads(response_body)
+                            key_path = assertion.get('key', '')
+                            from_path = get_json_path(data, key_path)
+                            assert from_path is not None, f"JSON key '{key_path}' not found"
+                        
+                        elif atype == "json_value":
+                            key, expected = avalue.split("=", 1)
+                            data = json.loads(response_body)
+                            assert str(data.get(key)) == expected, f"Expected {key}={expected}, got {data.get(key)}"
+                        
+                        elif atype == "response_time":
+                            assert duration <= int(avalue), f"Response time {duration}ms exceeded {avalue}ms"
+                        
+                        elif atype == "extract_json":
+                            data = json.loads(response_body)
+                            val = get_json_path(data, assertion.get('path', ''))
+                            var_name = assertion.get('variable', '')
+                            if var_name:
+                                variables[var_name] = str(val) if val is not None else ""
+                                log(run_id, "info", f"📝 [EXTRACT] {var_name} = {val}")
+                        
+                        elif atype == "extract_header":
+                            var_name = assertion.get('variable', '')
+                            key = assertion.get('key', '')
+                            if var_name and key:
+                                val = response.headers.get(key, "")
+                                variables[var_name] = val
+                                log(run_id, "info", f"📝 [EXTRACT HEADER] {var_name} = {val}")
+
+                        log(run_id, "pass", f"[OK] Assertion {i+1} passed: {atype}")
+                        results.append({"status": "passed", "step": i})
+                    
+                    except AssertionError as e:
+                        log(run_id, "fail", f"[FAIL] Assertion {i+1} failed: {str(e)}")
+                        results.append({"status": "failed", "step": i, "error": str(e)})
+
+    except Exception as e:
+        import traceback; log(run_id, "fail", f"[FAIL] API request failed: {type(e).__name__}: {str(e)}"); log(run_id, "fail", f"[FAIL] Traceback: {traceback.format_exc()[:500]}")
+        results.append({"status": "failed", "step": 0, "error": str(e)})
+
+    # Persist runtime variable changes back to project DB
+    project_id = config.get("project_id")
+    if project_id and project_vars:
+        try:
+            runtime_updates = {}
+            for k, v in variables.items():
+                if k in project_vars and str(project_vars.get(k,"")) != str(v):
+                    runtime_updates[k] = v
+            if runtime_updates:
+                RUNNER_TOKEN = config.get("runner_token", "nat-internal-runner-2024")
+                async with aiohttp.ClientSession() as session:
+                    async with session.patch(
+                        f"{API_BASE}/api/projects/{project_id}/variables/runtime",
+                        json={"updates": runtime_updates, "runner_token": RUNNER_TOKEN},
+                        timeout=aiohttp.ClientTimeout(total=10)
+                    ) as resp:
+                        if resp.status == 200:
+                            log(run_id, "info", f"🔄 Persisted {len(runtime_updates)} runtime variable(s)")
+        except Exception as _e:
+            log(run_id, "warn", f"Could not persist runtime vars: {_e}")
+
+    return results
+
+
 async def async_main(run_id, config, debug, slow_mo, breakpoints_str):
     global RUNNER_TOKEN, DEBUG_MODE, DEBUG_SLOW_MO, DEBUG_BREAKPOINTS, DEBUG_STEP_MODE
 
@@ -3445,7 +4949,7 @@ async def async_main(run_id, config, debug, slow_mo, breakpoints_str):
 
     try:
         requests.patch(f"{API_BASE}/api/runs/{run_id}",
-                       json={"status": "running", "started_at": datetime.utcnow().isoformat() + "+00:00"}, timeout=5)
+                       json={"status": "running", "started_at": utcnow().isoformat() + "+00:00"}, timeout=5)
     except Exception:
         pass
 
@@ -3454,7 +4958,7 @@ async def async_main(run_id, config, debug, slow_mo, breakpoints_str):
 
     try:
         if test_type == "api":
-            step_results = run_api_test(config, run_id)
+            step_results = await async_run_api_test(config, run_id)
         else:
             # Map browser name → playwright browser type
             browser_type_map = {
@@ -3573,7 +5077,7 @@ async def async_main(run_id, config, debug, slow_mo, breakpoints_str):
         requests.patch(f"{API_BASE}/api/runs/{run_id}", json={
             "status": final_status, "duration_ms": duration,
             "steps_total": len(step_results), "steps_passed": passed,
-            "steps_failed": failed_count, "finished_at": datetime.utcnow().isoformat() + "+00:00",
+            "steps_failed": failed_count, "finished_at": utcnow().isoformat() + "+00:00",
         }, timeout=5)
     except Exception as e:
         print(f"Failed to update run status: {e}", flush=True)

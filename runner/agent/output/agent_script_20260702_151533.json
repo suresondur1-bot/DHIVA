@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create SPR with supplier 110014_V currency INR service category Digi Workbook description Agent test item S-D-AE02-MARKETING-00001 rate contract SRC175426000006 qty 2 start date today end date today budget ref Digital marketing click on + to add the item and then click on  save and store PR number as SAIPR. Then navigate to the SPR list page select PR from search by dropdown enter {{SAIPR}} in document no and click search then open the document and click Send for Approval",
+    "start_url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+    "generated": "2026-07-02T15:15:33",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "337800",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "#supplierInput",
+      "value": "110014_V",
+      "_note": "Supplier 110014_V selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "#currencyList",
+      "value": "INR",
+      "_note": "Currency set to INR"
+    },
+    {
+      "action": "search_select",
+      "selector": "#serviceCategoryList",
+      "value": "Digi Workbook",
+      "_note": "Service Category set to Digi Workbook"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "Modal closes and PR header form is visible"
+    },
+    {
+      "action": "type",
+      "selector": "#prDescription",
+      "value": "Agent test",
+      "_note": "Description field shows 'Agent test'"
+    },
+    {
+      "action": "search_select",
+      "selector": "#itemInput",
+      "value": "S-D-AE02-MARKETING-00001",
+      "_note": "Service code selected and fields auto-fill"
+    },
+    {
+      "action": "search_select",
+      "selector": "table > tbody > tr > td:nth-of-type(2) > ng-select",
+      "value": "SRC175426000006",
+      "_note": "Rate Contract selected"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(7) > input",
+      "value": "2",
+      "_note": "Qty field shows 2"
+    },
+    {
+      "action": "date_today",
+      "value2": "%A, %B %#d, %Y",
+      "_note": "today's aria-label stored"
+    },
+    {
+      "action": "click",
+      "selector": "tbody > tr > td:nth-of-type(12) > div > button",
+      "_note": "Start Date calendar popup opens"
+    },
+    {
+      "action": "click",
+      "selector": "[aria-label='Thursday, July 2, 2026']",
+      "_note": "Start date set to today"
+    },
+    {
+      "action": "click",
+      "selector": "tbody > tr > td:nth-of-type(13) > div > button",
+      "_note": "End date calendar picker opens"
+    },
+    {
+      "action": "click",
+      "selector": "[aria-label='Thursday, July 2, 2026']",
+      "_note": "End date populated with 02/07/2026"
+    },
+    {
+      "action": "search_select",
+      "selector": "tbody > tr > td:nth-of-type(14) > div > ng-select",
+      "value": "Digital marketing",
+      "_note": "Budget Ref No shows Digital marketing"
+    },
+    {
+      "action": "click",
+      "selector": "table > tbody > tr > td:nth-of-type(15) > button",
+      "_note": "Item row added"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)",
+      "_note": "PR saved and PR number appears"
+    }
+  ]
+}

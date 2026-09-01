@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "create a new registration for a patient with name Suresh Balkrishna Sondur age 20 years born on 16th June 2006,male who stays in Bangalore in Bhuvi by Amsha in B704 and pincode 560103.Permanement Address is same as correspondence .",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-16T11:50:23",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "a",
+      "_note": "Consultant dropdown shows options and one gets selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Dr",
+      "_note": "Consultant dropdown shows options to select"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "a",
+      "_note": "A list of consultants appears and one is selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Dr",
+      "_note": "Consultant options appear and one is selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Dr",
+      "_note": "A consultant option appears and gets selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "a",
+      "_note": "Consultant dropdown shows options to select"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "controls": [
+    {
+      "id": "welcome_message",
+      "name": "CINICO Welcome Message",
+      "recognition": { "matches": ".welcome-msg" },
+      "keywords": {
+        "get_value":    [ { "do": "read_text", "target": "self" } ],
+        "store_value":  [ { "do": "read_text", "target": "self" } ],
+        "store_text":   [ { "do": "read_text", "target": "self" } ],
+        "assert_text":  [ { "do": "read_text", "target": "self" } ]
+      }
+    }
+  ]
+}

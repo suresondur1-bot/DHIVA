@@ -1,0 +1,13 @@
+@echo off
+REM Automation Web Platform - one-click prerequisite installer
+REM Double-click this file. It will ask for administrator permission,
+REM then install Node.js, Git, and Python 3 if missing, set up the backend
+REM and frontend (npm install), the Python runner (pip + Playwright browsers),
+REM and a .env file. PostgreSQL is NOT installed by this - see README.md.
+
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\install-prerequisites.ps1"
+
+echo.
+echo (This window closes automatically. If you didn't see any output above,
+echo right-click this file and choose "Run as administrator" instead.)
+pause

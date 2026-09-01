@@ -3120,18 +3120,44 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
 
     const smtpHost   = process.env.SMTP_HOST || "smtp.gmail.com";
     const smtpPort   = parseInt(process.env.SMTP_PORT || "587");
-    const smtpSecure = process.env.SMTP_SECURE === "true" || smtpPort === 465;
+    let   smtpSecure = process.env.SMTP_SECURE === "true" || smtpPort === 465;
+    // 587 is the submission port: it ALWAYS begins in plaintext and upgrades via
+    // STARTTLS. Opening a TLS handshake on it immediately makes OpenSSL read the
+    // plaintext "220 ..." greeting as a TLS record and fail with
+    // "wrong version number". Implicit TLS belongs on 465.
+    if (smtpSecure && smtpPort === 587) {
+      console.warn("[Email] SMTP_SECURE=true with SMTP_PORT=587 is invalid — 587 uses STARTTLS.");
+      console.warn("[Email] Using STARTTLS instead. Set SMTP_SECURE=false for 587, or SMTP_PORT=465 for implicit TLS.");
+      smtpSecure = false;
+    }
     const smtpUser   = process.env.SMTP_USER || "";
     const smtpPass   = process.env.SMTP_PASS || "";
 
-    if (!smtpUser || !smtpPass) {
-      console.error("[Email] SMTP_USER or SMTP_PASS not set in .env — cannot send email");
+    const isGmail = smtpHost.includes("gmail.com");
+
+    // An internal corporate relay (Exchange, Postfix) normally accepts mail from
+    // whitelisted server IPs with NO credentials. Requiring user+pass made it
+    // impossible to point this at one. Set SMTP_AUTH=false, or just leave
+    // SMTP_USER/SMTP_PASS empty on a non-Gmail host, to relay anonymously.
+    const smtpAuth = (process.env.SMTP_AUTH ?? "").toLowerCase() === "false"
+      ? false
+      : Boolean(smtpUser && smtpPass);
+
+    if (isGmail && !smtpAuth) {
+      console.error("[Email] Gmail requires SMTP_USER + SMTP_PASS (app password) — cannot send email");
       return;
     }
+    if (!smtpHost) {
+      console.error("[Email] SMTP_HOST not set in .env — cannot send email");
+      return;
+    }
+    console.log(`[Email] Relay ${smtpHost}:${isGmail ? 587 : smtpPort} `
+      + `secure=${isGmail ? false : smtpSecure} `
+      + `auth=${smtpAuth ? "on (" + smtpUser + ")" : "off (anonymous relay)"} `
+      + `from=${process.env.SMTP_FROM || smtpUser || "(unset)"}`);
 
     // For Gmail: use port 465 + secure=true (SSL) OR port 587 + secure=false (STARTTLS)
     // "Unexpected socket close" usually means wrong port/secure combo
-    const isGmail = smtpHost.includes("gmail.com");
 
     const transporter = nodemailer.createTransport(
       isGmail
@@ -3142,7 +3168,7 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
             secure:  false,
             family:  4,
             requireTLS: true,
-            auth: { user: smtpUser, pass: smtpPass },
+            auth: smtpAuth ? { user: smtpUser, pass: smtpPass } : undefined,
             tls: { rejectUnauthorized: false },
             connectionTimeout: 30000,
             greetingTimeout:   15000,
@@ -3152,8 +3178,10 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
             host:   smtpHost,
             port:   smtpPort,
             secure: smtpSecure,
-            requireTLS: smtpPort === 587,
-            auth: { user: smtpUser, pass: smtpPass },
+            // An anonymous internal relay on 587 often speaks plain SMTP, so only
+            // demand STARTTLS when we are actually authenticating.
+            requireTLS: smtpPort === 587 && smtpAuth,
+            auth: smtpAuth ? { user: smtpUser, pass: smtpPass } : undefined,
             tls: { rejectUnauthorized: false },
             connectionTimeout: 30000,
             greetingTimeout:   15000,
@@ -3161,16 +3189,21 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
           }
     );
 
-    // Verify connection before sending
+    // Probe the connection, but do NOT abort on failure: some relays refuse the
+    // verify handshake yet accept a real message. Let sendMail below produce the
+    // authoritative error instead of failing here on a probe.
     try { await transporter.verify(); }
     catch(verifyErr) {
-      console.error("[Email] SMTP connection failed:", verifyErr.message);
-      console.error("[Email] Check SMTP_HOST/PORT/USER/PASS in .env");
-      throw verifyErr;
+      console.warn("[Email] SMTP probe failed:", verifyErr.message, "— attempting send anyway");
+      if (/ECONNRESET|ETIMEDOUT|ECONNREFUSED|EHOSTUNREACH/.test(verifyErr.code || verifyErr.message || "")) {
+        console.warn(`[Email] ${smtpHost}:${isGmail ? 587 : smtpPort} is unreachable from this server.`);
+        console.warn("[Email] Usually an outbound firewall rule, not a credential problem.");
+        console.warn("[Email] Check with: Test-NetConnection " + smtpHost + " -Port " + (isGmail ? 587 : smtpPort));
+      }
     }
 
     const status  = failed === 0 ? "✅ PASSED" : "❌ FAILED";
-    const subject = `[Daiva Health] ${failed === 0 ? "✅ Suite Passed" : "❌ Suite Failed"} — ${suiteName} (${passed}/${total} tests passed)`;
+    const subject = `[QAVYA] ${failed === 0 ? "✅ Suite Passed" : "❌ Suite Failed"} — ${suiteName} (${passed}/${total} tests passed)`;
     const passRate = total > 0 ? Math.round((passed / total) * 100) : 0;
     const now      = new Date().toLocaleString("en-IN", { dateStyle:"long", timeStyle:"short" });
     const statusColor  = failed === 0 ? "#00a86b" : "#e53935";
@@ -3201,8 +3234,8 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td>
-                  <div style="font-size:11px;color:#ffcccc;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;">AI-Powered Test Automation</div>
-                  <div style="font-size:22px;font-weight:700;color:#ffffff;">Daiva Health — Test Report</div>
+                  <div style="font-size:11px;color:#ffcccc;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;">AI-Powered Quality Automation</div>
+                  <div style="font-size:22px;font-weight:700;color:#ffffff;">QAVYA — Test Report</div>
                 </td>
                 <td align="right">
                   <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 16px;display:inline-block;">
@@ -3240,7 +3273,7 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
           <!-- Greeting -->
           <p style="font-size:15px;color:#1a2332;margin:0 0 8px 0;">Dear Sir / Madam,</p>
           <p style="font-size:14px;color:#4a5568;margin:0 0 24px 0;line-height:1.7;">
-            This is an <b>auto-generated notification</b> from <b>Daiva Health — AI-Powered Test Automation</b>.
+            This is an <b>auto-generated notification</b> from <b>QAVYA — AI-Powered Quality Automation</b>.
             The following suite run has been completed. Please find the summary below.
           </p>
 
@@ -3342,8 +3375,8 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
           </div>`}
 
           <!-- Closing -->
-          <p style="font-size:13px;color:#4a5568;line-height:1.7;margin:0 0 4px 0;">Thank you for using Daiva Health for your test automation needs.</p>
-          <p style="font-size:13px;color:#4a5568;margin:0 0 24px 0;">Regards,<br/><b>Daiva Health Automation System</b><br/><span style="color:#8a96a8;font-size:12px;">Daiva Health — Quality Assurance Team</span></p>
+          <p style="font-size:13px;color:#4a5568;line-height:1.7;margin:0 0 4px 0;">Thank you for using QAVYA for your test automation needs.</p>
+          <p style="font-size:13px;color:#4a5568;margin:0 0 24px 0;">Regards,<br/><b>QAVYA Automation System</b><br/><span style="color:#8a96a8;font-size:12px;">QAVYA — Quality Assurance Team</span></p>
 
         </td>
 
@@ -3353,11 +3386,11 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="font-size:11px;color:#8a96a8;">
-                  This is an auto-generated email from <b>Daiva Health — AI-Powered Test Automation</b>.
+                  This is an auto-generated email from <b>QAVYA — AI-Powered Quality Automation</b>.
                   Please do not reply to this email.
                 </td>
                 <td align="right" style="font-size:11px;color:#8a96a8;white-space:nowrap;">
-                  &copy; ${new Date().getFullYear()} Daiva Health. All rights reserved.
+                  &copy; ${new Date().getFullYear()} QAVYA. All rights reserved.
                 </td>
               </tr>
             </table>
@@ -3378,10 +3411,10 @@ async function sendReportEmail(toEmail, suiteName, passed, failed, total, htmlRe
       from:    process.env.SMTP_FROM || process.env.SMTP_USER || "nat@narayanahealth.org",
       to:      toEmail,
       subject,
-      text:    `Dear Sir / Madam,\n\nThis is an auto-generated notification from Daiva Health — AI-Powered Test Automation.\n\nSuite Run Complete: ${suiteName}\n\nStatus  : ${failed === 0 ? "PASSED" : "FAILED"}\nTotal   : ${total}\nPassed  : ${passed}\nFailed  : ${failed}\nPass Rate: ${passRate}%\nDate    : ${now}\n\nA detailed HTML report is attached. Open it in any browser for full results.\n\nRegards,\nDaiva Health Automation System\nDaiva Health — Quality Assurance Team\n\nNote: This is an auto-generated email. Please do not reply.`,
+      text:    `Dear Sir / Madam,\n\nThis is an auto-generated notification from QAVYA — AI-Powered Quality Automation.\n\nSuite Run Complete: ${suiteName}\n\nStatus  : ${failed === 0 ? "PASSED" : "FAILED"}\nTotal   : ${total}\nPassed  : ${passed}\nFailed  : ${failed}\nPass Rate: ${passRate}%\nDate    : ${now}\n\nA detailed HTML report is attached. Open it in any browser for full results.\n\nRegards,\nQAVYA Automation System\nQAVYA — Quality Assurance Team\n\nNote: This is an auto-generated email. Please do not reply.`,
       html:    htmlBody,
       attachments: [{
-        filename:    `DaivaHealth-Report-${suiteName.replace(/[^a-z0-9]/gi, "_")}-${Date.now()}.html`,
+        filename:    `QAVYA-Report-${suiteName.replace(/[^a-z0-9]/gi, "_")}-${Date.now()}.html`,
         content:     htmlReport,
         contentType: "text/html",
       }],
@@ -3537,6 +3570,10 @@ function registerSchedule(schedule) {
         const passed  = results.rows.filter(r=>r.status==="passed").length;
         const failed  = results.rows.filter(r=>r.status==="failed").length;
         const finalSt = failed===0 ? "passed" : "failed";
+        // Counts the EMAIL should quote. The retry pass below can turn failures into
+        // passes; without this the mail kept quoting the pre-retry numbers, so a suite
+        // the dashboard shows as green arrived by email as red.
+        let mailPassed = passed, mailFailed = failed;
         await pool.query("UPDATE suite_runs SET status=$1,passed_tests=$2,failed_tests=$3,completed_at=NOW() WHERE id=$4",
           [finalSt, passed, failed, suiteRunId]);
         console.log(`⏰ Suite "${suite.name}" done: ${passed} passed, ${failed} failed`);
@@ -3587,6 +3624,7 @@ function registerSchedule(schedule) {
             const passed2  = results2.rows.filter(r=>r.status==="passed").length;
             const failed2  = results2.rows.filter(r=>r.status==="failed").length;
             const finalSt2 = failed2===0 ? "passed" : "failed";
+            mailPassed = passed2; mailFailed = failed2;
             await pool.query("UPDATE suite_runs SET status=$1,passed_tests=$2,failed_tests=$3 WHERE id=$4",
               [finalSt2, passed2, failed2, suiteRunId]);
             console.log(`⏰ Suite "${suite.name}" after retry: ${passed2} passed, ${failed2} failed`);
@@ -3617,10 +3655,14 @@ function registerSchedule(schedule) {
           console.log(`[Report] Saved: ${reportFile}`);
 
           // Send email if notify_email is set on this schedule
+          if (!schedule.notify_email || !schedule.notify_email.trim()) {
+            console.log(`[Report] Schedule #${schedule.id} has no notify_email — no mail sent`);
+          }
           if (schedule.notify_email && schedule.notify_email.trim()) {
+            console.log(`[Report] Emailing suite report to: ${schedule.notify_email.trim()}`);
             await sendReportEmail(
               schedule.notify_email.trim(),
-              suite.name, passed, failed, testsRes.rows.length,
+              suite.name, mailPassed, mailFailed, testsRes.rows.length,
               htmlReport
             );
           }
@@ -4400,7 +4442,11 @@ app.post("/api/suite-runs", requireAuth, async (req, res) => {
            WHERE sr.id = $1`, [suiteRunId]
         );
         const nr = suiteInfo.rows[0];
+        if (!nr?.notify_email || !nr.notify_email.trim()) {
+          console.log(`[Suite Notify] Suite run #${suiteRunId} has no notify_email — no mail sent`);
+        }
         if (nr?.notify_email && nr.notify_email.trim()) {
+          console.log(`[Suite Notify] Emailing suite report to: ${nr.notify_email.trim()}`);
           const total = +f.passed + +f.failed;
           // Fetch full run details to generate proper HTML report (same as scheduler)
           const runDetails = await pool.query(
@@ -5726,7 +5772,7 @@ app.patch("/api/runs/:id/finish-debug", async (req, res) => {
 app.get("/api/suite-runs/:id/report", async (req, res) => {
   // Accept token from header OR query param for direct browser downloads
   const token = (req.headers.authorization||"").replace("Bearer ","") || (req.query.token||"");
-  if (!token) return res.status(401).send("<h2>Not authorised — please log in to Daiva Health first</h2>");
+  if (!token) return res.status(401).send("<h2>Not authorised — please log in to QAVYA first</h2>");
   // Validate token exists in sessions
   try {
     const sess = await pool.query(
@@ -6073,11 +6119,11 @@ async function generateParallelReport(parallelRunId, runs, testName) {
     return `<div style="border:1px solid #e5e7eb;border-radius:8px;margin-bottom:10px;overflow:hidden"><div style="padding:10px 16px;background:#f9fafb;display:flex;justify-content:space-between;cursor:pointer" onclick="toggleBrowser(${bi})"><div><span style="font-weight:700">${run.parallel_label||run.browser}</span></div><div style="display:flex;gap:12px;align-items:center"><span style="color:${sc};font-weight:700">${(run.status||"—").toUpperCase()}</span><span style="color:#6b7280">▼</span></div></div><div id="browser-${bi}" style="display:none;padding:10px 16px"><table style="width:100%;border-collapse:collapse;font-family:monospace"><tbody>${logRows||"<tr><td colspan=3 style='color:#9ca3af;padding:8px'>No logs</td></tr>"}</tbody></table></div></div>`;
   }).join("");
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Parallel Report — ${(testName||"Test").replace(/</g,"&lt;")}</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;background:#f8fafc;color:#1e293b}.header{background:linear-gradient(135deg,#5c0000,#8B0000);color:#fff;padding:24px 32px}.card{background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:20px 24px;margin:16px 24px}table{border-collapse:collapse;width:100%}</style></head><body>
-<div class="header"><div style="font-size:11px;opacity:0.7;margin-bottom:4px">Daiva Health — Parallel Run Report</div><div style="font-size:22px;font-weight:800;margin-bottom:6px">${(testName||"Test").replace(/</g,"&lt;")}</div><div style="font-size:13px;opacity:0.85">🕒 ${now.toLocaleString()} &nbsp;·&nbsp; ⚡ ${total} runs &nbsp;·&nbsp; ✅ ${passed} passed &nbsp;·&nbsp; ❌ ${failed} failed</div></div>
+<div class="header"><div style="font-size:11px;opacity:0.7;margin-bottom:4px">QAVYA — Parallel Run Report</div><div style="font-size:22px;font-weight:800;margin-bottom:6px">${(testName||"Test").replace(/</g,"&lt;")}</div><div style="font-size:13px;opacity:0.85">🕒 ${now.toLocaleString()} &nbsp;·&nbsp; ⚡ ${total} runs &nbsp;·&nbsp; ✅ ${passed} passed &nbsp;·&nbsp; ❌ ${failed} failed</div></div>
 <div style="display:grid;grid-template-columns:repeat(${Math.min(runs.length,4)},1fr);gap:12px;margin:16px 24px">${cards}</div>
 <div class="card"><div style="font-size:15px;font-weight:700;margin-bottom:12px">📊 Step Comparison Matrix</div>${sortedSteps.length>0?`<div style="overflow-x:auto"><table><thead><tr><th style="padding:8px 12px;text-align:left;background:#f9fafb;border:1px solid #e5e7eb;min-width:250px;font-size:12px">Step</th>${bhdrs}</tr></thead><tbody>${rows}</tbody></table></div>`:"<p style='color:#9ca3af;font-size:13px'>No step data available.</p>"}</div>
 <div class="card"><div style="font-size:15px;font-weight:700;margin-bottom:12px">📋 Detailed Logs per Browser</div>${bsecs}</div>
-<div style="text-align:center;padding:16px;font-size:11px;color:#9ca3af">Generated by Daiva Health · ${now.toISOString()}</div>
+<div style="text-align:center;padding:16px;font-size:11px;color:#9ca3af">Generated by QAVYA · ${now.toISOString()}</div>
 <script>function toggleDetail(r,id){const el=document.getElementById("detail-"+r+"-"+id);if(el)el.style.display=el.style.display==="none"?"table-row":"none";}function toggleBrowser(i){const el=document.getElementById("browser-"+i);if(el)el.style.display=el.style.display==="none"?"block":"none";}</script></body></html>`;
 }
 
@@ -6727,7 +6773,7 @@ function buildSmartStudyPrompt(rec) {
     ? `SUCCESS: assert_text | ${successCond.selector} | contains "${successCond.text}"`
     : 'SUCCESS: verify URL changed or page loaded';
 
-  return `You are generating an ATHMA test script for a Daiva Health Angular application (uses ng-select, formcontrolname attributes).
+  return `You are generating an ATHMA test script for an Angular application (uses ng-select, formcontrolname attributes).
 
 RECORDED FLOW:
 ${pagesText}

@@ -1,4 +1,4 @@
-// ATHMA Recorder Content Script
+// QAVYA Recorder Content Script
 
 (function () {
   if (window.__athmaRecorderActive) return;
@@ -257,5 +257,5 @@
   indicator.appendChild(document.createTextNode(" ATHMA RECORDING"));
   document.body.appendChild(indicator);
 
-  console.log("[ATHMA Recorder] Active on", location.href);
+  console.log("[QAVYA Recorder] Active on", location.href);
 })();

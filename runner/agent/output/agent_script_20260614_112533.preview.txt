@@ -1,0 +1,24 @@
+# Goal: Create a stock correction: select store code IP-Pharmacy-Raipur search for the same and select, click Continue, enter item code KI-RA-N-0901-PH, select batch KILLA12 in the batch dropdowns, set MRP Current to 51, set Correction Qty to 50, then click Save
+# Start: https://sqa.narayanahealth.org/phrweb/stock-correction-new
+# Steps: 20
+
+  1. press          #storeInput   # A store suggestion gets highlighted in the typeahead dropdown
+  2. press          #storeInput   # Store suggestion is selected and field shows the store
+  3. click          #continueButton   # Modal closes and correction document body becomes usable
+  4. search_select  #itemInput   # Item row populates in the items table
+  5. search_select  ng-select[name="batch"]   # Batch KILLA12 selected in the Batch No Current dropdown
+  6. type           table > tbody > tr > td:nth-of-type(5) > input   # MRP Current shows 51
+  7. type           table > tbody > tr > td:nth-of-type(9) > input   # Correction Qty field shows 50
+  8. click          div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # Stock correction is saved
+  9. search_select  ng-select[name="batch"]   # Batch No Current shows KILLA12 and error clears
+ 10. click          div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # The stock correction is saved
+ 11. search_select  ng-select[name="batch"]   # Batch No Current shows KILLA12 and the error clears
+ 12. click          div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # The stock correction document is saved
+ 13. search_select  ng-select[name="batch"]   # Batch No Current shows KILLA12 and the error clears
+ 14. click          div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # Correction document saved
+ 15. search_select  ng-select[name="batch"]   # Batch No Current shows KILLA12 and the error clears
+ 16. click          div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # The correction document is saved successfully
+ 17. search_select  ng-select[name="batch"]   # Batch No Current cell shows KILLA12 and the error clears
+ 18. click          div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # The stock correction is saved successfully
+ 19. search_select  ng-select[name="batch"]   # Batch No Current shows KILLA12 and the error clears
+ 20. click          div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # Stock correction saved successfully

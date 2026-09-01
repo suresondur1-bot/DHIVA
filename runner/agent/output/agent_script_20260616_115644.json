@@ -1,0 +1,144 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "create a new registration for a patient with name Suresh Balkrishna Sondur age 20 years born on 16th June 2006,male who stays in Bangalore in Bhuvi by Amsha in B704 and pincode 560103.Permanement Address is same as correspondence  tha appointment is for Sunil Goniyal and consider the first available slot",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-16T11:56:44",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "click",
+      "selector": "div > jhi-verify-otp > div:nth-of-type(3) > div:nth-of-type(1) > button",
+      "_note": "Aadhaar Verification modal closes, revealing the registration form"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Sunil Goniyal",
+      "_note": "Consultant field shows Sunil Goniyal and Slot becomes selectable"
+    },
+    {
+      "action": "pick_first",
+      "selector": "#slot",
+      "_note": "A slot popup opens and the first available slot is selected"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Suresh41903",
+      "_note": "First Name populated with Suresh"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Suresh41903",
+      "_note": "First Name field shows Suresh with random suffix"
+    },
+    {
+      "action": "type",
+      "selector": "#middleName",
+      "value": "Balkrishna",
+      "_note": "Middle Name shows Balkrishna"
+    },
+    {
+      "action": "type",
+      "selector": "#lastName",
+      "value": "Sondur",
+      "_note": "Last Name shows Sondur"
+    },
+    {
+      "action": "search_select",
+      "selector": "#gender",
+      "value": "Male",
+      "_note": "Sex set to Male"
+    },
+    {
+      "action": "type",
+      "selector": "#age",
+      "value": "20",
+      "_note": "Age shows 20 and Date of Birth auto-populates"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondencePincode",
+      "value": "560103",
+      "_note": "Pincode 560103 entered in correspondence address"
+    },
+    {
+      "action": "type",
+      "selector": "#permanentPincode",
+      "value": "560103",
+      "_note": "Permanent Pin/Zip Code shows 560103"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondenceHouse",
+      "value": "B704",
+      "_note": "House No field shows B704"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Registration submits successfully"
+    },
+    {
+      "action": "click",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "_note": "Patient Registration consultation section with consultant field"
+    },
+    {
+      "action": "click",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "_note": "Consultation tab opens with consultant searchable field"
+    },
+    {
+      "action": "click",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "_note": "Consultation section with editable Consultant and Slot fields appears"
+    }
+  ]
+}

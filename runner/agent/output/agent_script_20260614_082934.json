@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Register a new patient with name Suresh Balkrishna Sondur age 20 born on 15/08/2996 with mobile no 8971429587,male stays in Bangalore with pincode 560103 and resides same place.",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-14T08:29:34",
+    "reviewed_by": null
+  },
+  "steps": [
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "a",
+      "_note": "Consultant dropdown shows options and one gets selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "a",
+      "_note": "A consultant option appears and is selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Dr",
+      "_note": "Consultant options appear and one is selected"
+    }
+  ]
+}

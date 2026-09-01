@@ -1,0 +1,516 @@
+{
+  "url": "https://sqa.narayanahealth.org/ambweb/cpoe-new",
+  "title": "CPOE Order",
+  "elements": [
+    {
+      "ref": "e1",
+      "type": "link",
+      "name": "",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        16,
+        20,
+        116,
+        24
+      ],
+      "text": "CPOE Order"
+    },
+    {
+      "ref": "e2",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(1) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        768,
+        14,
+        40,
+        37
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e3",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(2) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        808,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e4",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(3) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        848,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e5",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(4) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        888,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e6",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(5) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        928,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e7",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(6) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        968,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e8",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(7) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1008,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e9",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(8) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1048,
+        14,
+        42,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e10",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(9) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1106,
+        10,
+        142,
+        44
+      ],
+      "text": "A\nAdministrator\nMMII Na ...l, Raipur"
+    },
+    {
+      "ref": "e11",
+      "type": "link",
+      "name": "",
+      "selector": "#account-more",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1252,
+        14,
+        20,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e12",
+      "type": "textbox",
+      "name": "Search by MRN, Name or Phone no",
+      "selector": "#patientInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        44,
+        80,
+        568,
+        28
+      ],
+      "placeholder": "Search by MRN, Name or Phone no",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e13",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(2) > div > div > div > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1232,
+        88,
+        12,
+        14
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e14",
+      "type": "button",
+      "name": "",
+      "selector": "div > div > div > div > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1260,
+        88,
+        12,
+        14
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e15",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-cpoe-dialog-list > athma-page-header > div > div:nth-of-type(1) > button:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        20,
+        134,
+        89,
+        28
+      ],
+      "input_type": "button",
+      "text": "New Order"
+    },
+    {
+      "ref": "e16",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-cpoe-dialog-list > athma-page-header > div > div:nth-of-type(1) > button:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        109,
+        134,
+        83,
+        28
+      ],
+      "input_type": "button",
+      "text": "All Orders"
+    },
+    {
+      "ref": "e17",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-cpoe-dialog-list > athma-page-header > div > div:nth-of-type(1) > button:nth-of-type(3)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        192,
+        134,
+        118,
+        28
+      ],
+      "input_type": "button",
+      "text": "Pending Orders"
+    },
+    {
+      "ref": "e18",
+      "type": "link",
+      "name": "",
+      "selector": "div:nth-of-type(1) > div > ul > li:nth-of-type(1) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        20,
+        184,
+        78,
+        29
+      ],
+      "text": "SERVICES 0"
+    },
+    {
+      "ref": "e19",
+      "type": "link",
+      "name": "",
+      "selector": "div:nth-of-type(1) > div > ul > li:nth-of-type(2) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        122,
+        184,
+        91,
+        17
+      ],
+      "text": "PHARMACY 0"
+    },
+    {
+      "ref": "e20",
+      "type": "combobox",
+      "name": "Consultant",
+      "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div > ng-select",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        568,
+        179,
+        315,
+        28
+      ]
+    },
+    {
+      "ref": "e21",
+      "type": "button",
+      "name": "Consultant",
+      "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        882,
+        179,
+        26,
+        28
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e22",
+      "type": "select",
+      "name": "Tariff Class",
+      "selector": "div:nth-of-type(2) > div:nth-of-type(2) > div > div:nth-of-type(2) > select",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        926,
+        179,
+        140,
+        28
+      ],
+      "value": "0"
+    },
+    {
+      "ref": "e23",
+      "type": "dateinput",
+      "name": "Order Date",
+      "selector": "div > div:nth-of-type(3) > jhi-athma-date-time-picker > div > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1084,
+        179,
+        182,
+        28
+      ],
+      "readonly": true,
+      "placeholder": "dd/MM/yyyy hh:mm a",
+      "input_type": "text",
+      "has_picker_button": true,
+      "value": "02/07/2026 05:15 PM"
+    },
+    {
+      "ref": "e24",
+      "type": "button",
+      "name": "Order Date",
+      "selector": "div > div:nth-of-type(3) > jhi-athma-date-time-picker > div > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1246,
+        184,
+        16,
+        18
+      ],
+      "input_type": "button",
+      "text": ""
+    },
+    {
+      "ref": "e25",
+      "type": "textbox",
+      "name": "Service/Package Name",
+      "selector": "#itemInput",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        16,
+        269,
+        350,
+        24
+      ],
+      "placeholder": "Search by Name / Code / Short Name",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e26",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(1) > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        16,
+        685,
+        80,
+        28
+      ],
+      "text": "Cancel"
+    },
+    {
+      "ref": "e27",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > button:nth-of-type(1)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        747,
+        685,
+        86,
+        28
+      ],
+      "text": "Save Draft"
+    },
+    {
+      "ref": "e28",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        842,
+        685,
+        113,
+        28
+      ],
+      "text": "Save Order Set"
+    },
+    {
+      "ref": "e29",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(2) > button:nth-of-type(3)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        966,
+        685,
+        80,
+        28
+      ],
+      "text": "Order"
+    },
+    {
+      "ref": "e30",
+      "type": "link",
+      "name": "",
+      "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1083,
+        227,
+        74,
+        19
+      ],
+      "text": "Favourites"
+    },
+    {
+      "ref": "e31",
+      "type": "link",
+      "name": "",
+      "selector": "div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1083,
+        228,
+        144,
+        31
+      ],
+      "text": "My Order Set"
+    }
+  ],
+  "tables": [
+    {
+      "ref": "tbl32",
+      "headers": [
+        "Service/Package Name",
+        "Qty",
+        "Rendering HSC",
+        "Add on Parameters",
+        "Tariff",
+        "Priority",
+        "Order\nInstruction",
+        ""
+      ],
+      "row_count": 1,
+      "rows": [
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "errors": [],
+  "viewport": {
+    "w": 1280,
+    "h": 720
+  },
+  "_scroll_passes": 9
+}

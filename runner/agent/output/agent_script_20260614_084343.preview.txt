@@ -1,0 +1,18 @@
+# Goal: Register a new patient: First Name Test{{random}}, Last Name Patient, Sex Male, Age 30 years, Consultant Sunil, Correspondence Pincode 560001 City Bangalore, Permanent Pincode 560001 City Bangalore
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 14
+
+  1. search_select  ng-select[name="consultant"]   # Consultant Sunil is selected
+  2. pick_first     #submitBtn   # A slot is selected and the modal closes
+  3. type           #firstName   # First Name field shows the typed value
+  4. type           #lastName   # Last Name shows Patient
+  5. search_select  #gender   # Sex field shows Male
+  6. type           #age   # Age 30 entered, Date of Birth auto-populates
+  7. type           #correspondencePincode   # Correspondence Pin/Zip Code shows 560001
+  8. type           #permanentPincode   # Permanent Pincode shows 560001
+  9. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registration submits successfully
+ 10. scroll         up   # See patient details section to confirm Sex/Age/Name fields are filled
+ 11. search_select  #correspondenceCity   # City Bangalore selected and District/State/Country auto-fill
+ 12. search_select  #permanentCity   # Permanent City populates and District/State/Country auto-fill
+ 13. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient is registered successfully
+ 14. search_select  ng-select[name="consultant"]   # Consultant Sunil selected and consultant/department auto-fill

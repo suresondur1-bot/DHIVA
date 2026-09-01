@@ -1,0 +1,743 @@
+{
+  "url": "https://sqa.narayanahealth.org/adtweb/admission-new",
+  "title": "Admissions",
+  "elements": [
+    {
+      "ref": "e1",
+      "type": "link",
+      "name": "",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        16,
+        20,
+        106,
+        24
+      ],
+      "text": "Admission"
+    },
+    {
+      "ref": "e2",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(1) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        768,
+        14,
+        40,
+        37
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e3",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(2) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        808,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e4",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(3) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        848,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e5",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(4) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        888,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e6",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(5) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        928,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e7",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(6) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        968,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e8",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(7) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1008,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e9",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(8) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1048,
+        14,
+        42,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e10",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(9) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1106,
+        10,
+        142,
+        44
+      ],
+      "text": "A\nAdministrator\nMMII Na ...l, Raipur"
+    },
+    {
+      "ref": "e11",
+      "type": "link",
+      "name": "",
+      "selector": "#account-more",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1252,
+        14,
+        20,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e12",
+      "type": "button",
+      "name": "",
+      "selector": "div > div:nth-of-type(2) > div > div > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1252,
+        83,
+        21,
+        24
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e13",
+      "type": "link",
+      "name": "",
+      "selector": "div:nth-of-type(2) > div > div > span:nth-of-type(1) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        924,
+        126,
+        18,
+        18
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e14",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-admission-dialog > div:nth-of-type(2) > div > div > button:nth-of-type(1)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1093,
+        115,
+        17,
+        41
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e15",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-admission-dialog > div:nth-of-type(2) > div > div > button:nth-of-type(2)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1122,
+        115,
+        21,
+        41
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e16",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-admission-dialog > div:nth-of-type(2) > div > div > button:nth-of-type(3)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1155,
+        115,
+        21,
+        41
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e17",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-admission-dialog > div:nth-of-type(2) > div > div > button:nth-of-type(4)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1188,
+        115,
+        21,
+        41
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e18",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-admission-dialog > div:nth-of-type(2) > div > div > button:nth-of-type(5)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1221,
+        115,
+        18,
+        41
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e19",
+      "type": "button",
+      "name": "",
+      "selector": "jhi-admission-dialog > div:nth-of-type(2) > div > div > button:nth-of-type(6)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1251,
+        115,
+        21,
+        41
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e20",
+      "type": "link",
+      "name": "",
+      "selector": "div:nth-of-type(2) > div:nth-of-type(1) > div > div > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1150,
+        191,
+        115,
+        17
+      ],
+      "text": "Previous Admissions"
+    },
+    {
+      "ref": "e21",
+      "type": "textbox",
+      "name": "MLC Number *",
+      "selector": "input[name=\"mlcNumber\"]",
+      "required": true,
+      "disabled": true,
+      "bbox": [
+        368,
+        274,
+        345,
+        28
+      ],
+      "placeholder": "Enter MLC number",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e22",
+      "type": "textbox",
+      "name": "Reason For MLC *",
+      "selector": "input[name=\"reason\"]",
+      "required": true,
+      "disabled": true,
+      "bbox": [
+        736,
+        274,
+        529,
+        28
+      ],
+      "placeholder": "Enter reason",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e23",
+      "type": "textbox",
+      "name": "Identification Mark 1 *",
+      "selector": "input[name=\"identification1\"]",
+      "required": true,
+      "disabled": true,
+      "bbox": [
+        191,
+        336,
+        246,
+        28
+      ],
+      "placeholder": "Enter Identification Marks",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e24",
+      "type": "textbox",
+      "name": "Identification Mark 2 *",
+      "selector": "input[name=\"identification2\"]",
+      "required": true,
+      "disabled": true,
+      "bbox": [
+        460,
+        336,
+        253,
+        28
+      ],
+      "placeholder": "Enter Identification Marks",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e25",
+      "type": "textbox",
+      "name": "Police Station *",
+      "selector": "input[name=\"policeStation\"]",
+      "required": true,
+      "disabled": true,
+      "bbox": [
+        736,
+        336,
+        253,
+        28
+      ],
+      "placeholder": "Enter Police Station",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e26",
+      "type": "combobox",
+      "name": "Vulnerable *",
+      "selector": "#vulnerable",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        1012,
+        336,
+        253,
+        28
+      ]
+    },
+    {
+      "ref": "e27",
+      "type": "combobox",
+      "name": "Primary Consultant *",
+      "selector": "#primaryConsultant",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        184,
+        398,
+        529,
+        28
+      ]
+    },
+    {
+      "ref": "e28",
+      "type": "combobox",
+      "name": "Admission Category *",
+      "selector": "#admissionCategory",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        184,
+        460,
+        345,
+        28
+      ]
+    },
+    {
+      "ref": "e29",
+      "type": "combobox",
+      "name": "Opted Class *",
+      "selector": "#optedClass",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        552,
+        460,
+        345,
+        28
+      ]
+    },
+    {
+      "ref": "e30",
+      "type": "button",
+      "name": "Admission Date *",
+      "selector": "div:nth-of-type(3) > div > div > div > button",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        1054,
+        460,
+        26,
+        28
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e31",
+      "type": "button",
+      "name": "Expected Discharge Date *",
+      "selector": "div:nth-of-type(2) > div:nth-of-type(4) > div > div > button",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        1207,
+        460,
+        26,
+        28
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e32",
+      "type": "textbox",
+      "name": "Ward *",
+      "selector": "input[name=\"ward\"]",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        184,
+        522,
+        161,
+        28
+      ],
+      "readonly": true,
+      "placeholder": "Search Ward",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e33",
+      "type": "textbox",
+      "name": "Bed No. *",
+      "selector": "input[name=\"bedNo\"]",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        368,
+        522,
+        161,
+        28
+      ],
+      "readonly": true,
+      "placeholder": "Search Bed No.",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e34",
+      "type": "combobox",
+      "name": "Stay Class *",
+      "selector": "#stayClass",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        552,
+        522,
+        161,
+        28
+      ]
+    },
+    {
+      "ref": "e35",
+      "type": "combobox",
+      "name": "Charge Class *",
+      "selector": "#chargeClass",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        736,
+        522,
+        161,
+        28
+      ]
+    },
+    {
+      "ref": "e36",
+      "type": "textbox",
+      "name": "Cost Estimation",
+      "selector": "input[name=\"cost\"]",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        920,
+        522,
+        161,
+        28
+      ],
+      "placeholder": "Enter Amount",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e37",
+      "type": "textbox",
+      "name": "Advance Amount",
+      "selector": "input[name=\"advance\"]",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1104,
+        522,
+        161,
+        28
+      ],
+      "placeholder": "Enter Advance",
+      "input_type": "text",
+      "value": ""
+    },
+    {
+      "ref": "e38",
+      "type": "combobox",
+      "name": "Diet Preference",
+      "selector": "#diet",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        368,
+        584,
+        161,
+        28
+      ]
+    },
+    {
+      "ref": "e39",
+      "type": "textbox",
+      "name": "Reason For Admission *",
+      "selector": "#admissionReason",
+      "required": true,
+      "disabled": false,
+      "bbox": [
+        184,
+        646,
+        529,
+        148
+      ],
+      "placeholder": "Enter Reason",
+      "value": ""
+    },
+    {
+      "ref": "e40",
+      "type": "textbox",
+      "name": "Billing Remarks View Remarks",
+      "selector": "#textArea4",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        743,
+        646,
+        522,
+        148
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e41",
+      "type": "link",
+      "name": "",
+      "selector": "div:nth-of-type(2) > div:nth-of-type(3) > div > div > a:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1084,
+        838,
+        79,
+        17
+      ],
+      "text": "Authorization"
+    },
+    {
+      "ref": "e42",
+      "type": "link",
+      "name": "",
+      "selector": "div:nth-of-type(2) > div:nth-of-type(3) > div > div > a:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1187,
+        838,
+        78,
+        17
+      ],
+      "text": "Add New Plan"
+    },
+    {
+      "ref": "e43",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(2) > jhi-admission-dialog > div:nth-of-type(4) > div:nth-of-type(1) > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        18,
+        681,
+        80,
+        28
+      ],
+      "text": "Cancel"
+    },
+    {
+      "ref": "e44",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(2) > jhi-admission-dialog > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1077,
+        681,
+        86,
+        28
+      ],
+      "text": "Save Draft"
+    },
+    {
+      "ref": "e45",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(2) > jhi-admission-dialog > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1182,
+        681,
+        80,
+        28
+      ],
+      "text": "Admit"
+    }
+  ],
+  "tables": [
+    {
+      "ref": "tbl46",
+      "headers": [],
+      "row_count": 1,
+      "rows": [
+        [
+          "",
+          "",
+          "Mr Inayath Ulla ...\n10010000723767 (MALE / 60y / 20/06/1966)",
+          "Phone No.\n9902338542",
+          "Registered On\n-",
+          "Admission No.\n-",
+          "Admission Date\n31/07/2026",
+          "Visit No.\n-",
+          "Patient Balance\n-",
+          "PAC\n-",
+          "Patient Type\n-",
+          "Package",
+          "ID Number\n-",
+          "Encounter Tag\n-"
+        ]
+      ]
+    },
+    {
+      "ref": "tbl47",
+      "headers": [
+        "Plan Name",
+        "Sponsor Name",
+        "Sponsor Code",
+        "Policy No.",
+        "Policy Holder Name",
+        "Applicable From\nDate",
+        "Applicable To\nDate",
+        "Relationship",
+        "Priority",
+        ""
+      ],
+      "row_count": 0,
+      "rows": []
+    }
+  ],
+  "errors": [],
+  "viewport": {
+    "w": 1280,
+    "h": 720
+  },
+  "_scroll_passes": 9
+}

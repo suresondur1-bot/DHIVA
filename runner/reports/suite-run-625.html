@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Suite Report — Inventory_Run</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#f5f5f5; color:#333; }
+  .header { background:#1a2332; color:#fff; padding:24px 32px; }
+  .header h1 { font-size:22px; margin-bottom:4px; }
+  .header .sub { font-size:13px; color:#94a3b8; }
+  .section { background:#fff; margin:16px 32px; border-radius:8px;
+             box-shadow:0 1px 4px rgba(0,0,0,0.08); overflow:hidden; }
+  .section-title { padding:12px 16px; background:#f8f9fc;
+                   border-bottom:1px solid #e2e6ed; font-weight:700;
+                   font-size:13px; color:#1a2332; }
+  .env-grid { display:grid; grid-template-columns:140px 1fr; gap:6px 0;
+              padding:14px 16px; font-size:13px; }
+  .env-grid .lbl { color:#888; font-weight:600; }
+  .summary { display:flex; gap:0; }
+  .stat { flex:1; padding:20px; text-align:center; border-right:1px solid #e2e6ed; }
+  .stat:last-child { border-right:none; }
+  .stat .num { font-size:32px; font-weight:800; }
+  .stat .lbl { font-size:12px; color:#888; margin-top:4px; text-transform:uppercase; letter-spacing:0.05em; }
+  .total  .num { color:#1a2332; }
+  .passed .num { color:#00a86b; }
+  .failed .num { color:#e53935; }
+  .skipped .num{ color:#f59e0b; }
+  table.cases { width:100%; border-collapse:collapse; }
+  table.cases thead th { padding:10px 12px; background:#f0f2f5; font-size:12px;
+    text-align:left; color:#666; border-bottom:2px solid #e2e6ed; }
+  table.cases tbody tr:hover { background:#f8f9fc; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:12px;
+           font-size:11px; font-weight:700; }
+  .badge.passed { background:#e8f8f0; color:#00a86b; }
+  .badge.failed { background:#fce8e8; color:#e53935; }
+</style>
+<script>
+function toggle(idx) {
+  const el = document.getElementById("detail-"+idx);
+  el.style.display = el.style.display==="none" ? "table-row" : "none";
+}
+function expandAll() { document.querySelectorAll('[id^="detail-"]').forEach(e=>e.style.display="table-row"); }
+function collapseAll() { document.querySelectorAll('[id^="detail-"]').forEach(e=>e.style.display="none"); }
+</script>
+</head>
+<body>
+
+<div class="header">
+  <h1>📋 Test Suite Execution Report</h1>
+  <div class="sub">Generated: 2026-08-21 06:11:14.969 UTC</div>
+</div>
+
+<div class="section">
+  <div class="section-title">Execution Environment</div>
+  <div class="env-grid">
+    <span class="lbl">Host name:</span>    <span>CORPLPW000153</span>
+    <span class="lbl">Local OS:</span>     <span>Windows</span>
+    <span class="lbl">Suite:</span>        <span>Inventory_Run</span>
+    <span class="lbl">Browser:</span>      <span>chrome</span>
+    <span class="lbl">Start:</span>        <span>2026-08-21 03:30:01.501</span>
+    <span class="lbl">End:</span>          <span>2026-08-21 05:41:53.680</span>
+    <span class="lbl">Elapsed:</span>      <span>2h 11m 52s</span>
+    <span class="lbl">Suite Run #:</span>  <span>625</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Summary</div>
+  <div class="summary">
+    <div class="stat total">
+      <div class="num">35</div>
+      <div class="lbl">Total</div>
+    </div>
+    <div class="stat passed">
+      <div class="num">35</div>
+      <div class="lbl">Passed</div>
+    </div>
+    <div class="stat failed">
+      <div class="num">0</div>
+      <div class="lbl">Failed</div>
+    </div>
+    <div class="stat skipped">
+      <div class="num">0</div>
+      <div class="lbl">Skipped</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+    <span>Test Execution Log — <strong>Inventory_Run</strong></span>
+    <span>
+      <button onclick="expandAll()" style="margin-right:8px;padding:4px 12px;cursor:pointer;
+        border:1px solid #ccc;border-radius:4px;font-size:12px;background:#fff">Expand All</button>
+      <button onclick="collapseAll()" style="padding:4px 12px;cursor:pointer;
+        border:1px solid #ccc;border-radius:4px;font-size:12px;background:#fff">Collapse All</button>
+    </span>
+  </div>
+  <table class="cases">
+    <thead><tr>
+      <th>Test Case</th>
+      <th>Status</th>
+      <th>Duration</th>
+      <th>Steps</th>
+      <th>Logs</th>
+    </tr></thead>
+    <tbody>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(0)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Indent_Draft_Qty_Modify</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">63.80s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">54✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-0" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(1)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Indent_Draft_Delete</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">44.09s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">51✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-1" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(2)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Indent_Draft</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">38.54s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">41✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-2" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(3)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">SAI_Indent_ForLoop</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">53.74s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">57✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-3" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(4)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">SAI_Indent</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">54.32s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">53✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-4" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(5)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Partially_Item</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">116.03s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">94✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-5" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(6)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Full_Qty</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">117.80s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">95✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-6" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(7)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Draft_Delete</span>
+        <span style="margin-left:8px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">🔁 Passed on retry</span>
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">🔁 PASSED (RETRY)</td>
+      <td style="padding:10px 12px;color:#555">315.49s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">97✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-7" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(8)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Draft</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">104.94s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">88✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-8" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(9)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Issue_Partially_Qty</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">116.87s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">96✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-9" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(10)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Full_Qty_Reject_Reversal</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">357.95s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">144✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-10" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(11)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Partially_Qty_Reject_Reversal</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">357.53s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">142✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-11" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(12)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Full_Qty_Reject</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">262.78s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">128✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-12" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(13)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Partially_Qty_Reject</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">262.70s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">128✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-13" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(14)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Partially_Qty_Accepted</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">253.87s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">124✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-14" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(15)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Draft_Delete</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">355.51s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">124✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-15" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(16)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Draft</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">146.95s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">115✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-16" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(17)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Receipt_Full_Qty_Accepted</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">238.69s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">120✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-17" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(18)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Direct_Transfer</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">56.51s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">57✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-18" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(19)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Full_Qty_Reject_Reversal</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">304.26s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">111✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-19" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(20)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Partially_Qty_Reject_Reversal</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">305.79s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">110✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-20" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(21)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Full_Qty_Reject</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">207.06s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">96✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-21" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(22)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Partially_Qty_Reject</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">202.64s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">91✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-22" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(23)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Partially_Qty_Accepted</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">187.38s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">87✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-23" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(24)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">DT_Receipt_Full_Qty_Accepted</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">173.01s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">81✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-24" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(25)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Consumption_Department_Patient</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">345.52s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">77✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-25" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(26)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Consumption_Department</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">341.58s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">75✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-26" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(27)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Consumption_HSC</span>
+        <span style="margin-left:8px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">🔁 Passed on retry</span>
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">🔁 PASSED (RETRY)</td>
+      <td style="padding:10px 12px;color:#555">335.64s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">74✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-27" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(28)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_Both_Positive_Negative</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">101.70s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">95✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-28" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(29)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_All_Negative</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">57.85s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">59✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-29" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(30)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_All_Positive</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">75.94s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">74✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-30" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(31)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_Save_Delete</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">65.38s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">62✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-31" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(32)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Adjustment_Save</span>
+        
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">PASSED</td>
+      <td style="padding:10px 12px;color:#555">63.16s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">57✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-32" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(33)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">SAI_EHR_RUN</span>
+        <span style="margin-left:8px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">🔁 Passed on retry</span>
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">🔁 PASSED (RETRY)</td>
+      <td style="padding:10px 12px;color:#555">342.03s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">236✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-33" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr>
+    <tr style="border-bottom:1px solid #e8e8e8;cursor:pointer" onclick="toggle(34)">
+      <td style="padding:10px 12px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#00a86b;margin-right:8px"></span>
+        <strong style="color:#1a6fc4">TEST CASE:</strong>
+        <span style="margin-left:6px">Patient_Reg</span>
+        <span style="margin-left:8px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">🔁 Passed on retry</span>
+        
+      </td>
+      <td style="padding:10px 12px;color:#00a86b;font-weight:700;text-transform:uppercase">🔁 PASSED (RETRY)</td>
+      <td style="padding:10px 12px;color:#555">81.75s</td>
+      <td style="padding:10px 12px;color:#888;font-size:12px">40✅ 0❌</td>
+      <td style="padding:10px 12px;color:#1a6fc4;font-size:12px">▶ Expand</td>
+    </tr>
+    <tr id="detail-34" style="display:none;background:#fafafa">
+      <td colspan="5" style="padding:0 16px 12px">
+        <p style="color:#888;font-size:12px;margin:8px 0">No logs available</p>
+      </td>
+    </tr></tbody>
+  </table>
+</div>
+
+<div style="text-align:center;padding:20px;font-size:11px;color:#aaa">
+  Generated by Narayana Automation Tool (NAT) • Suite Run #625
+</div>
+</body>
+</html>

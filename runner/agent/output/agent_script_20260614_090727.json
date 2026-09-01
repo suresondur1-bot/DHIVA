@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create a new stock indent: Indent Store IP Pharmacy-Raipur, Issue Store Main Store-Raipur  Item Kiran, Quantity 20",
+    "start_url": "https://sqa.narayanahealth.org/phrweb/stock-indent-new",
+    "generated": "2026-06-14T09:07:27",
+    "reviewed_by": null
+  },
+  "steps": [
+    {
+      "action": "search_select",
+      "selector": "#indentStoreInput",
+      "value": "IP Pharmacy-Raipur",
+      "_note": "Indent Store set to IP Pharmacy-Raipur"
+    },
+    {
+      "action": "search_select",
+      "selector": "#issueStoreInput",
+      "value": "Main Store-Raipur",
+      "_note": "Issue Store field shows Main Store-Raipur selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "#issueStoreInput",
+      "value": "Main Store-Raipur",
+      "_note": "Issue Store set to Main Store-Raipur"
+    },
+    {
+      "action": "search_select",
+      "selector": "#issueStoreInput",
+      "value": "Main Store-Raipur",
+      "_note": "Issue Store shows Main Store-Raipur"
+    },
+    {
+      "action": "search_select",
+      "selector": "#issueStoreInput",
+      "value": "Main Store-Raipur",
+      "_note": "Issue Store shows Main Store-Raipur"
+    }
+  ]
+}

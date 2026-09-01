@@ -1,0 +1,429 @@
+{
+  "url": "https://sqa.narayanahealth.org/phrweb/stock-indent-new",
+  "title": "Stock Indents",
+  "elements": [
+    {
+      "ref": "e1",
+      "type": "link",
+      "name": "",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        16,
+        20,
+        114,
+        24
+      ],
+      "text": "New Indent"
+    },
+    {
+      "ref": "e2",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(1) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        768,
+        14,
+        40,
+        37
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e3",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(2) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        808,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e4",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(3) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        848,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e5",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(4) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        888,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e6",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(5) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        928,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e7",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(6) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        968,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e8",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(7) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1008,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e9",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(8) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1048,
+        14,
+        42,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e10",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(9) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1106,
+        10,
+        142,
+        44
+      ],
+      "text": "A\nAdministrator\nMMII Na ...l, Raipur"
+    },
+    {
+      "ref": "e11",
+      "type": "link",
+      "name": "",
+      "selector": "#account-more",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1252,
+        14,
+        20,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e12",
+      "type": "button",
+      "name": "",
+      "selector": "#csvFileInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        8,
+        79,
+        24,
+        18
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e13",
+      "type": "button",
+      "name": "",
+      "selector": "tr > th:nth-of-type(2) > div > div:nth-of-type(1) > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        35,
+        131,
+        28,
+        28
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e14",
+      "type": "textbox",
+      "name": "Enter Item Code/Name",
+      "selector": "#itemInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        35,
+        180,
+        275,
+        28
+      ],
+      "value": "Kiran -LOTION-10MG-Kiran "
+    },
+    {
+      "ref": "e15",
+      "type": "select",
+      "name": "",
+      "selector": "#uomDropDownmodule",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        817,
+        182,
+        88,
+        24
+      ],
+      "value": "193"
+    },
+    {
+      "ref": "e16",
+      "type": "textbox",
+      "name": "lImQty",
+      "selector": "#lImQty",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        922,
+        182,
+        88,
+        24
+      ],
+      "value": "20"
+    },
+    {
+      "ref": "e17",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        690,
+        682,
+        80,
+        28
+      ],
+      "text": "Cancel"
+    },
+    {
+      "ref": "e18",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        789,
+        682,
+        80,
+        28
+      ],
+      "text": "Save"
+    },
+    {
+      "ref": "e19",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(3)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        888,
+        682,
+        134,
+        28
+      ],
+      "text": "Send for Approval"
+    },
+    {
+      "ref": "e20",
+      "type": "button",
+      "name": "",
+      "selector": "div > div:nth-of-type(1) > div > div > button:nth-of-type(1)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1097,
+        105,
+        38,
+        29
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e21",
+      "type": "button",
+      "name": "",
+      "selector": "div > div:nth-of-type(1) > div > div > button:nth-of-type(2)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1179,
+        105,
+        46,
+        29
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e22",
+      "type": "link",
+      "name": "",
+      "selector": "#dropdownBasic1",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1230,
+        137,
+        35,
+        16
+      ],
+      "text": "0 Docs"
+    },
+    {
+      "ref": "e23",
+      "type": "textbox",
+      "name": "Creation Date",
+      "selector": "#date",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1065,
+        305,
+        85,
+        28
+      ],
+      "value": "14/06/2026"
+    },
+    {
+      "ref": "e24",
+      "type": "textbox",
+      "name": "Approval Date",
+      "selector": "#date",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1180,
+        305,
+        85,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e25",
+      "type": "textbox",
+      "name": "Add new comment",
+      "selector": "#comments",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1065,
+        516,
+        200,
+        60
+      ],
+      "value": ""
+    }
+  ],
+  "tables": [
+    {
+      "ref": "tbl26",
+      "headers": [
+        "",
+        "Item Name",
+        "Allow\nAlternate",
+        "Consumed\nLast Month",
+        "Consumed\nCurrent Month",
+        "Current\nStock",
+        "Quantity\nIn Transit",
+        "UOM",
+        "Quantity\nRequired",
+        ""
+      ],
+      "row_count": 1,
+      "rows": [
+        [
+          "",
+          "",
+          "Alt",
+          "45",
+          "5",
+          "2538034",
+          "35",
+          "099999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999\n10CM\n100ML\nKIT10T\nKIT18T\nONE FEETS\nKIT100T\n20CM\n200ML\n212MT\n223\n250ML\nKIT25T\nTWO FEET\n200FEET\n24TESTS\n30CM\n30DM\n30EM\n30FM\nKIT30T\n30ML\n40BM\n40CM\n40DM\n40EM\n40FM\nKIT40T\n5455\n450ML\n400CM\n4000ML\n400ML\nKIT50T\n5000ML\n50ML\n5cm\nKIT60T\n500ML\n600FEET\n70CM\n77\nKiran\nKIT250T\nfffff\nKIT125T\n914CM\nAA\nAD\nDaily Processed\nHalf Yearly Processed\nMonthly Processed\nQuarterly Processed\nAnnually Processed\nBOTTLE120\nBOX15\nBOX20\nBOX200\nBOX24\nBOX30\nBOX150\nBOX40\nBOX500\nBOX51\nBOX6\nBox of 100 units\nBOX600\nBOX8\nBOX80\nBOX800\nBOX250\nBOX28\nBOX3\nBOX300\nBOX36\nBOX120\nBOX60\nBOX21\nBOX110\nBOTTLE10\nBOX18\nBOTTLE90\nBOTTLE12\nBOTTLE50\nBB\nBC\nBAG100\nBAG1000\nBOX1000\nBOTTLE60ML\nBOTTLE100\nBOTTLE150\nBOTTLE20\nBOTTLE25\nBOTTLE30\nBOTTLE4\nBOTTLE60\nBOTTLE5\nBlister of 20\nBlister of 2\nBOX 12\nBox of 10 strips PR\nBi-Weekly\nBOX12\nBOX50\nBOX100\nBOX10\nBOX2\nBOX25\nBOX5\nBOX4\nblister of 10\nCAPSULE\nCM\nDaily\nEACH\nEAPCH\nEach one Driven\nEAC\nEACH converted One\nEACC\nFEET\nGRAM\n20GRAMS\n30GRAMS\nGM\nGrams PR\nGrams to Kilo PR\nGTT 0 GM\nGTT 100 Gram\nGTT of 10 GM\nGlobal UOM\nGlll b11\nHalf Yearly\nHg\nKartoon of 10 Boxes PR\nKIRAN_BARCODE\nKilo Gram\nKilo Grams to Ton PR\nKILL\n1KIT\nKK_STR10\nKK_STR15\nKIRANBB10\n5LITRES\n20LITRES\n230LITRES\n120LITRES\nLITRE\n15METRES\n180METRES\n192METRES\n22METRES\n225METRES\n25METRES\n30METRES\n300METRES\n45METRES\n50METRES\nMETER50\n75METRES\n80METRES\nML\nMillimeter\nMonthly\nMETRE\nMega UOM\nONE\nPACK\nPACK10\nPACK100\nPACK1000\nPACK25\nPACK250\nPACK4\nPACK5\nPACK50\nPACK70\nPACK20\nPACK30\nPACK6\nPACK1440\nPACK2\nPACK1500\nPACK8\nPACK3\nPACK7\nPACK80\nPACK288\nPACK320\nPACK480\nPACK360\nPACK240\nPACK200\nPACK12\nPACK400\nPACK28\nPACK120\nPACK300\nPACK12000\nPACK4000\nPACK3000\nPACK36\nPACK40\nPACK42\nPACK500\nPACK60\nPACK64\nPACK72\nPACK150\nPACK15\nPACK18\nPACK9\nPACK90\nPACK14\nPAIR\nQuarterly\nREAM\nSTRIP003\nSTRIP3\nSTRIP30\nSTRIP5\nSTRIP50\nSTRIP6\nSTRIP6-Tests\nSTRIP7\nSTRIP7-Tests\nSTRIP9\nSTRIP12\nSTRIP40\nSTRIP120\nSTRIP11\nSTRIP60\nSTRIP24\nSTRIP28\nSTRIP100\nSTRIP150\nSTRIP45\nSTRIP70\nSTRIP75\nSTRIP80\nSTRIP90\nSTRIP1000\nSET\nSP STRIP10\n50STRIPS\nSSAI\nSTRIP\nSTRIP2\nSTRIP OF 10\nSTRIP8\nSTRIP10\nSTRIP1\nSTRIP14\nSTRIP15\nSTRIP20\nSTRIP21\nSTRIP25\nSTRIPOF10\nStrip of 10 tables\nSTRIPs 20\nSTRIP4\nSK1\nStrip of 10\nStripSAI10\nTabelet\nTablet PR\nTEST\nTab\nUOM new one\nUNIT\nWA\nWB\nWC\nWeekly\nYearly\nYY\nsdfasdfajkbasjhkdfbasjhdbfjhasbfjhasbdfasdf\nCUNIT\nddddddddddddddddddddddddddddddddddddddddddddddddddddddddwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\ndhara\nsd\nHalf Monthly\nhalf yearly\nuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu\nkill\nKITONE\n6yyff\ngrvgrgrgrvf\nokoiyyyyt\nck\nshill\ntest name\nuom_kafka\nxsc\nyearly",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "ref": "tbl27",
+      "headers": [],
+      "row_count": 1,
+      "rows": [
+        [
+          "New",
+          "0 Docs"
+        ]
+      ]
+    }
+  ],
+  "errors": [],
+  "viewport": {
+    "w": 1280,
+    "h": 720
+  }
+}

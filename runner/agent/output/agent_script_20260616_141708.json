@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Register a new patient with Dr sunil Gouniyal with the first available Slot.Wait for the slot to be available then select the slot.Patient First Name is Sai middle name Chandra and last name :Sekhar Age of the patient is 20 and is Male Patient with mobile no 8971429587 and Date of birth as  16-06-2006 Stays in bangalore with pincode 560103 and Locality Pai Layout.",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-16T14:17:08",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "337800",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "sunil Gouniyal",
+      "_note": "Dr sunil Gouniyal is selected as the consultant"
+    },
+    {
+      "action": "pick_first",
+      "selector": "#slot",
+      "_note": "First available slot is selected and modal closes"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Sai709764",
+      "_note": "First Name field shows Sai with random suffix"
+    },
+    {
+      "action": "type",
+      "selector": "#middleName",
+      "value": "Chandra",
+      "_note": "Middle Name shows Chandra"
+    },
+    {
+      "action": "type",
+      "selector": "#lastName",
+      "value": "Sekhar",
+      "_note": "Last Name shows Sekhar"
+    },
+    {
+      "action": "type",
+      "selector": "#age",
+      "value": "20",
+      "_note": "Age 20 entered and DOB auto-calculates"
+    },
+    {
+      "action": "search_select",
+      "selector": "#gender",
+      "value": "Male",
+      "_note": "Sex set to Male"
+    },
+    {
+      "action": "type",
+      "selector": "input[name=\"mobileNumber\"]",
+      "value": "8971429587",
+      "_note": "Mobile number field shows 8971429587"
+    },
+    {
+      "action": "type",
+      "selector": "#dateOfBirth",
+      "value": "16/06/2006",
+      "_note": "Date Of Birth shows 16/06/2006"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondencePincode",
+      "value": "560103",
+      "_note": "Pin/Zip Code populated with 560103"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondenceLocality",
+      "value": "Pai Layout",
+      "_note": "Correspondence Locality shows Pai Layout"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient is registered successfully"
+    }
+  ]
+}

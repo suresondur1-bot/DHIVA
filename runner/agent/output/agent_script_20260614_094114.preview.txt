@@ -1,0 +1,18 @@
+# Goal: Create a new stock indent: Indent Store IP Pharmacy-Raipur, Issue Store with store code  157-MS1 and name Main Store Raipur  wait for some time to select  Item Kiran, Quantity 20 once quantity is entered press enter for the item to come down then click on save button and then you get pop up there you click done,then click Send For Approval
+and you get the pop up again click Done,then click on Claim and once you see Approve button then click on Approve and you get pop up again click done again and then stop
+# Start: https://sqa.narayanahealth.org/phrweb/stock-indent-new
+# Steps: 13
+
+  1. search_select  #indentStoreInput   # Indent Store field shows IP Pharmacy-Raipur
+  2. search_select  #issueStoreInput   # Issue Store field shows Main Store Raipur selected
+  3. click          #btnNext   # Modal closes and item entry stage becomes active
+  4. search_select  #itemInput   # Item Kiran is selected and added to the row
+  5. type           #lImQty   # Quantity field shows 20
+  6. press          #lImQty   # Item row finalizes after pressing Enter
+  7. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # A pop up appears after saving
+  8. click          #btnDone   # The success popup closes and I can click Send for Approval
+  9. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(3)   # A confirmation popup appears for Send for Approval
+ 10. click          #btnDone   # Success popup closes and Claim button is available
+ 11. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # Claim is processed and an Approve button appears
+ 12. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # Claim is processed and an Approve button appears
+ 13. click          #btnDone   # Popup closes and indent is fully approved

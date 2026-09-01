@@ -1,0 +1,17 @@
+# Goal: Create a new stock correction: a Select Store popup appears first - in the Store box type the store code 157-IP1 and wait a couple of seconds for the suggestion, then select the suggestion shown, then click Continue. Then in the Item box type item code KI-RA-N-0901-PH and wait for the suggestion then select it, and wait for the item row to appear in the table. In that row, click the Batch No Current dropdown, type KILLA12, wait a couple of seconds for the suggestion, then select the batch (do not just click it - it must be picked with Enter or it will not register).Then select the batch From  unit Type KILLA12 for search and select the one that comes,
+ Then set MRP Current to 51 and Correction Qty to 50. Then click Save and stop
+# Start: https://sqa.narayanahealth.org/phrweb/stock-correction-new
+# Steps: 12
+
+  1. clear          #storeInput   # Store field is empty
+  2. clear          #storeInput   # Store input is empty
+  3. clear          #storeInput   # Store input is empty
+  4. click          #ngb-typeahead-1-36   # Store field shows 157-IP1 and Continue button becomes enabled
+  5. click          #continueButton   # Modal closes and correction document body becomes usable
+  6. search_select  #itemInput   # Item row appears in the table with the chosen item
+  7. search_select  ng-select[name="batch"]   # Batch No Current dropdown shows KILLA12 suggestion to select
+  8. search_select  tbody > tr > td:nth-of-type(3) > stock-correction-batch-search > ng-select   # Batch from Unit gets selected with KILLA12 option
+  9. type           table > tbody > tr > td:nth-of-type(5) > input   # MRP Current shows 51
+ 10. type           table > tbody > tr > td:nth-of-type(9) > input   # Correction Qty field shows 50
+ 11. click          div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # The correction document is saved
+ 12. click          #btnDone   # Success modal closes, correction document saved

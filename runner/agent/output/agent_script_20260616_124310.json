@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Register a new patient: Consultant Sunil Goniyal, pick the first slot, First Name Suresh{{random}}, Middle Name Balkrishna, Last Name Sondur, Age 20, Sex Male, Correspondence Pincode 560103, Permanent Pincode 560103, Correspondence House B704, then click Register",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-16T12:43:10",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    }
+  ]
+}

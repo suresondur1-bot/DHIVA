@@ -1,0 +1,36 @@
+# Goal: Create SPR with supplier 110014_V currency INR service category Digi Workbook description Agent test item S-D-AE02-MARKETING-00001 rate contract SRC175426000006 qty 2 start date today end date today budget ref Digital marketing save and store PR number as SAIPR
+# Start: https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new
+# Steps: 32
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  #supplierInput   # Select Supplier Name
+ 10. search_select  #currencyList   # Select
+ 11. search_select  #serviceCategoryList   # Select
+ 12. wait           1500   # wait for auto-populate
+ 13. click          #btnNext   # btnNext
+ 14. type           #prDescription   # #prDescription
+ 15. search_select  #itemInput   # Enter Service Name
+ 16. wait           1500   # wait for auto-populate
+ 17. search_select  table > tbody > tr > td:nth-of-type(2) > ng-select   # Select
+ 18. search_select  table > tbody > tr > td:nth-of-type(7) > input   # table > tbody > tr > td:nth-of-type(7) > input
+ 19. date_today     today_aria_e36   # dd/mm/yyyy
+ 20. click          tbody > tr > td:nth-of-type(12) > div > button   # dd/mm/yyyy
+ 21. wait           500   # dd/mm/yyyy
+ 22. click          [aria-label='{{today_aria_e36}}']   # dd/mm/yyyy
+ 23. wait           300   # dd/mm/yyyy
+ 24. date_today     today_aria_e36   # dd/mm/yyyy
+ 25. click          tbody > tr > td:nth-of-type(13) > div > button   # dd/mm/yyyy
+ 26. wait           500   # dd/mm/yyyy
+ 27. click          [aria-label='{{today_aria_e36}}']   # dd/mm/yyyy
+ 28. wait           300   # dd/mm/yyyy
+ 29. search_select  tbody > tr > td:nth-of-type(14) > div > ng-select   # Select
+ 30. click          table > tbody > tr > td:nth-of-type(15) > button   # table > tbody > tr > td:nth-of-type(15) > button
+ 31. click          div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)   # div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)
+ 32. store_text     div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(1) > button   # store PR Number as SAIPR

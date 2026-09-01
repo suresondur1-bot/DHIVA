@@ -1,0 +1,19 @@
+# Goal: enter supplier filed search  "110014_V" and select "GREENCITY OFFICE NEEDS", Currency search and select "INR", Service Category search and select "Digi Workbook". click continue button. wait unit  Description element visible. enter Description as a "Ageant test". in Table "Service code | Description"  column search as "S-D-AE02-MARKETING-00001" and select as "Digi Workbook-Digital marketing-YouTube-Digital Marketing" , "Rate Contract" column search and select "SRC175426000006", "Long Description" column search and select "SAI YOUTUBE", "Qty" column set text as "2", Focus element on  "Start Date" column, "Start Date" column set date as todays date, Focus element on "End Date" column, "End Date" column set date as todays date, Focus on "Budget Ref No" column, "Budget Ref No" column  search and select " Digital marketing " and click on "+" button. once click on "+" button. verify row count should be "1". 
+click on save button. on save check conformation message.
+"PR No.  R" filed get text and save in variable as a "SAIPR".
+# Start: https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new
+# Steps: 13
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  #supplierInput   # Supplier options appear and GREENCITY OFFICE NEEDS is selectable
+ 10. search_select  #currencyList   # Currency shows INR
+ 11. search_select  #serviceCategoryList   # Service Category shows Digi Workbook selected
+ 12. click          #btnNext   # Modal closes and PR Description field becomes visible
+ 13. type           #prDescription   # Description field shows 'Ageant test'

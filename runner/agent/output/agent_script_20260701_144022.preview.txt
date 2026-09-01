@@ -1,0 +1,26 @@
+# Goal: click Create new select supplier as "GREENCITY OFFICE NEEDS", Currency as "INR" and Service Category as "Digi Workbook". click continue button. once this url "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new" visable. enter Description as "Testing as a agent"
+In table section find "Service code | Description" column search as "S-D-AE02-MARKETING-00001" and select as "Digi Workbook-Digital marketing-YouTube-Digital Marketing" once select "Rate Contract" column search and select "SRC175426000006". "Long Description" column search and select as " 1 | SAI YOUTUBE ". "Qty" column as "1". "Budget Ref No" column search and select as " Digital marketing " and click "+" button. once row added in table click "Save" button.
+On save capture the meesage and "PR No." section PR number store in variable
+# Start: https://sqa.narayanahealth.org/spmweb/service-purchase-requisition
+# Steps: 20
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. click          div:nth-of-type(2) > div:nth-of-type(1) > ul > li:nth-of-type(5) > button   # A modal opens to select supplier, currency and service category
+ 10. search_select  #supplierInput   # Supplier GREENCITY OFFICE NEEDS selected
+ 11. search_select  #serviceCategoryList   # Service Category shows Digi Workbook selected
+ 12. click          #btnNext   # Modal closes and the requisition form is ready for Description entry
+ 13. type           #prDescription   # Description field shows 'Testing as a agent'
+ 14. search_select  #itemInput   # Service option appears and can be selected as Digi Workbook-Digital marketing-YouTube-Digital Marketing
+ 15. search_select  table > tbody > tr > td:nth-of-type(2) > ng-select   # Rate Contract set to SRC175426000006
+ 16. search_select  table > tbody > tr > td:nth-of-type(2) > ng-select   # Long Description shows 1 | SAI YOUTUBE
+ 17. type           table > tbody > tr > td:nth-of-type(7) > input   # Qty field shows 1
+ 18. search_select  tbody > tr > td:nth-of-type(14) > div > ng-select   # Budget Ref No populated with Digital marketing
+ 19. click          table > tbody > tr > td:nth-of-type(15) > button   # Row added to the table
+ 20. click          div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)   # PR is saved and a confirmation message with PR No. appears

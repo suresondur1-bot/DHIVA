@@ -1,0 +1,15 @@
+# Goal: create a  new Direct Transfer document with issue Store with store code as 157-MS1 and wait for suggestion then select Main Store Raipur wait  for some time and the receiving  unit will load automatically then select receiving Store as IP Pharmacy-Raipur once selected click on continue.
+# Start: https://sqa.narayanahealth.org/phrweb/direct-transfer-new
+# Steps: 11
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/phrweb/direct-transfer-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  #indentStoreInput   # Issue Store suggestion list appears showing Main Store Raipur to select
+ 10. search_select  div > div > store-selector > div:nth-of-type(2) > ng-select   # Receiving Store dropdown shows IP Pharmacy-Raipur selected
+ 11. click          #btnNext   # Modal closes and item-entry stage is shown

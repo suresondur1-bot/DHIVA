@@ -29,8 +29,11 @@
     window.__athma_focused__ = el;
     var r = el.getBoundingClientRect();
     ov.style.display = 'block';
-    ov.style.left   = (r.left + window.scrollX) + 'px';
-    ov.style.top    = (r.top  + window.scrollY) + 'px';
+    // Overlay is position:fixed, so use viewport-relative rect values directly.
+    // (Do NOT add scrollX/scrollY — that is only for position:absolute and was
+    // causing the highlight to drift to the wrong element after scrolling.)
+    ov.style.left   = r.left + 'px';
+    ov.style.top    = r.top  + 'px';
     ov.style.width  = r.width + 'px';
     ov.style.height = r.height + 'px';
     var tag = el.tagName.toLowerCase();
@@ -158,6 +161,19 @@
     
     console.log('[DEBUG] Element classes found:', allClasses.join(', '));
     console.log('[DEBUG] Stable classes after filtering:', classes.join(', '));
+
+    // ── IDENTIFYING vs GENERIC classes ───────────────────────────────────
+    // Repeated widgets (icon buttons in table rows, toolbar icons) share a
+    // wrapper class like .athma-icon-button/.icon and differ only by ONE
+    // semantic class (.cpoe, .patient-transfer, .patient-chart). Building the
+    // selector from DOM order alone picks the shared classes and matches every
+    // instance on the page, so the identifying class must be ranked first.
+    var GENERIC_CLASS = /^(athma-icon-button|athma-pointer|athma-btn[\w-]*|icon|icons|btn|button|link|action|actions|item|items|cell|wrapper|container|content|inner|outer|flex|center|left|right|top|bottom|first|last|small|large|sm|md|lg|xl|border|no-border|clickable|pointer|cursor-pointer|d-block|d-flex|d-none|d-inline[\w-]*|float-left|float-right|w-100|h-100|position-relative|position-absolute|text-center|text-left|text-right|ng-star-inserted|(?:m|p)(?:t|b|s|e|l|r|x|y)?-\d+|(?:row|col)(?:-[\w]+)*)$/i;
+    var semanticCls = classes.filter(function(c){ return !GENERIC_CLASS.test(c); });
+    var genericCls  = classes.filter(function(c){ return  GENERIC_CLASS.test(c); });
+    // Identifying classes first — these are what actually tell siblings apart
+    var rankedCls   = semanticCls.concat(genericCls);
+    console.log('[DEBUG] Identifying classes:', semanticCls.join(', '), '| generic:', genericCls.join(', '));
     
     var roleMap={button:'button',a:'link',input:'textbox',select:'combobox',textarea:'textbox'};
     if(itype==='checkbox')role='checkbox';
@@ -228,15 +244,28 @@
       // Placeholder
       if (ph) cand.push({sel:'[placeholder="'+ph+'"]', type:'placeholder', stab:75});
       
-      // Class-based
-      for (var i=0; i<Math.min(classes.length,3); i++) 
-        cand.push({sel:'.'+classes[i], type:'class', stab:50});
+      // Class-based — identifying classes FIRST, never raw DOM order
+      for (var i=0; i<Math.min(semanticCls.length,3); i++) {
+        cand.push({sel:tag+'.'+semanticCls[i], type:'tag+id-class', stab:78});
+        cand.push({sel:'.'+semanticCls[i],     type:'id-class',     stab:72});
+      }
+
+      // Shared wrapper class + the one identifying class (e.g. .athma-icon-button.cpoe)
+      if (semanticCls.length>0 && genericCls.length>0)
+        cand.push({sel:tag+'.'+genericCls[0]+'.'+semanticCls[0], type:'tag+wrapper+id-class', stab:75});
+
+      // Every stable class at once — most specific class-only form
+      if (rankedCls.length>=2)
+        cand.push({sel:tag+'.'+rankedCls.join('.'), type:'tag+all-classes', stab:70});
+
+      for (var i=0; i<Math.min(rankedCls.length,3); i++) 
+        cand.push({sel:'.'+rankedCls[i], type:'class', stab:50});
       
-      if (classes.length>0) 
-        cand.push({sel:tag+'.'+classes.slice(0,2).join('.'), type:'tag+class', stab:65});
+      if (rankedCls.length>0) 
+        cand.push({sel:tag+'.'+rankedCls.slice(0,2).join('.'), type:'tag+class', stab:65});
       
-      if (classes.length>=2) 
-        cand.push({sel:'.'+classes.slice(0,2).join('.'), type:'multi-class', stab:60});
+      if (rankedCls.length>=2) 
+        cand.push({sel:'.'+rankedCls.slice(0,2).join('.'), type:'multi-class', stab:60});
       
       // Playwright semantic
       if (inferRole&&clean&&tag!=='ng-select') 
@@ -409,13 +438,59 @@
       }
       // ── END TABLE CELL ───────────────────────────────────────────────────
 
+      // ── ROW ACTION ELEMENT (icon buttons etc. living inside a <tr>) ──────
+      // Every row repeats the same markup, so NO class-only selector can be
+      // unique — it will always match once per row and fall back to nth=0
+      // (which silently clicks row 1). Anchor on the row instead.
+      var rowEl = el.closest ? el.closest('tr') : null;
+      if (rowEl && ['tr','td','th'].indexOf(tag) < 0) {
+        var actCls = semanticCls.length ? semanticCls[0] : (rankedCls[0] || '');
+        var actSel = actCls ? tag + '.' + actCls : tag;
+
+        // Anchor text: first meaningful value in the row (MRN, name, bed no.)
+        var rowCells = Array.from(rowEl.children);
+        var anchorTxt = '';
+        for (var rc = 0; rc < rowCells.length; rc++) {
+          var rct = (rowCells[rc].innerText || rowCells[rc].textContent || '').trim().replace(/\s+/g, ' ');
+          if (rct && rct.length > 3 && rct.length < 60) { anchorTxt = rct; break; }
+        }
+
+        if (anchorTxt) {
+          var esc = anchorTxt.replace(/"/g, '\\"');
+          var anchorCount = 0;
+          Array.from(document.querySelectorAll('tr')).forEach(function (r) {
+            if ((r.innerText || '').indexOf(anchorTxt) < 0) return;
+            try { anchorCount += r.querySelectorAll(actSel).length; } catch (e) {}
+          });
+          cand.push({sel:'tr:has-text("' + esc + '") ' + actSel, type:'row-anchored', stab:95, preCount:anchorCount});
+          if (actCls) {
+            cand.push({sel:'//tr[contains(., "' + esc + '")]//' + tag + '[contains(@class,"' + actCls + '")]',
+                       type:'xpath-row-anchored', stab:90, isXP:true});
+          }
+          cand.push({sel:'tr:has-text("{{row_value}}") ' + actSel,
+                     type:'row-anchored-variable', stab:88, preCount:anchorCount});
+        }
+
+        // Row by position — use only when the row order is deterministic
+        var rowParent = rowEl.parentElement;
+        var rowIdx = rowParent ? Array.from(rowParent.children).indexOf(rowEl) + 1 : 0;
+        if (rowIdx > 0) {
+          var posSel = 'tr:nth-child(' + rowIdx + ') ' + actSel;
+          var posCount = 0;
+          try { posCount = document.querySelectorAll(posSel).length; } catch (e) {}
+          cand.push({sel:posSel, type:'row-position', stab:70, preCount:posCount});
+        }
+      }
+
       return cand;
     }
 
     function testAndScore(c) {
       try {
         var count;
-        if (c.isPW) {
+        if (typeof c.preCount === 'number') {
+          count = c.preCount;
+        } else if (c.isPW) {
           count = 99;
         } else if (c.isXP) {
           try {
@@ -552,7 +627,8 @@
     });
     
     var toScope = tested.filter(function(t){
-      return !t.isUnique && !t.isPW && t.matches<=20;
+      // was <=20 — a table with 100+ repeated widgets never got scoped at all
+      return !t.isUnique && !t.isPW && t.matches<=400;
     });
     
     console.log('[DEBUG] Selectors needing scoping:', toScope.length);

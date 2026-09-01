@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "enter supplier filed search  \"110014_V\" and select \"GREENCITY OFFICE NEEDS\", Currency search and select \"INR\", Service Category search and select \"Digi Workbook\". click continue button. wait unit  Description element visible. enter Description as a \"Ageant test\". in Table \"Service code | Description\"  column search as \"S-D-AE02-MARKETING-00001\" and select as \"Digi Workbook-Digital marketing-YouTube-Digital Marketing\" , \"Rate Contract\" column search and select \"SRC175426000006\", \"Long Description\" column search and select \"SAI YOUTUBE\", \"Qty\" column set text as \"2\", Focus element on  \"Start Date\" column, \"Start Date\" column set date as todays date, Focus element on \"End Date\" column, \"End Date\" column set date as todays date, Focus on \"Budget Ref No\" column, \"Budget Ref No\" column  search and select \" Digital marketing \" and click on \"+\" button. once click on \"+\" button. verify row count should be \"1\". \nclick on save button. on save check conformation message.\n\"PR No.  R\" filed get text and save in variable as a \"SAIPR\".",
+    "start_url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+    "generated": "2026-07-01T18:43:33",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "#supplierInput",
+      "value": "110014_V",
+      "_note": "Supplier options appear and GREENCITY OFFICE NEEDS is selectable"
+    },
+    {
+      "action": "search_select",
+      "selector": "#currencyList",
+      "value": "INR",
+      "_note": "Currency shows INR"
+    },
+    {
+      "action": "search_select",
+      "selector": "#serviceCategoryList",
+      "value": "Digi Workbook",
+      "_note": "Service Category shows Digi Workbook selected"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "Modal closes and PR Description field becomes visible"
+    },
+    {
+      "action": "type",
+      "selector": "#prDescription",
+      "value": "Ageant test",
+      "_note": "Description field shows 'Ageant test'"
+    }
+  ]
+}

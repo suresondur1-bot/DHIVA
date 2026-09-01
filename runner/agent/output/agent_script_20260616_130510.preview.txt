@@ -1,0 +1,37 @@
+# Goal: Register a new patient: Consultant Sunil Gouniyal, pick the first slot, First Name Suresh, Middle Name Balkrishna, Last Name Sondur, Age 20, Sex Male, Correspondence Pincode 560103, Permanent Pincode 560103, Correspondence House B704, then click Register and then stop it.
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 33
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/ambweb/patient-registration-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  ng-select[name="consultant"]   # Consultant Sunil Gouniyal selected
+ 10. pick_first     #slot   # A slot gets selected and modal closes
+ 11. type           #firstName   # First Name field shows Suresh with random suffix
+ 12. type           #middleName   # Middle Name shows Balkrishna
+ 13. type           #lastName   # Last Name shows Sondur
+ 14. type           #age   # Age shows 20 and Date of Birth auto-populates
+ 15. search_select  #gender   # Sex dropdown shows Male selected
+ 16. type           #correspondencePincode   # Correspondence Pin/Zip Code shows 560103 and City may update
+ 17. type           #permanentPincode   # Permanent Pincode shows 560103 and city/state may begin to populate
+ 18. type           #correspondenceHouse   # Correspondence House No shows B704
+ 19. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registration is submitted successfully
+ 20. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registration submits successfully
+ 21. search_select  ng-select[name="consultant"]   # Consultant Sunil Gouniyal is selected
+ 22. pick_first     #slot   # A slot is selected and the modal closes
+ 23. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registration submits successfully
+ 24. type           #firstName   # First Name field shows Suresh and error clears
+ 25. type           #middleName   # Middle Name shows Balkrishna
+ 26. type           #lastName   # Last Name shows Sondur
+ 27. type           #age   # Age field shows 20 and DOB auto-populates
+ 28. search_select  #gender   # Sex field shows Male selected and red border clears
+ 29. type           #correspondencePincode   # Correspondence Pincode field shows 560103
+ 30. type           #permanentPincode   # Permanent Pin/Zip Code shows 560103
+ 31. type           #correspondenceHouse   # Correspondence House No/Bldg./Apt shows B704
+ 32. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registration submits successfully
+ 33. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registration submits successfully

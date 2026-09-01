@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Step 1: search_select #supplierInput with \"110014_V\" and select \"GREENCITY OFFICE NEEDS\"\nStep 2: search_select #currencyList with \"INR\"\nStep 3: search_select #serviceCategoryList with \"Digi Workbook\"\nStep 4: click #btnNext\nStep 5: wait for #prDescription to be visible, then type \"Agent test\" into #prDescription\nStep 6: search_select #itemInput with \"S-D-AE02-MARKETING-00001\" and select \"Digi Workbook-Digital marketing-YouTube-Digital Marketing\"\nStep 7: search_select the Rate Contract ng-select (td column 2) with \"SRC175426000006\"\nStep 8: search_select #longDescriptionInput with \"SAI YOUTUBE\"\nStep 9: type \"2\" into Qty input (td column 7)\nStep 10: type todays date in dd/mm/yyyy format into #serviceStartDate\nStep 11: type todays date in dd/mm/yyyy format into #serviceEndDate\nStep 12: search_select Budget Ref No ng-select (td column 14) with \"Digital marketing\"\nStep 13: click the + button (td column 15)\nStep 14: click Save button\nStep 15: store the PR number text into variable SAIPR",
+    "start_url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+    "generated": "2026-07-01T17:51:30",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "#supplierInput",
+      "value": "110014_V",
+      "_note": "Supplier options appear and GREENCITY OFFICE NEEDS is selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "#currencyList",
+      "value": "INR",
+      "_note": "Currency shows INR selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "#serviceCategoryList",
+      "value": "Digi Workbook",
+      "_note": "Service Category set to Digi Workbook"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "Modal closes and PR Description field becomes visible"
+    },
+    {
+      "action": "type",
+      "selector": "#prDescription",
+      "value": "Agent test",
+      "_note": "Description field shows 'Agent test'"
+    },
+    {
+      "action": "search_select",
+      "selector": "#longDescriptionInput",
+      "value": "S-D-AE02-MARKETING-00001",
+      "_note": "Service code option appears and is selected"
+    },
+    {
+      "action": "clear",
+      "selector": "#longDescriptionInput",
+      "_note": "#longDescriptionInput is emptied of the wrong service code value"
+    },
+    {
+      "action": "search_select",
+      "selector": "#longDescriptionInput",
+      "value": "SAI YOUTUBE",
+      "_note": "SAI YOUTUBE selected in Long Description field"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(7) > input",
+      "value": "2",
+      "_note": "Qty field shows 2"
+    }
+  ]
+}

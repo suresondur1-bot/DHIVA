@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Base URL: https://sqa.narayanahealth.org/ambweb/patient-registration-new \u00b7 26 steps\nnavigate = \"https://sqa.narayanahealth.org/\"\nwait_for_selector \u2192 #username\ntype \u2192 #username = \"admin\"\ntype \u2192 #password = \"admin\"\nclick \u2192 div > div > form:nth-of-type(1) > div:nth-of-type(3) > button\nwait = \"3000\"\nnavigate = \"https://sqa.narayanahealth.org/ambweb/patient-registration-new\"\nwait = \"3000\"\nsearch_select \u2192 ng-select[name=\"consultant\"] = \"Sunil Goniyal\"\npick_first \u2192 #slot\ntype \u2192 #firstName = \"Suresh627196\"\ntype \u2192 #middleName = \"Balkrishna\"\ntype \u2192 #lastName = \"Sondur\"\ntype \u2192 #age = \"20\"\nsearch_select \u2192 #gender = \"Male\"\ntype \u2192 #correspondencePincode = \"560103\"\ntype \u2192 #permanentPincode = \"560103\"\ntype \u2192 #correspondenceHouse = \"B704\" then click on register button",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-16T12:33:19",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "337800",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Sunil Goniyal",
+      "_note": "Consultant set to Sunil Goniyal"
+    },
+    {
+      "action": "pick_first",
+      "selector": "#slot",
+      "_note": "Slot field populated with first available slot"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Suresh627196",
+      "_note": "First Name field shows Suresh627196"
+    },
+    {
+      "action": "type",
+      "selector": "#middleName",
+      "value": "Balkrishna",
+      "_note": "Middle Name shows Balkrishna"
+    },
+    {
+      "action": "type",
+      "selector": "#lastName",
+      "value": "Sondur",
+      "_note": "Last Name shows Sondur"
+    },
+    {
+      "action": "type",
+      "selector": "#age",
+      "value": "20",
+      "_note": "Age field shows 20 and DOB auto-populates"
+    },
+    {
+      "action": "search_select",
+      "selector": "#gender",
+      "value": "Male",
+      "_note": "Gender set to Male"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondencePincode",
+      "value": "560103",
+      "_note": "Correspondence Pin/Zip Code shows 560103"
+    },
+    {
+      "action": "type",
+      "selector": "#permanentPincode",
+      "value": "560103",
+      "_note": "Permanent Pincode shows 560103 and triggers city/district autofill"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondenceHouse",
+      "value": "B704",
+      "_note": "Correspondence House No/Bldg./Apt shows B704"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient is registered and an MRN/confirmation appears"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registration submits successfully"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Either registration succeeds or specific field errors appear"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registration is submitted and a confirmation/MRN appears"
+    }
+  ]
+}

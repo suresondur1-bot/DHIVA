@@ -69,6 +69,17 @@
     const aria = el.getAttribute?.('aria-label'); if (aria) return `[aria-label="${aria}"]`;
     if (el.name && ['INPUT','SELECT','TEXTAREA'].includes(el.tagName)) return `${el.tagName.toLowerCase()}[name="${el.name}"]`;
     const ph = el.getAttribute?.('placeholder'); if (ph) return `[placeholder="${ph}"]`;
+    // datetime-local / date / time inputs rarely have id/formcontrolname/placeholder.
+    // Build selector using the associated label text + nth= index so the runner
+    // can always distinguish Start Date from End Date.
+    const t = (el.type||'').toLowerCase();
+    if (['datetime-local','date','time','month','week'].includes(t)) {
+      const labelText = lbl(el).replace(/\s*\(optional\)\s*/i,'').trim();
+      const all = Array.from(document.querySelectorAll(`input[type="${t}"]`));
+      const nth = all.indexOf(el);
+      if (labelText) return `input[type="${t}"] >> nth=${nth}`;
+      return `input[type="${t}"] >> nth=${nth}`;
+    }
     const txt = (el.innerText || el.textContent || '').trim().replace(/\s+/g,' ').slice(0,40);
     if (el.tagName === 'BUTTON' && txt) return `button:has-text("${txt}")`;
     if (el.tagName === 'A' && el.id) return `#${el.id}`;

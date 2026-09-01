@@ -1,0 +1,24 @@
+# Goal: Register a new patient with Dr sunil Gouniyal with the first available Slot.Wait for the slot to be available then select the slot.Patient First Name is Sai middle name Chandra and last name :Sekhar Age of the patient is 20 and is Male Patient with mobile no 8971429587 and Date of birth as  16-06-2006 Stays in bangalore with pincode 560103 and Locality Pai Layout.
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 20
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/ambweb/patient-registration-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  ng-select[name="consultant"]   # Dr sunil Gouniyal is selected as the consultant
+ 10. pick_first     #slot   # First available slot is selected and modal closes
+ 11. type           #firstName   # First Name field shows Sai with random suffix
+ 12. type           #middleName   # Middle Name shows Chandra
+ 13. type           #lastName   # Last Name shows Sekhar
+ 14. type           #age   # Age 20 entered and DOB auto-calculates
+ 15. search_select  #gender   # Sex set to Male
+ 16. type           input[name="mobileNumber"]   # Mobile number field shows 8971429587
+ 17. type           #dateOfBirth   # Date Of Birth shows 16/06/2006
+ 18. type           #correspondencePincode   # Pin/Zip Code populated with 560103
+ 19. type           #correspondenceLocality   # Correspondence Locality shows Pai Layout
+ 20. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient is registered successfully

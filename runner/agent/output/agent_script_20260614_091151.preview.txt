@@ -1,0 +1,9 @@
+# Goal: Create a new stock indent: Indent Store IP Pharmacy-Raipur, Issue Store 157-MS1  wait for some time to select  Item Kiran, Quantity 20
+# Start: https://sqa.narayanahealth.org/phrweb/stock-indent-new
+# Steps: 5
+
+  1. search_select  #indentStoreInput   # Indent Store set to IP Pharmacy-Raipur
+  2. search_select  #issueStoreInput   # Issue Store field shows the 157-MS1 store selected
+  3. search_select  #issueStoreInput   # Issue Store field shows 157-MS1 selected
+  4. search_select  #issueStoreInput   # Issue Store field shows 157-MS1 selected from suggestion list
+  5. search_select  #issueStoreInput   # Issue Store field shows 157-MS1

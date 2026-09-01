@@ -1,0 +1,30 @@
+# Goal: create a new registration for a patient with name Suresh Balkrishna Sondur age 20 years born on 16th June 2006,male who stays in Bangalore in Bhuvi by Amsha in B704 and pincode 560103.Permanement Address is same as correspondence tha appointment is for Sunil Goniyal and consider the first available slot
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 26
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/ambweb/patient-registration-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  ng-select[name="consultant"]   # Consultant Sunil Goniyal selected
+ 10. pick_first     #slot   # A slot value gets selected in the Slot field
+ 11. type           #firstName   # First Name field shows Suresh with random suffix
+ 12. type           #middleName   # Middle Name shows Balkrishna
+ 13. type           #lastName   # Last Name field shows Sondur
+ 14. type           #age   # Age field shows 20 and DOB auto-populates
+ 15. search_select  #gender   # Sex set to Male
+ 16. type           #correspondencePincode   # Pin/Zip Code shows 560103 in correspondence block
+ 17. type           #permanentPincode   # Permanent Pin/Zip Code shows 560103
+ 18. type           #correspondenceHouse   # Correspondence House No shows B704
+ 19. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registration submits successfully or shows any validation errors
+ 20. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Registration submits successfully or shows any remaining validation errors
+ 21. click          nav > div:nth-of-type(2) > ul > li:nth-of-type(1) > a   # The Consultation section opens showing the Consultant searchable dropdown and Slot picker
+ 22. click          div > jhi-incident-manager-modal > section > div:nth-of-type(3) > button   # The Report Incident modal closes and the registration form is accessible
+ 23. click          header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)   # Consultation tab opens with editable Consultant search field
+ 24. scroll         up   # The Consultant search field and Slot picker become visible at top of registration form
+ 25. click          header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)   # Patient registration form with Consultation tab and consultant search field visible
+ 26. click          header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)   # Navigate to Consultation tab where Consultant search field is available

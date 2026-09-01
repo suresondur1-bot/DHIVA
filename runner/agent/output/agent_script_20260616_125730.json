@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Register a new patient: Consultant Sunil Gouniyal, pick the first slot, First Name Suresh, Middle Name Balkrishna, Last Name Sondur, Age 20, Sex Male, Correspondence Pincode 560103, Permanent Pincode 560103, Correspondence House B704, then click Register and close the steps",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-16T12:57:30",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "337800",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Sunil Gouniyal",
+      "_note": "Consultant Sunil Gouniyal is selected"
+    },
+    {
+      "action": "pick_first",
+      "selector": "#slot",
+      "_note": "A slot is selected and the modal closes"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Suresh954927",
+      "_note": "First Name field shows Suresh value"
+    },
+    {
+      "action": "type",
+      "selector": "#middleName",
+      "value": "Balkrishna",
+      "_note": "Middle Name shows Balkrishna"
+    },
+    {
+      "action": "type",
+      "selector": "#lastName",
+      "value": "Sondur",
+      "_note": "Last Name shows Sondur"
+    },
+    {
+      "action": "type",
+      "selector": "#age",
+      "value": "20",
+      "_note": "Age shows 20 and Date of Birth auto-fills"
+    },
+    {
+      "action": "search_select",
+      "selector": "#gender",
+      "value": "Male",
+      "_note": "Sex field shows Male"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondencePincode",
+      "value": "560103",
+      "_note": "Correspondence Pin/Zip Code shows 560103"
+    },
+    {
+      "action": "type",
+      "selector": "#permanentPincode",
+      "value": "560103",
+      "_note": "Permanent Pincode shows 560103"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondenceHouse",
+      "value": "B704",
+      "_note": "Correspondence House No/Bldg./Apt shows B704"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registers successfully and steps complete"
+    },
+    {
+      "action": "type",
+      "selector": "#receivedCash",
+      "value": "750",
+      "_note": "Received cash filled and Register button enables"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registration submits successfully"
+    },
+    {
+      "action": "click",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "_note": "Navigate to Consultation step to set the consultant"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registration submits successfully"
+    },
+    {
+      "action": "click",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "_note": "Consultation/patient registration step navigation appears to set Consultant"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient is registered successfully"
+    }
+  ]
+}

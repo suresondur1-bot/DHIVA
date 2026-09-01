@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create a new stock correction document ,first select the store with code as 157-IP1 and name as IP-Pharmacy-Raipur then you enter into New correction document, enter the item code  KI-RA-N-0901-PH and select the item that comes ,then for that item select the batch  KILLA12,enetr the same in other dropdown,change the MRP current to 51 set the quantity to 50 then click on save",
+    "start_url": "https://sqa.narayanahealth.org/phrweb/stock-correction-new",
+    "generated": "2026-06-14T10:46:33",
+    "reviewed_by": null
+  },
+  "steps": [
+    {
+      "action": "search_select",
+      "selector": "#storeInput",
+      "value": "IP-Pharmacy-Raipur",
+      "_note": "Store field shows IP-Pharmacy-Raipur suggestion selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "#storeInput",
+      "value": "IP-Pharmacy-Raipur",
+      "_note": "Store suggestion selected and Continue button enabled"
+    },
+    {
+      "action": "search_select",
+      "selector": "#storeInput",
+      "value": "IP-Pharmacy-Raipur",
+      "_note": "Store suggestion selected and Continue button enabled"
+    },
+    {
+      "action": "search_select",
+      "selector": "#storeInput",
+      "value": "IP-Pharmacy-Raipur",
+      "_note": "Store suggestion selected and Continue button enabled"
+    }
+  ]
+}

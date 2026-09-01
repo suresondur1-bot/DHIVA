@@ -1,0 +1,9 @@
+# Goal: https://sqa.narayanahealth.org/phrweb/stock-correction-new
+# Start: https://sqa.narayanahealth.org/phrweb/stock-correction-new
+# Steps: 5
+
+  1. click          #continueButton   # Modal dismisses and correction document body becomes usable
+  2. search_select  #itemInput   # Item suggestion appears and a row is added to the items table
+  3. search_select  #itemInput   # Item row populates in the items table with old batch/MRP/expiry values
+  4. search_select  #itemInput   # A row appears in the items table with the item's batch/MRP/expiry auto-filled
+  5. search_select  #itemInput   # A row populates in the items table with Old batch/MRP/expiry values

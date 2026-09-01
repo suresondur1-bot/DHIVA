@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create SPR with supplier 110014_V currency INR service category Digi Workbook description Agent test item S-D-AE02-MARKETING-00001 rate contract SRC175426000006 qty 2 start date today end date today budget ref Digital marketing save and store PR number as SAIPR",
+    "start_url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+    "generated": "2026-07-02T12:51:23",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "#supplierInput",
+      "value": "110014_V",
+      "_note": "Select Supplier Name"
+    },
+    {
+      "action": "search_select",
+      "selector": "#currencyList",
+      "value": "INR",
+      "_note": "Select"
+    },
+    {
+      "action": "search_select",
+      "selector": "#serviceCategoryList",
+      "value": "Digi Workbook",
+      "_note": "Select"
+    },
+    {
+      "action": "wait",
+      "value": "1500",
+      "_note": "wait for auto-populate"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "btnNext"
+    },
+    {
+      "action": "wait",
+      "value": "1500",
+      "_note": "wait for auto-populate"
+    },
+    {
+      "action": "date_today",
+      "value": "today_aria_e36",
+      "value2": "%A, %B %#d, %Y",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "500",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "300",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "date_today",
+      "value": "today_aria_e36",
+      "value2": "%A, %B %#d, %Y",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "500",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "300",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "2000",
+      "_note": "wait after save"
+    },
+    {
+      "action": "store_text",
+      "selector": ".td-pr",
+      "store_as": "SAIPR",
+      "_note": "store PR Number as SAIPR"
+    }
+  ]
+}

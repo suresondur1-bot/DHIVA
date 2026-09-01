@@ -1,0 +1,40 @@
+{
+  "_comment": "Maps a URL substring to a playbook file. When the agent is on a page whose URL contains 'match', the corresponding playbook text is added to the prompt. First match wins; order matters (most specific first). Screens with NO match get only the generic global rules \u2014 fine for simple forms. To teach the agent a new screen, add an entry here and a .md file beside it.",
+  "playbooks": [
+    {
+      "match": "admission",
+      "file": "admission.md",
+      "label": "Admission"
+    },
+    {
+      "match": "cpoe",
+      "file": "cpoe.md",
+      "label": "CPOE Order"
+    },
+    {
+      "match": "service-purchase-requisition",
+      "file": "service_purchase_requisition.md",
+      "label": "PR"
+    },
+    {
+      "match": "direct-transfer",
+      "file": "direct_transfer.md",
+      "label": "Direct_Transfer"
+    },
+    {
+      "match": "stock-correction",
+      "file": "stock_correction.md",
+      "label": "Correction_document"
+    },
+    {
+      "match": "patient-registration",
+      "file": "patient_registration.md",
+      "label": "Patient Registration"
+    },
+    {
+      "match": "stock-indent",
+      "file": "stock_indent.md",
+      "label": "Stock Indent"
+    }
+  ]
+}

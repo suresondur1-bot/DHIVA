@@ -1,0 +1,7 @@
+# Goal: Register a new patient with name Suresh Balkrishna Sondur age 20 born on 15/08/2996 with mobile no 8971429587,male stays in Bangalore with pincode 560103 and resides same place.
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 3
+
+  1. search_select  ng-select[name="consultant"]   # Consultant dropdown shows options and one gets selected
+  2. search_select  ng-select[name="consultant"]   # A consultant option appears and is selected
+  3. search_select  ng-select[name="consultant"]   # Consultant options appear and one is selected

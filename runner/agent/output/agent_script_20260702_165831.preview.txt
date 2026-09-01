@@ -1,0 +1,50 @@
+# Goal: Create SPR with supplier 110014_V currency INR service category Digi Workbook description Agent test item S-D-AE02-MARKETING-00001 rate contract SRC175426000006 qty 2 start date today end date today budget ref Digital marketing click on + to add the item then save and store PR number as SAIPR. Then navigate to the SPR list page select PR from search by dropdown enter {{SAIPR}} in document no and click search then open the document and click Send for Approval ,then click on Approve Button
+# Start: https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new
+# Steps: 46
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new   # navigate to https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new
+ 10. search_select  #supplierInput   # Select Supplier Name
+ 11. search_select  #currencyList   # Select Currency
+ 12. search_select  #serviceCategoryList   # Select Service Category
+ 13. wait           1500   # wait for auto-populate
+ 14. click          #btnNext   # Click Next/Continue button
+ 15. type           #prDescription   # PR Description
+ 16. search_select  #itemInput   # Enter Service Name / Item
+ 17. wait           1500   # wait for auto-populate
+ 18. search_select  table > tbody > tr > td:nth-of-type(2) > ng-select   # Rate Contract
+ 19. type           table > tbody > tr > td:nth-of-type(7) > input   # Qty
+ 20. date_today     today_aria_dt   # Start Date
+ 21. click          tbody > tr > td:nth-of-type(12) > div > button   # Start Date
+ 22. wait           500   # Start Date
+ 23. click          [aria-label='{{today_aria_dt}}']   # Start Date
+ 24. wait           300   # Start Date
+ 25. date_today     today_aria_dt   # End Date
+ 26. click          tbody > tr > td:nth-of-type(13) > div > button   # End Date
+ 27. wait           500   # End Date
+ 28. click          [aria-label='{{today_aria_dt}}']   # End Date
+ 29. wait           300   # End Date
+ 30. search_select  tbody > tr > td:nth-of-type(14) > div > ng-select   # Budget Ref No
+ 31. click          table > tbody > tr > td:nth-of-type(15) > button   # Click + to add item row
+ 32. click          div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)   # Save button
+ 33. wait           500   # wait for confirmation
+ 34. wait_for_selector ngb-alert:has-text('saved')   # wait for save confirmation
+ 35. store_text     ngb-alert:has-text('saved')   # store confirmation text
+ 36. str_split      SAIPR_full   # extract document number into SAIPR
+ 37. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition   # navigate to https://sqa.narayanahealth.org/spmweb/service-purchase-requisition
+ 38. search_select  #divFilter > div:nth-child(1) > div > ng-select   # Search By dropdown - select PR
+ 39. type           #divFilter > div:nth-child(2) > div > input   # Enter document number in search box
+ 40. click          #divFilter > div.col-3 > button.athma-btn.athma-btn-priamry-outline.athma-btn-height-sm   # Click search button
+ 41. wait           2000   # wait for search results
+ 42. click          text='{{SAIPR}}'   # open {{SAIPR}}
+ 43. wait_for_selector #prDescription   # wait for form
+ 44. wait           1000   # wait for form to settle
+ 45. click          div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # Click Send for Approval button
+ 46. click          div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(1) > button   # Click Approve button

@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "authored_by": "manual",
+    "goal": "Service Purchase Requisition - complete flow with item details",
+    "start_url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+    "generated": "2026-07-01T00:00:00",
+    "reviewed_by": "manual",
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+      "_note": "navigate to SPR new"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for page load"
+    },
+    {
+      "action": "search_select",
+      "selector": "#supplierInput",
+      "value": "110014_V",
+      "_note": "select supplier GREENCITY OFFICE NEEDS"
+    },
+    {
+      "action": "search_select",
+      "selector": "#currencyList",
+      "value": "INR",
+      "_note": "select currency INR"
+    },
+    {
+      "action": "search_select",
+      "selector": "#serviceCategoryList",
+      "value": "Digi Workbook",
+      "_note": "select service category"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "click Continue"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#prDescription",
+      "_note": "wait for PR form to load"
+    },
+    {
+      "action": "type",
+      "selector": "#prDescription",
+      "value": "Agent test",
+      "_note": "enter PR description"
+    },
+    {
+      "action": "search_select",
+      "selector": "#itemInput",
+      "value": "S-D-AE02-MARKETING-00001",
+      "_note": "select service item - auto-fills Long Description, Site, UOM etc"
+    },
+    {
+      "action": "wait",
+      "value": "1500",
+      "_note": "wait for item auto-populate"
+    },
+    {
+      "action": "search_select",
+      "selector": "table > tbody > tr > td:nth-of-type(2) > ng-select",
+      "value": "SRC175426000006",
+      "_note": "select Rate Contract"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(7) > input",
+      "value": "2",
+      "_note": "enter Qty"
+    },
+    {
+      "action": "date_today",
+      "value": "today_aria",
+      "value2": "%A, %B %#d, %Y",
+      "_note": "store today date as aria-label format e.g. Wednesday, July 1, 2026"
+    },
+    {
+      "action": "click",
+      "selector": "tbody > tr > td:nth-of-type(12) > div > button",
+      "_note": "open Start Date calendar"
+    },
+    {
+      "action": "wait",
+      "value": "500",
+      "_note": "wait for calendar popup"
+    },
+    {
+      "action": "click",
+      "selector": "[aria-label='{{today_aria}}']",
+      "_note": "click today in Start Date calendar"
+    },
+    {
+      "action": "wait",
+      "value": "300",
+      "_note": "wait for Start Date to close"
+    },
+    {
+      "action": "click",
+      "selector": "tbody > tr > td:nth-of-type(13) > div > button",
+      "_note": "open End Date calendar"
+    },
+    {
+      "action": "wait",
+      "value": "500",
+      "_note": "wait for calendar popup"
+    },
+    {
+      "action": "click",
+      "selector": "[aria-label='{{today_aria}}']",
+      "_note": "click today in End Date calendar"
+    },
+    {
+      "action": "wait",
+      "value": "300",
+      "_note": "wait for End Date to close"
+    },
+    {
+      "action": "search_select",
+      "selector": "tbody > tr > td:nth-of-type(14) > div > ng-select",
+      "value": "Digital marketing",
+      "_note": "select Budget Ref No"
+    },
+    {
+      "action": "click",
+      "selector": "table > tbody > tr > td:nth-of-type(15) > button",
+      "_note": "click + add row"
+    },
+    {
+      "action": "wait",
+      "value": "1000",
+      "_note": "wait for row to be added"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)",
+      "_note": "click Save"
+    },
+    {
+      "action": "wait",
+      "value": "2000",
+      "_note": "wait for save"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": ".td-pr",
+      "_note": "wait for PR number to appear after save"
+    },
+    {
+      "action": "store_text",
+      "selector": ".td-pr",
+      "store_as": "SAIPR",
+      "_note": "store PR number e.g. DRAFT-619 into variable SAIPR"
+    }
+  ]
+}

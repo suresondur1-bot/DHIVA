@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create SPR with supplier 110014_V currency INR service category Digi Workbook description Agent test item S-D-AE02-MARKETING-00001 rate contract SRC175426000006 qty 2 start date today end date today budget ref Digital marketing save and store PR number as SAIPR",
+    "start_url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+    "generated": "2026-07-02T13:41:51",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "#supplierInput",
+      "value": "110014_V",
+      "_note": "Select Supplier Name"
+    },
+    {
+      "action": "search_select",
+      "selector": "#currencyList",
+      "value": "INR",
+      "_note": "Select"
+    },
+    {
+      "action": "search_select",
+      "selector": "#serviceCategoryList",
+      "value": "Digi Workbook",
+      "_note": "Select"
+    },
+    {
+      "action": "wait",
+      "value": "1500",
+      "_note": "wait for auto-populate"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "btnNext"
+    },
+    {
+      "action": "type",
+      "selector": "#prDescription",
+      "value": "Agent test",
+      "_note": "#prDescription"
+    },
+    {
+      "action": "search_select",
+      "selector": "#itemInput",
+      "value": "S-D-AE02-MARKETING-00001",
+      "_note": "Enter Service Name"
+    },
+    {
+      "action": "wait",
+      "value": "1500",
+      "_note": "wait for auto-populate"
+    },
+    {
+      "action": "search_select",
+      "selector": "table > tbody > tr > td:nth-of-type(2) > ng-select",
+      "value": "SRC175426000006",
+      "_note": "Select"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(7) > input",
+      "value": "2",
+      "_note": "table > tbody > tr > td:nth-of-type(7) > input"
+    },
+    {
+      "action": "date_today",
+      "value": "today_aria_e36",
+      "value2": "%A, %B %#d, %Y",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "click",
+      "selector": "tbody > tr > td:nth-of-type(12) > div > button",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "500",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "click",
+      "selector": "[aria-label='{{today_aria_e36}}']",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "300",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "date_today",
+      "value": "today_aria_e36",
+      "value2": "%A, %B %#d, %Y",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "click",
+      "selector": "tbody > tr > td:nth-of-type(13) > div > button",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "500",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "click",
+      "selector": "[aria-label='{{today_aria_e36}}']",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "wait",
+      "value": "300",
+      "_note": "dd/mm/yyyy"
+    },
+    {
+      "action": "search_select",
+      "selector": "tbody > tr > td:nth-of-type(14) > div > ng-select",
+      "value": "Digital marketing",
+      "_note": "Select"
+    },
+    {
+      "action": "click",
+      "selector": "table > tbody > tr > td:nth-of-type(15) > button",
+      "_note": "table > tbody > tr > td:nth-of-type(15) > button"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)",
+      "_note": "Save"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for page to settle after save"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": ".td-pr",
+      "_note": "wait for document number to appear"
+    },
+    {
+      "action": "store_text",
+      "selector": ".td-pr",
+      "store_as": "SAIPR",
+      "_note": "store PR/document number as SAIPR"
+    }
+  ]
+}

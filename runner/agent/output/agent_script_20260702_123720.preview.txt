@@ -1,0 +1,28 @@
+# Goal: Create SPR with supplier 110014_V currency INR service category Digi Workbook description Agent test item S-D-AE02-MARKETING-00001 rate contract SRC175426000006, qty is  2, start date let it be today, end date also today, budget ref "Digital marketing"  click on + button to add the item and then click on   save ,store PR number into one variable say suresh2
+# Start: https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new
+# Steps: 24
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  #supplierInput   # Supplier 110014_V selected
+ 10. search_select  #currencyList   # Currency set to INR
+ 11. search_select  #serviceCategoryList   # Service Category shows Digi Workbook
+ 12. click          #btnNext   # Modal closes and PR header form is ready
+ 13. type           #prDescription   # Description field shows 'Agent test'
+ 14. search_select  #itemInput   # Service code selected and dependent fields auto-fill
+ 15. search_select  table > tbody > tr > td:nth-of-type(2) > ng-select   # Rate contract SRC175426000006 selected
+ 16. type           table > tbody > tr > td:nth-of-type(7) > input   # Qty field shows 2
+ 17. date_today     today_aria   # today's date stored in aria-label format
+ 18. click          tbody > tr > td:nth-of-type(12) > div > button   # Start date calendar popup opens
+ 19. click          [aria-label='{{today_aria}}']   # Start date populated with today
+ 20. click          tbody > tr > td:nth-of-type(13) > div > button   # End date calendar picker opens
+ 21. click          [aria-label='{{today_aria}}']   # End date populated with today
+ 22. search_select  tbody > tr > td:nth-of-type(14) > div > ng-select   # Budget Ref No shows Digital marketing
+ 23. click          table > tbody > tr > td:nth-of-type(15) > button   # The item row is added
+ 24. click          div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)   # PR saved and PR number appears in .td-pr

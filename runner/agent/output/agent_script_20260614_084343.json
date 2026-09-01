@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Register a new patient: First Name Test{{random}}, Last Name Patient, Sex Male, Age 30 years, Consultant Sunil, Correspondence Pincode 560001 City Bangalore, Permanent Pincode 560001 City Bangalore",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-14T08:43:43",
+    "reviewed_by": null
+  },
+  "steps": [
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Sunil",
+      "_note": "Consultant Sunil is selected"
+    },
+    {
+      "action": "pick_first",
+      "selector": "#submitBtn",
+      "_note": "A slot is selected and the modal closes"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Test134674",
+      "_note": "First Name field shows the typed value"
+    },
+    {
+      "action": "type",
+      "selector": "#lastName",
+      "value": "Patient",
+      "_note": "Last Name shows Patient"
+    },
+    {
+      "action": "search_select",
+      "selector": "#gender",
+      "value": "Male",
+      "_note": "Sex field shows Male"
+    },
+    {
+      "action": "type",
+      "selector": "#age",
+      "value": "30",
+      "_note": "Age 30 entered, Date of Birth auto-populates"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondencePincode",
+      "value": "560001",
+      "_note": "Correspondence Pin/Zip Code shows 560001"
+    },
+    {
+      "action": "type",
+      "selector": "#permanentPincode",
+      "value": "560001",
+      "_note": "Permanent Pincode shows 560001"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registration submits successfully"
+    },
+    {
+      "action": "scroll",
+      "value": "up",
+      "_note": "See patient details section to confirm Sex/Age/Name fields are filled"
+    },
+    {
+      "action": "search_select",
+      "selector": "#correspondenceCity",
+      "value": "Bangalore",
+      "_note": "City Bangalore selected and District/State/Country auto-fill"
+    },
+    {
+      "action": "search_select",
+      "selector": "#permanentCity",
+      "value": "Bangalore",
+      "_note": "Permanent City populates and District/State/Country auto-fill"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient is registered successfully"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Sunil",
+      "_note": "Consultant Sunil selected and consultant/department auto-fill"
+    }
+  ]
+}

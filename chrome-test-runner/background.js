@@ -64,15 +64,20 @@ async function startSmartStudy(sessionId) {
   smartRec.sessionId = sessionId;
   smartRec.events    = [];
   smartRec.pending   = [];
-  // Find the active non-ATHMA tab
+  // ATHMA origins to exclude from target tab search
   const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
-  const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  let tab = active;
-  if (!tab || ATHMA_P.some(p => (tab.url||'').includes(p))) {
-    const all = await chrome.tabs.query({});
-    tab = all.filter(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://') && !ATHMA_P.some(p => t.url.includes(p))).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];
-  }
-  if (!tab) return { ok: false, error: 'No target tab found. Open the app page first.' };
+  // Always pick the best non-ATHMA tab — do NOT rely on lastFocusedWindow active tab
+  // because the ATHMA frontend IS the active focused tab when the user clicks Start.
+  // Sort by lastAccessed descending so we pick the most-recently-used app tab.
+  const all = await chrome.tabs.query({});
+  const appTabs = all.filter(t =>
+    t.url &&
+    !t.url.startsWith('chrome://') &&
+    !t.url.startsWith('chrome-extension://') &&
+    !ATHMA_P.some(p => t.url.includes(p))
+  ).sort((a,b) => (b.lastAccessed||0) - (a.lastAccessed||0));
+  const tab = appTabs[0];
+  if (!tab) return { ok: false, error: 'No target tab found. Open the Daiva Health page in a separate Chrome tab first, then click Start Recording.' };
   smartRec = { active: true, sessionId, tabId: tab.id, events: [], pending: [] };
   chrome.storage.local.set({ athma_smart_events: [], athma_smart_session: sessionId }).catch(()=>{});
 
@@ -88,6 +93,7 @@ async function startSmartStudy(sessionId) {
         window.__athmaSmartStudyActive = false;
         window.__athmaSmartStudyStopped = false; // reset so new banner can show
         window.__athmaSmartBridgeActive = false;
+        window.__athmaSmartStudyBridgeActive = false; // reset smart study bridge too
         window.__athmaPreWatcher = false;
         window.__athmaScannerDone = false;
         window.__athmaScannerResult = null;
@@ -101,8 +107,10 @@ async function startSmartStudy(sessionId) {
     target: { tabId: tab.id },
     world: 'ISOLATED',
     func: (extId) => {
-      if (window.__athmaSmartBridgeActive) return;
-      window.__athmaSmartBridgeActive = true;
+      // Use a separate flag from the inspector bridge so they don't block each other
+      if (window.__athmaSmartStudyBridgeActive) return;
+      window.__athmaSmartStudyBridgeActive = true;
+      window.__athmaSmartBridgeActive = true; // keep legacy flag too
       window.addEventListener('message', function(e) {
         if (e.source !== window) return;
         if (e.data && e.data.__athmaSmartStudy) {
@@ -154,7 +162,27 @@ async function startSmartStudy(sessionId) {
 }
 
 async function stopSmartStudy() {
-  if (!smartRec.active) return { ok: false };
+  // Recover state if the service worker was restarted mid-recording (MV3).
+  // Without this, smartRec is empty and we'd report "No events captured".
+  if (!smartRec.active || !smartRec.sessionId || smartRec.events.length === 0) {
+    try {
+      const d = await new Promise(r => chrome.storage.local.get(['athma_smart_events','athma_smart_session'], r));
+      if (!smartRec.sessionId && d.athma_smart_session) smartRec.sessionId = d.athma_smart_session;
+      if (smartRec.events.length === 0 && Array.isArray(d.athma_smart_events) && d.athma_smart_events.length) {
+        smartRec.events = d.athma_smart_events;
+      }
+      // If we still don't have a tabId, try the last focused non-ATHMA tab so we
+      // can read its page-local events below.
+      if (!smartRec.tabId) {
+        const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+        const all = await chrome.tabs.query({});
+        const t = all.filter(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://') && !ATHMA_P.some(p => t.url.includes(p))).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];
+        if (t) smartRec.tabId = t.id;
+      }
+    } catch(_e) {}
+  }
+  // If after recovery there is genuinely nothing and no session, bail out.
+  if (!smartRec.sessionId && smartRec.events.length === 0) return { ok: false };
 
   // Step 1: Tell recorder to stop + take final snapshot
   try {
@@ -170,6 +198,26 @@ async function stopSmartStudy() {
       target: { tabId: smartRec.tabId }, world: 'MAIN',
       func: () => { document.getElementById('__athma_ss_banner')?.remove(); },
     });
+  } catch(e) {}
+
+  // Belt-and-braces: the banner may live on a DIFFERENT tab than smartRec.tabId
+  // (e.g. the user navigated, or the service worker restarted and lost the
+  // original tabId). Sweep ALL non-ATHMA tabs and stop the recorder + remove the
+  // banner everywhere, so the purple "SMART RECORDING" pill always disappears.
+  try {
+    const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+    const allTabs = await chrome.tabs.query({});
+    await Promise.all(allTabs
+      .filter(t => t.id && t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://') && !ATHMA_P.some(p => t.url.includes(p)))
+      .map(t => chrome.scripting.executeScript({
+        target: { tabId: t.id }, world: 'MAIN',
+        func: () => {
+          try { if (window.__athmaSmartStudyStop) window.__athmaSmartStudyStop(); } catch(e) {}
+          window.__athmaSmartStudyStopped = true;
+          window.__athmaSmartStudyActive = false;
+          document.getElementById('__athma_ss_banner')?.remove();
+        },
+      }).catch(() => {})));
   } catch(e) {}
 
   // Step 2: Wait for final snapshot to complete
@@ -199,7 +247,14 @@ async function stopSmartStudy() {
     console.warn('[SmartStudy] Could not read page events:', e.message);
   }
 
-  // Step 4: Push to server
+  // Step 4: Push to server. Push if we have ANY events, recovering the session
+  // id from storage if the in-memory one was lost to a worker restart.
+  if (!smartRec.sessionId) {
+    try {
+      const d = await new Promise(r => chrome.storage.local.get(['athma_smart_session'], r));
+      if (d.athma_smart_session) smartRec.sessionId = d.athma_smart_session;
+    } catch(_e) {}
+  }
   if (smartRec.events.length > 0 && smartRec.sessionId) {
     try {
       const { api } = await getServerConfig();
@@ -243,7 +298,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     chrome.scripting.executeScript({
       target: { tabId }, world: 'ISOLATED',
       func: () => {
-        if (window.__athmaSmartBridgeActive) return;
+        if (window.__athmaSmartStudyBridgeActive) return;
+        window.__athmaSmartStudyBridgeActive = true;
         window.__athmaSmartBridgeActive = true;
         window.addEventListener('message', function(e) {
           if (e.source !== window) return;
@@ -400,8 +456,8 @@ async function getFreshToken() {
       }
     }
   } catch(e) {}
-  // Fallback to storage
-  return new Promise(r => chrome.storage.local.get('athma_token', d => r(d.athma_token || '')));
+  // Fallback to storage — always use array form so Chrome always returns an object
+  return new Promise(r => chrome.storage.local.get(['athma_token'], d => r((d || {}).athma_token || '')));
 }
 
 async function startInspector(sessionId, tabId) {
@@ -498,23 +554,46 @@ async function stopInspector(tabId) {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg.type === 'smart_study_events') {
-    // Events from smart_study_recorder.js — store locally + relay via WebSocket
-    // Check sessionId match only (not active flag — active may be false during stop)
-    if (msg.sessionId && msg.sessionId === smartRec.sessionId) {
-      smartRec.events.push(...(msg.events || []));
-      // Relay to backend over existing WebSocket
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          type:      'smart_study_event',
-          sessionId: msg.sessionId,
-          events:    msg.events,
-        }));
-      } else {
-        smartRec.pending.push(...(msg.events || []));
+    // Events from smart_study_recorder.js — store locally + relay via WebSocket.
+    //
+    // RESILIENCE: in MV3 the service worker can be killed mid-recording, which
+    // resets `smartRec` (sessionId → null) and would cause every subsequent
+    // event to be dropped by a strict `=== smartRec.sessionId` check, producing
+    // "No events captured". To avoid that, if our in-memory session is missing
+    // or doesn't match, we trust the sessionId on the message (the recorder only
+    // ever sends with the session it was injected with), recover state from
+    // storage, and keep the events instead of discarding them.
+    (async () => {
+      const incomingSid = msg.sessionId;
+      if (incomingSid) {
+        if (!smartRec.sessionId || smartRec.sessionId !== incomingSid) {
+          // Recover from storage (worker likely restarted).
+          try {
+            const d = await new Promise(r => chrome.storage.local.get(['athma_smart_events','athma_smart_session'], r));
+            const storedSid = d.athma_smart_session;
+            if (!smartRec.sessionId) {
+              smartRec.sessionId = storedSid || incomingSid;
+              smartRec.active    = true;
+              if (Array.isArray(d.athma_smart_events) && smartRec.events.length === 0) {
+                smartRec.events = d.athma_smart_events;
+              }
+            }
+          } catch(_e) {
+            if (!smartRec.sessionId) { smartRec.sessionId = incomingSid; smartRec.active = true; }
+          }
+        }
+        // Accept events for the live session (now reconciled).
+        if (smartRec.sessionId === incomingSid) {
+          smartRec.events.push(...(msg.events || []));
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'smart_study_event', sessionId: incomingSid, events: msg.events }));
+          } else {
+            smartRec.pending.push(...(msg.events || []));
+          }
+          chrome.storage.local.set({ athma_smart_events: smartRec.events, athma_smart_session: smartRec.sessionId }).catch(()=>{});
+        }
       }
-    }
-    // Persist to storage so events survive service worker restart
-    chrome.storage.local.set({ athma_smart_events: smartRec.events, athma_smart_session: smartRec.sessionId }).catch(()=>{});
+    })();
     sendResponse({ ok: true });
     return true;
   }
@@ -719,6 +798,36 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
   }
 
   // ── Smart Page Study — scan active tab ──────────────────────────────────
+  if (msg.type === 'nat_visual_capture') {
+    (async () => {
+      try {
+        const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+        const allTabs = await chrome.tabs.query({});
+        const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+        let tab = active;
+        if (!tab || ATHMA_P.some(p => (tab.url||'').includes(p))) {
+          tab = allTabs
+            .filter(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://') && !ATHMA_P.some(p => t.url.includes(p)))
+            .sort((a,b) => (b.lastAccessed||0) - (a.lastAccessed||0))[0];
+        }
+        if (!tab) { sendResponse({ ok:false, error:'No target tab found. Open the page you want to compare in a separate Chrome tab first.' }); return; }
+        if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
+          sendResponse({ ok:false, error:'Cannot capture browser pages. Open your app page in a normal tab first.' }); return;
+        }
+        try { await chrome.windows.update(tab.windowId, { focused: true }); } catch(e) {}
+        try { await chrome.tabs.update(tab.id, { active: true }); } catch(e) {}
+        await new Promise(r => setTimeout(r, 250));
+        const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
+        console.log('[VisualScan] Captured active tab:', tab.url);
+        sendResponse({ ok:true, screenshot: dataUrl, tabUrl: tab.url, tabTitle: tab.title });
+      } catch(e) {
+        console.error('[VisualScan] capture error:', e.message);
+        sendResponse({ ok:false, error: e.message });
+      }
+    })();
+    return true;
+  }
+
   if (msg.type === 'nat_scan_page') {
     (async () => {
       try {
@@ -753,7 +862,8 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
             // ng-select
             document.querySelectorAll('ng-select').forEach(function(ng){var f=ng.getAttribute('formcontrolname')||'';var label=lbl(ng)||lbl(ng.querySelector('input')||ng)||f;var s=f?'ng-select[formcontrolname="'+f+'"]':sel(ng);var opts=[];ng.querySelectorAll('.ng-option').forEach(function(o){var t=o.innerText.trim();if(t&&t!=='No items found'&&!opts.includes(t))opts.push(t);});var req=isReq(ng);if(label||f)add({label:label,selector:s,action:'search_select',type:'ng-select',required:req,options:opts.slice(0,30),searchable:!!ng.querySelector('input'),section:section(ng)});});
             // native select
-            document.querySelectorAll('select').forEach(function(el){var req=isReq(el);add({label:lbl(el)||el.name||'Select',selector:sel(el),action:'select',type:'select',required:req,options:Array.from(el.options).map(function(o){return o.text.trim();}).filter(Boolean).slice(0,30),section:section(el)});});
+            document.querySelectorAll('select').forEach(function(el){var req=isReq(el);var s=sel(el);// Scope disabled selects away — use :not([disabled]) suffix if selector is ambiguous
+if(!el.disabled&&document.querySelectorAll(s).length>1)s=s+':not([disabled])';add({label:lbl(el)||el.name||'Select',selector:s,action:'select',type:'select',required:req,options:Array.from(el.options).map(function(o){return o.text.trim();}).filter(Boolean).slice(0,30),section:section(el)});});
             // inputs
             document.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=file])').forEach(function(el){if(el.closest&&el.closest('ng-select'))return;var label=lbl(el)||el.placeholder||el.name||'Input';var req=isReq(el);var isDate=el.type==='date'||/date|dob|birth/i.test(label);add({label:label,selector:sel(el),action:'type',type:el.type||'text',required:req,isDate:isDate,placeholder:el.getAttribute('placeholder')||'',section:section(el)});});
             // textareas

@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create a new stock correction: a Select Store popup appears first - in the Store box type the store code 157-IP1 and wait a couple of seconds for the suggestion, then select the suggestion shown, then click Continue. Then in the Item box type item code KI-RA-N-0901-PH and wait for the suggestion then select it, and wait for the item row to appear in the table. In that row, click the Batch No Current dropdown, type KILLA12, wait a couple of seconds for the suggestion, then select the batch (do not just click it - it must be picked with Enter or it will not register).Then select the batch From  unit Type KILLA12 for search and select the one that comes,\n Then set MRP Current to 51 and Correction Qty to 50. Then click Save and stop",
+    "start_url": "https://sqa.narayanahealth.org/",
+    "generated": "2026-06-16T10:51:09",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "Username field shows entered value"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "Admin@123",
+      "_note": "Password field filled"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "User logs in and dashboard appears"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(4) > button",
+      "_note": "Successful login and dashboard loads"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(4) > button",
+      "_note": "Successful login and navigation to the dashboard"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(4) > button",
+      "_note": "Successful login and dashboard appears"
+    }
+  ]
+}

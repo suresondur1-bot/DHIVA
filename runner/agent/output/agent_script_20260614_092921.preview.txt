@@ -1,0 +1,12 @@
+# Goal: Create a new stock indent: Indent Store IP Pharmacy-Raipur, Issue Store with store code  157-MS1 and name Main Store Raipur  wait for some time to select  Item Kiran, Quantity 20 once quantity is entered press enter for the item to come down then click on save button and then you get pop up there you click done and sto
+# Start: https://sqa.narayanahealth.org/phrweb/stock-indent-new
+# Steps: 8
+
+  1. search_select  #indentStoreInput   # Indent Store shows IP Pharmacy-Raipur selected
+  2. search_select  #issueStoreInput   # Issue Store suggestion for Main Store Raipur (157-MS1) appears and is selected
+  3. click          #btnNext   # Modal closes and item entry fields become active
+  4. search_select  #itemInput   # Item Kiran selected and row populated with UOM
+  5. type           #lImQty   # Quantity field shows 20
+  6. press          #lImQty   # Item row is committed and ready for save
+  7. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # A confirmation popup appears after saving the indent
+  8. click          #btnDone   # Success popup closes and indent is saved

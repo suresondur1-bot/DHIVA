@@ -1,0 +1,70 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Find SPR DRAFT-621 and update description to Updated by Smart Author then save",
+    "start_url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition;status=DRAFT",
+    "generated": "2026-07-02T12:15:52",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition;status=DRAFT",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition",
+      "_note": "navigate to https://sqa.narayanahealth.org/spmweb/service-purchase-requisition"
+    },
+    {
+      "action": "type",
+      "selector": "#divFilter > div:nth-child(2) > div > input",
+      "value": "DRAFT-621",
+      "_note": "List search box"
+    },
+    {
+      "action": "click",
+      "selector": "#divFilter > div.col-3 > button.athma-btn.athma-btn-priamry-outline.athma-btn-height-sm",
+      "_note": "List search button"
+    }
+  ]
+}

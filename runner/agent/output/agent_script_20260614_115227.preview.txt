@@ -1,0 +1,9 @@
+# Goal: Create a new stock correction: a Select Store popup appears first - in the Store box type the store code 157-IP1 and wait a couple of seconds for the suggestion, then press ArrowDown and press Enter to select it, then click Continue. Then in the Item box type item code KI-RA-N-0901-PH and wait for the suggestion then select it, and wait for the item row to appear in the table. In that row, click the Batch No Current dropdown, type KILLA12, wait a couple of seconds for the suggestion, then press ArrowDown and press Enter to select the batch (do not just click it - it must be picked with Enter or it will not register). Then set MRP Current to 51 and Correction Qty to 50. Then click Save and stop
+# Start: https://sqa.narayanahealth.org/phrweb/stock-correction-new
+# Steps: 5
+
+  1. clear          #storeInput   # Store field is empty
+  2. clear          #storeInput   # Store field cleared
+  3. click          #ngb-typeahead-1-36   # Store 157-IP1 IP Pharmacy-Raipur is selected and Continue becomes enabled
+  4. click          #continueButton   # Modal dismisses and correction document body becomes usable
+  5. search_select  #itemInput   # Item suggestion appears and is picked, adding a row to the table

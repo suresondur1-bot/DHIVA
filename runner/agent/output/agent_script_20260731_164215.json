@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create new admission for MRN NO=10010000723767  ,by searching the MRN and selecting the patient.Search and select primary consultant as Sunil Gouniyal,search and Select Admission Category as Surgery,Select Opted class as  CCA,Click in Ward to select Bed.Select any one bed.\nEnter Admission Reason as Admission.Accompanied By select Self.\nClick on Admit",
+    "start_url": "https://sqa.narayanahealth.org/adtweb/admission-new",
+    "generated": "2026-07-31T16:42:15",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/adtweb/admission-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/adtweb/admission-new",
+      "_note": "navigate to https://sqa.narayanahealth.org/adtweb/admission-new"
+    },
+    {
+      "action": "wait",
+      "value": "2000",
+      "_note": "wait for search results"
+    },
+    {
+      "action": "click",
+      "selector": "text='10010000723767'",
+      "_note": "open 10010000723767"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#prDescription",
+      "_note": "wait for form"
+    },
+    {
+      "action": "wait",
+      "value": "1000",
+      "_note": "wait for form to settle"
+    },
+    {
+      "action": "search_select",
+      "selector": "#primaryConsultant",
+      "value": "Sunil Gouniyal",
+      "_note": "Primary Consultant"
+    },
+    {
+      "action": "search_select",
+      "selector": "#admissionCategory",
+      "value": "Surgery",
+      "_note": "Admission Category"
+    },
+    {
+      "action": "search_select",
+      "selector": "#optedClass",
+      "value": "CCA",
+      "_note": "Opted Class"
+    },
+    {
+      "action": "click",
+      "selector": "input[name=\"ward\"]",
+      "_note": "Ward - Click to select Bed"
+    },
+    {
+      "action": "wait",
+      "value": "2000",
+      "_note": "wait for search results"
+    },
+    {
+      "action": "click",
+      "selector": "text=''",
+      "_note": "open "
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#prDescription",
+      "_note": "wait for form"
+    },
+    {
+      "action": "wait",
+      "value": "1000",
+      "_note": "wait for form to settle"
+    }
+  ]
+}

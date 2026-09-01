@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create a Direct Transfer Document: Issue Store IP Pharmacy-Raipur, Receiving Store with store code 157-MS1 and name Main Store Raipur wait for some time to select Item KIRAN PHARMA-INJECTION-10MG-KR DRUG, Batch No  BAT123 ,Quantity 2 once quantity is entered press enter for the item to come down then click on save button and then you get pop up there you click done,then click Send For Approval and you get the pop up again click Done,then click on Claim and once you see Approve button then click on Approve and you get pop up again click done again then click on cancel you will come to list page and then stop",
+    "start_url": "https://sqa.narayanahealth.org/phrweb/direct-transfer-new",
+    "generated": "2026-06-14T13:03:29",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/phrweb/direct-transfer-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "#indentStoreInput",
+      "value": "IP Pharmacy-Raipur",
+      "_note": "Issue Store field shows IP Pharmacy-Raipur suggestion selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "div > div > store-selector > div:nth-of-type(2) > ng-select",
+      "value": "157-MS1",
+      "search_text": "157-MS1",
+      "_note": "Receiving Store: search by CODE 157-MS1 (narrows the ng-select to one option: '157-MS1 | Main Store Raipur'), then pick it"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "Modal closes and item entry grid becomes active"
+    }
+  ]
+}

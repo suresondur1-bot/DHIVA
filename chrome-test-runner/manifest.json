@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Daiva Health Test Runner",
+  "name": "QAVYA Test Runner",
   "version": "2.1.0",
-  "description": "Record user actions and run automated tests for Daiva Health test automation platform",
+  "description": "Record user actions and run automated tests with the QAVYA test automation platform",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxgGX/2HSP0WoMtmofpoCva7O5JlwWmhQ+j59maWesLWXgq2yFu+Pyi/Gxlyq4pJl0aEfEICc1MV9vPVgFPcvYL+gj3hnCNCNCfE08/7wcqOV2y6diuFJEP5tz7D1TdEwz1pQSMyKkiRAw4Ni6O+/0/kmw2IpNEI96tfftmXWR3ydtjVgM7Nmoj+WnGtGMLQKcZbIqf5v3mN25JOarSDt+YuIrtopeAV+RyCeQhtoqPJCrIBfy+j8Rtq8iZJmTC1cRclNMTc05V4IixEdee0ptxblgbduHfWjRUNTp6cITWoaBw876Kkv028lUhn/SmKv/PvM2FXlisGjXgXFYHoqIwIDAQAB",
   "permissions": [
     "activeTab",
     "scripting",
@@ -20,7 +21,7 @@
     "default_popup": "popup.html"
   },
   "externally_connectable": {
-    "matches": ["http://localhost:5176/*", "http://localhost:5177/*", "http://10.8.7.176:5176/*", "http://10.8.7.176:5177/*", "http://*/*", "https://*/*"]
+    "matches": ["http://localhost:5176/*", "http://localhost:5177/*", "http://localhost:6001/*", "http://10.8.7.176:5176/*", "http://10.8.7.176:5177/*", "http://10.8.7.176:6001/*", "http://*/*", "https://*/*"]
   },
   "web_accessible_resources": [
     {

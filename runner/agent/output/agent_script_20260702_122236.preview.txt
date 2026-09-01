@@ -1,0 +1,15 @@
+# Goal: Find SPR DRAFT-621 and update description to Updated by Smart Author then save
+# Start: https://sqa.narayanahealth.org/spmweb/service-purchase-requisition;status=DRAFT
+# Steps: 11
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition;status=DRAFT   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. navigate       https://sqa.narayanahealth.org/spmweb/service-purchase-requisition   # navigate to https://sqa.narayanahealth.org/spmweb/service-purchase-requisition
+ 10. type           #divFilter > div:nth-child(2) > div > input   # List search box
+ 11. click          #divFilter > div.col-3 > button.athma-btn.athma-btn-priamry-outline.athma-btn-height-sm   # List search button

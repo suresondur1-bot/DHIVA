@@ -1,0 +1,28 @@
+# Goal: create a new registration for a patient with name Suresh Balkrishna Sondur age 20 years born on 16th June 2006,male who stays in Bangalore in Bhuvi by Amsha in B704 and pincode 560103.Permanement Address is same as correspondence  tha appointment is for Sunil Goniyal and consider the first available slot
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 24
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/ambweb/patient-registration-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. click          div > jhi-verify-otp > div:nth-of-type(3) > div:nth-of-type(1) > button   # Aadhaar Verification modal closes, revealing the registration form
+ 10. search_select  ng-select[name="consultant"]   # Consultant field shows Sunil Goniyal and Slot becomes selectable
+ 11. pick_first     #slot   # A slot popup opens and the first available slot is selected
+ 12. type           #firstName   # First Name populated with Suresh
+ 13. type           #firstName   # First Name field shows Suresh with random suffix
+ 14. type           #middleName   # Middle Name shows Balkrishna
+ 15. type           #lastName   # Last Name shows Sondur
+ 16. search_select  #gender   # Sex set to Male
+ 17. type           #age   # Age shows 20 and Date of Birth auto-populates
+ 18. type           #correspondencePincode   # Pincode 560103 entered in correspondence address
+ 19. type           #permanentPincode   # Permanent Pin/Zip Code shows 560103
+ 20. type           #correspondenceHouse   # House No field shows B704
+ 21. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Registration submits successfully
+ 22. click          header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)   # Patient Registration consultation section with consultant field
+ 23. click          header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)   # Consultation tab opens with consultant searchable field
+ 24. click          header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)   # Consultation section with editable Consultant and Slot fields appears

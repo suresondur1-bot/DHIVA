@@ -1,0 +1,76 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create a new stock correction: a Select Store popup appears first - in the Store box type the store code 157-IP1 and wait a couple of seconds for the suggestion, then select the suggestion shown, then click Continue. Then in the Item box type item code KI-RA-N-0901-PH and wait for the suggestion then select it, and wait for the item row to appear in the table. In that row, click the Batch No Current dropdown, type KILLA12, wait a couple of seconds for the suggestion, then select the batch (do not just click it - it must be picked with Enter or it will not register).Then select the batch From  unit Type KILLA12 for search and select the one that comes,\n Then set MRP Current to 51 and Correction Qty to 50. Then click Save and stop",
+    "start_url": "https://sqa.narayanahealth.org/phrweb/stock-correction-new",
+    "generated": "2026-06-14T12:00:14",
+    "reviewed_by": null
+  },
+  "steps": [
+    {
+      "action": "clear",
+      "selector": "#storeInput",
+      "_note": "Store field is empty"
+    },
+    {
+      "action": "clear",
+      "selector": "#storeInput",
+      "_note": "Store input is empty"
+    },
+    {
+      "action": "clear",
+      "selector": "#storeInput",
+      "_note": "Store input is empty"
+    },
+    {
+      "action": "click",
+      "selector": "#ngb-typeahead-1-36",
+      "_note": "Store field shows 157-IP1 and Continue button becomes enabled"
+    },
+    {
+      "action": "click",
+      "selector": "#continueButton",
+      "_note": "Modal closes and correction document body becomes usable"
+    },
+    {
+      "action": "search_select",
+      "selector": "#itemInput",
+      "value": "KI-RA-N-0901-PH",
+      "_note": "Item row appears in the table with the chosen item"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"batch\"]",
+      "value": "KILLA12",
+      "_note": "Batch No Current dropdown shows KILLA12 suggestion to select"
+    },
+    {
+      "action": "search_select",
+      "selector": "tbody > tr > td:nth-of-type(3) > stock-correction-batch-search > ng-select",
+      "value": "KILLA12",
+      "_note": "Batch from Unit gets selected with KILLA12 option"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(5) > input",
+      "value": "51",
+      "_note": "MRP Current shows 51"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(9) > input",
+      "value": "50",
+      "_note": "Correction Qty field shows 50"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "The correction document is saved"
+    },
+    {
+      "action": "click",
+      "selector": "#btnDone",
+      "_note": "Success modal closes, correction document saved"
+    }
+  ]
+}

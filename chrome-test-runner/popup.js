@@ -1,4 +1,4 @@
-// ATHMA Recorder Popup
+// QAVYA Recorder Popup
 
 // Fallback defaults
 const FALLBACK_API = 'http://10.8.7.176:6001';
@@ -65,7 +65,7 @@ function checkStatus(){
   chrome.runtime.sendMessage({type:'get_status'},(resp)=>{
     if(chrome.runtime.lastError||!resp){if(connDot)connDot.className='dot red';if(connText)connText.textContent='Extension error';return;}
     if(connDot)connDot.className='dot '+(resp.natOnline?'green':'red');
-    if(connText)connText.textContent=resp.natOnline?'Connected to ATHMA NAT':'NAT offline';
+    if(connText)connText.textContent=resp.natOnline?'Connected to QAVYA NAT':'NAT offline';
     if(resp.recording){showScreen('rec');if(stepNumEl)stepNumEl.textContent=(allSteps.length||0)+(resp.stepCount||0);startPoll();}
   });
 }
@@ -90,7 +90,7 @@ function showError(msg){
   if(!el){el=document.createElement('div');el.id='authError';el.style.cssText='background:#1a0f0f;border:1px solid #ef4444;border-radius:8px;padding:10px 12px;font-size:11px;color:#f87171;line-height:1.7;margin-bottom:4px';screenUrl.insertBefore(el,screenUrl.firstChild);}
   const isAuthErr=/log.?in|session|not logged|authori/i.test(msg);
   const isServerErr=/reach|running|check Settings/i.test(msg);
-  el.innerHTML='\u26a0\ufe0f '+msg+(isAuthErr?'<br><a href="'+DEFAULT_NAT+'" target="_blank" style="color:#60a5fa;text-decoration:underline">Open ATHMA NAT to log in \u2192</a>':'')+(isServerErr?'<br><span style="color:#94a3b8;font-size:10px">Tip: Click \u2699\ufe0f to set the server URL</span>':'');
+  el.innerHTML='\u26a0\ufe0f '+msg+(isAuthErr?'<br><a href="'+DEFAULT_NAT+'" target="_blank" style="color:#60a5fa;text-decoration:underline">Open QAVYA NAT to log in \u2192</a>':'')+(isServerErr?'<br><span style="color:#94a3b8;font-size:10px">Tip: Click \u2699\ufe0f to set the server URL</span>':'');
   el.style.display='block';
 }
 function clearError(){const el=document.getElementById('authError');if(el)el.style.display='none';}

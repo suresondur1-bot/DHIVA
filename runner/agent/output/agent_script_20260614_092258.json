@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create a new stock indent: Indent Store IP Pharmacy-Raipur, Issue Store with store code  157-MS1 and name Main Store Raipur  wait for some time to select  Item Kiran, Quantity 20 once quantity is entered press enter for the item to come down then click on save button and then you get pop up there you click done and stop",
+    "start_url": "https://sqa.narayanahealth.org/phrweb/stock-indent-new",
+    "generated": "2026-06-14T09:22:58",
+    "reviewed_by": null
+  },
+  "steps": [
+    {
+      "action": "search_select",
+      "selector": "#indentStoreInput",
+      "value": "IP Pharmacy-Raipur",
+      "_note": "Indent Store shows IP Pharmacy-Raipur selected from suggestions"
+    },
+    {
+      "action": "search_select",
+      "selector": "#issueStoreInput",
+      "value": "157-MS1",
+      "_note": "Issue Store field shows Main Store Raipur (157-MS1)"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "Modal closes and item entry stage becomes active"
+    },
+    {
+      "action": "search_select",
+      "selector": "#itemInput",
+      "value": "Kiran",
+      "_note": "Item Kiran suggestion appears and is selected, populating the row"
+    },
+    {
+      "action": "type",
+      "selector": "#lImQty",
+      "value": "20",
+      "_note": "Quantity field shows 20"
+    },
+    {
+      "action": "press",
+      "selector": "#lImQty",
+      "value": "Enter",
+      "_note": "Item row is committed/finalized"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "A confirmation popup appears after saving"
+    },
+    {
+      "action": "click",
+      "selector": "#btnDone",
+      "_note": "Success popup closes after clicking Done"
+    }
+  ]
+}

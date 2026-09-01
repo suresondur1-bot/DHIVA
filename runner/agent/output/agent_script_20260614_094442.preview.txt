@@ -1,0 +1,19 @@
+# Goal: Create a new stock indent: Indent Store IP Pharmacy-Raipur, Issue Store with store code  157-MS1 and name Main Store Raipur  wait for some time to select  Item Kiran, Quantity 20 once quantity is entered press enter for the item to come down then click on save button and then you get pop up there you click done,then click Send For Approval
+and you get the pop up again click Done,then click on Claim and once you see Approve button then click on Approve and you get pop up again click done again then click on cancel you will come to list page  and then stop
+# Start: https://sqa.narayanahealth.org/phrweb/stock-indent-new
+# Steps: 14
+
+  1. search_select  #indentStoreInput   # Indent Store shows IP Pharmacy-Raipur selected
+  2. search_select  #issueStoreInput   # Issue Store field shows Main Store Raipur selected
+  3. click          #btnNext   # Modal closes and item entry stage becomes active
+  4. search_select  #itemInput   # Item Kiran suggestion appears and is selected in the row
+  5. type           #lImQty   # Quantity field shows 20
+  6. press          #lImQty   # Item row is committed, allowing Save
+  7. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # A confirmation popup appears after saving
+  8. click          #btnDone   # Success popup closes and indent screen is shown
+  9. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(3)   # Send for Approval triggers a confirmation pop-up
+ 10. click          #btnDone   # Popup closes and Claim button is available
+ 11. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # Claim processes and Approve button appears
+ 12. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)   # Claim is processed and Approve button appears
+ 13. click          #btnDone   # The success popup closes after approval
+ 14. click          div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button   # Navigates back to the stock indent list page

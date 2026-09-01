@@ -1,0 +1,13 @@
+# Goal: Register a new patient with Dr sunil Gouniyall with the first available Slot.Wait for the slot to be available then select the slot.Patient First Name is Sai middle name Chandra and last name :Sekhar Age of the patient is 34 and is Male Patient.Stays in bangalore with pincode 560103 and Locality Pai Layout.
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 9
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/ambweb/patient-registration-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  ng-select[name="consultant"]   # Dr sunil Gouniyall selected as consultant

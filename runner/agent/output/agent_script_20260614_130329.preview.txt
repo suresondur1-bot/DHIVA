@@ -1,0 +1,15 @@
+# Goal: Create a Direct Transfer Document: Issue Store IP Pharmacy-Raipur, Receiving Store with store code 157-MS1 and name Main Store Raipur wait for some time to select Item KIRAN PHARMA-INJECTION-10MG-KR DRUG, Batch No  BAT123 ,Quantity 2 once quantity is entered press enter for the item to come down then click on save button and then you get pop up there you click done,then click Send For Approval and you get the pop up again click Done,then click on Claim and once you see Approve button then click on Approve and you get pop up again click done again then click on cancel you will come to list page and then stop
+# Start: https://sqa.narayanahealth.org/phrweb/direct-transfer-new
+# Steps: 11
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/phrweb/direct-transfer-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  #indentStoreInput   # Issue Store field shows IP Pharmacy-Raipur suggestion selected
+ 10. search_select  div > div > store-selector > div:nth-of-type(2) > ng-select   # Receiving Store shows Main Store Raipur (157-MS1) selected
+ 11. click          #btnNext   # Modal closes and item entry grid becomes active

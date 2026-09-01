@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create a new stock indent: Indent Store IP Pharmacy-Raipur, Issue Store with store code  157-MS1 and name Main Store Raipur  wait for some time to select  Item Kiran, Quantity 20 once quantity is entered press enter for the item to come down then click on save button and then you get pop up there you click done,then click Send For Approval\nand you get the pop up again click Done,then click on Claim and once you see Approve button then click on Approve and you get pop up again click done again then click on cancel you will come to list page  and then stop",
+    "start_url": "https://sqa.narayanahealth.org/phrweb/stock-indent-new",
+    "generated": "2026-06-14T09:44:42",
+    "reviewed_by": null,
+    "self_contained": true,
+    "note": "Login prelude prepended; replays without manual login."
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/phrweb/stock-indent-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "#indentStoreInput",
+      "value": "IP Pharmacy-Raipur",
+      "_note": "Indent Store shows IP Pharmacy-Raipur selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "#issueStoreInput",
+      "value": "157-MS1",
+      "_note": "Issue Store field shows Main Store Raipur selected"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "Modal closes and item entry stage becomes active"
+    },
+    {
+      "action": "search_select",
+      "selector": "#itemInput",
+      "value": "Kiran",
+      "_note": "Item Kiran suggestion appears and is selected in the row"
+    },
+    {
+      "action": "type",
+      "selector": "#lImQty",
+      "value": "20",
+      "_note": "Quantity field shows 20"
+    },
+    {
+      "action": "press",
+      "selector": "#lImQty",
+      "value": "Enter",
+      "_note": "Item row is committed, allowing Save"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "A confirmation popup appears after saving"
+    },
+    {
+      "action": "click",
+      "selector": "#btnDone",
+      "_note": "Success popup closes and indent screen is shown"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(3)",
+      "_note": "Send for Approval triggers a confirmation pop-up"
+    },
+    {
+      "action": "click",
+      "selector": "#btnDone",
+      "_note": "Popup closes and Claim button is available"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Claim processes and Approve button appears"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Claim is processed and Approve button appears"
+    },
+    {
+      "action": "click",
+      "selector": "#btnDone",
+      "_note": "The success popup closes after approval"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button",
+      "_note": "Navigates back to the stock indent list page"
+    }
+  ]
+}

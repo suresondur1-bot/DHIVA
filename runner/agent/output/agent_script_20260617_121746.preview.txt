@@ -1,0 +1,26 @@
+# Goal: Register new patient with Dr Sunil Gouniyal for the first available slot ,for patient with first name Pradeep  and last name kumar age 20 years born on 17-06-2006 with mobile number 8971429587 stays in balgalore with pin code 560103 and appartmnt no B704 and permanenet addesss is same as correspondance address and after register stop the flow.
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 22
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/ambweb/patient-registration-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  ng-select[name="consultant"]   # Dr Sunil Gouniyal selected as consultant
+ 10. pick_first     #slot   # First available slot gets selected and the modal closes
+ 11. type           #firstName   # First Name field shows Pradeep with random suffix
+ 12. type           #lastName   # Last Name shows kumar
+ 13. type           #age   # Age shows 20 and Date of Birth auto-populates
+ 14. type           input[name="mobileNumber"]   # Mobile number populated as 8971429587
+ 15. type           #correspondencePincode   # Pin/Zip Code shows 560103 and city resets
+ 16. type           #correspondenceHouse   # Correspondence House No field shows B704
+ 17. type           #permanentPincode   # Permanent pincode field shows 560103
+ 18. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registers successfully with MRN generated
+ 19. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registers successfully or specific field errors show
+ 20. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient gets registered successfully or specific field errors appear
+ 21. search_select  #gender   # Sex field shows Male
+ 22. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient is registered and confirmation appears

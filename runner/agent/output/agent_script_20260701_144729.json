@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "click Create new select supplier as \"GREENCITY OFFICE NEEDS\", Currency as \"INR\" and Service Category as \"Digi Workbook\". click continue button. once this url \"https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new\" visable. enter Description as \"Testing as a agent\"\nIn table section find \"Service code | Description\" column search as \"S-D-AE02-MARKETING-00001\" and select as \"Digi Workbook-Digital marketing-YouTube-Digital Marketing\" once select \"Rate Contract\" column search and select \"SRC175426000006\". \"Long Description\" column search and select as \" 1 | SAI YOUTUBE \". \"Qty\" column as \"1\". \"Start Date\" column set date as \"todays date\", \"End Date\" column set date as \"todays date\", \"Budget Ref No\" column search and select as \" Digital marketing \" and click \"+\" button. once row added in table click \"Save\" button.\nOn save capture the meesage and \"PR No.\" section PR number store in variable",
+    "start_url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition",
+    "generated": "2026-07-01T14:47:29",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(2) > div:nth-of-type(1) > ul > li:nth-of-type(5) > button",
+      "_note": "A dialog or new form opens to select supplier, currency and service category"
+    },
+    {
+      "action": "search_select",
+      "selector": "#supplierInput",
+      "value": "GREENCITY OFFICE NEEDS",
+      "_note": "Supplier GREENCITY OFFICE NEEDS is selected in the modal"
+    },
+    {
+      "action": "search_select",
+      "selector": "#serviceCategoryList",
+      "value": "Digi Workbook",
+      "_note": "Service Category shows Digi Workbook selected"
+    },
+    {
+      "action": "click",
+      "selector": "#btnNext",
+      "_note": "Modal closes and main requisition form is visible"
+    },
+    {
+      "action": "type",
+      "selector": "#prDescription",
+      "value": "Testing as a agent",
+      "_note": "Description field shows 'Testing as a agent'"
+    },
+    {
+      "action": "search_select",
+      "selector": "#itemInput",
+      "value": "S-D-AE02-MARKETING-00001",
+      "_note": "Service option 'Digi Workbook-Digital marketing-YouTube-Digital Marketing' appears and is selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "table > tbody > tr > td:nth-of-type(2) > ng-select",
+      "value": "SRC175426000006",
+      "_note": "Rate Contract SRC175426000006 selected"
+    },
+    {
+      "action": "search_select",
+      "selector": "table > tbody > tr > td:nth-of-type(2) > ng-select",
+      "value": "SAI YOUTUBE",
+      "_note": "Long Description shows 1 | SAI YOUTUBE selected"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(7) > input",
+      "value": "1",
+      "_note": "Qty field shows 1"
+    },
+    {
+      "action": "pick_first",
+      "selector": "tbody > tr > td:nth-of-type(12) > div > button",
+      "_note": "Start date calendar opens and today's date gets selected"
+    },
+    {
+      "action": "pick_first",
+      "selector": "tbody > tr > td:nth-of-type(12) > div > button",
+      "_note": "Start Date date picker opens and today's date is selected"
+    }
+  ]
+}

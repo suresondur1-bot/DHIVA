@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Register a new patient: Consultant Sunil Gouniyal, pick the first slot, First Name Suresh, Middle Name Balkrishna, Last Name Sondur, Age 20, Sex Male, Correspondence Pincode 560103, Permanent Pincode 560103, Correspondence House B704, then click Register",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-16T12:54:56",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "337800",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Sunil Gouniyal",
+      "_note": "Consultant Sunil Gouniyal selected"
+    },
+    {
+      "action": "pick_first",
+      "selector": "#slot",
+      "_note": "First available slot is selected and modal closes"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Suresh508911",
+      "_note": "First Name field shows Suresh with random suffix"
+    },
+    {
+      "action": "type",
+      "selector": "#middleName",
+      "value": "Balkrishna",
+      "_note": "Middle Name shows Balkrishna"
+    },
+    {
+      "action": "type",
+      "selector": "#lastName",
+      "value": "Sondur",
+      "_note": "Last Name shows Sondur"
+    },
+    {
+      "action": "type",
+      "selector": "#age",
+      "value": "20",
+      "_note": "Age field shows 20 and DOB auto-populates"
+    },
+    {
+      "action": "search_select",
+      "selector": "#gender",
+      "value": "Male",
+      "_note": "Sex shows Male"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondencePincode",
+      "value": "560103",
+      "_note": "Correspondence Pin/Zip Code shows 560103 and city fields update"
+    },
+    {
+      "action": "type",
+      "selector": "#permanentPincode",
+      "value": "560103",
+      "_note": "Permanent Pin/Zip Code shows 560103 and city fields populate"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondenceHouse",
+      "value": "B704",
+      "_note": "Correspondence House No/Bldg./Apt shows B704"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registration submits successfully"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registration submitted successfully"
+    }
+  ]
+}

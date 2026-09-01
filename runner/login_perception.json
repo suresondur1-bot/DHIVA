@@ -1,0 +1,72 @@
+{
+  "url": "https://sqa.narayanahealth.org/",
+  "title": "Welcome to Athma!",
+  "elements": [
+    {
+      "ref": "e1",
+      "type": "textbox",
+      "name": "username",
+      "selector": "#username",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        485,
+        260,
+        310,
+        40
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e2",
+      "type": "textbox",
+      "name": "password",
+      "selector": "#password",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        485,
+        324,
+        310,
+        40
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e3",
+      "type": "button",
+      "name": "",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        485,
+        388,
+        310,
+        40
+      ],
+      "text": "Sign in"
+    },
+    {
+      "ref": "e4",
+      "type": "button",
+      "name": "",
+      "selector": "div > div > form:nth-of-type(2) > div > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        485,
+        445,
+        310,
+        40
+      ],
+      "text": "Login with SSO"
+    }
+  ],
+  "tables": [],
+  "errors": [],
+  "viewport": {
+    "w": 1280,
+    "h": 720
+  }
+}

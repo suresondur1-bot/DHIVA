@@ -1,0 +1,468 @@
+{
+  "url": "https://sqa.narayanahealth.org/phrweb/stock-indent-new",
+  "title": "Stock Indents",
+  "elements": [
+    {
+      "ref": "e1",
+      "type": "link",
+      "name": "",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        16,
+        20,
+        114,
+        24
+      ],
+      "text": "New Indent"
+    },
+    {
+      "ref": "e2",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(1) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        768,
+        14,
+        40,
+        37
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e3",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(2) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        808,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e4",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(3) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        848,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e5",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(4) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        888,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e6",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(5) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        928,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e7",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(6) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        968,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e8",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(7) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1008,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e9",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(8) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1048,
+        14,
+        42,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e10",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(9) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1106,
+        10,
+        142,
+        44
+      ],
+      "text": "A\nAdministrator\nMMII Na ...l, Raipur"
+    },
+    {
+      "ref": "e11",
+      "type": "link",
+      "name": "",
+      "selector": "#account-more",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1252,
+        14,
+        20,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e12",
+      "type": "button",
+      "name": "",
+      "selector": "#csvFileInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        8,
+        79,
+        24,
+        18
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e13",
+      "type": "button",
+      "name": "",
+      "selector": "tr > th:nth-of-type(2) > div > div:nth-of-type(1) > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        35,
+        131,
+        28,
+        28
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e14",
+      "type": "textbox",
+      "name": "Enter Item Code/Name",
+      "selector": "#itemInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        35,
+        180,
+        275,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e15",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        690,
+        682,
+        80,
+        28
+      ],
+      "text": "Cancel"
+    },
+    {
+      "ref": "e16",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        789,
+        682,
+        80,
+        28
+      ],
+      "text": "Save"
+    },
+    {
+      "ref": "e17",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(1) > stock-indent-button > div > div:nth-of-type(2) > button:nth-of-type(3)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        888,
+        682,
+        134,
+        28
+      ],
+      "text": "Send for Approval"
+    },
+    {
+      "ref": "e18",
+      "type": "button",
+      "name": "",
+      "selector": "div > div:nth-of-type(1) > div > div > button:nth-of-type(1)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1097,
+        105,
+        38,
+        29
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e19",
+      "type": "button",
+      "name": "",
+      "selector": "div > div:nth-of-type(1) > div > div > button:nth-of-type(2)",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1179,
+        105,
+        46,
+        29
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e20",
+      "type": "link",
+      "name": "",
+      "selector": "#dropdownBasic1",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1230,
+        137,
+        35,
+        16
+      ],
+      "text": "0 Docs"
+    },
+    {
+      "ref": "e21",
+      "type": "textbox",
+      "name": "Creation Date",
+      "selector": "#date",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1065,
+        305,
+        85,
+        28
+      ],
+      "value": "14/06/2026"
+    },
+    {
+      "ref": "e22",
+      "type": "textbox",
+      "name": "Approval Date",
+      "selector": "#date",
+      "required": false,
+      "disabled": true,
+      "bbox": [
+        1180,
+        305,
+        85,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e23",
+      "type": "textbox",
+      "name": "Add new comment",
+      "selector": "#comments",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1065,
+        503,
+        200,
+        60
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e24",
+      "type": "textbox",
+      "name": "Type Indent Store Name",
+      "selector": "#indentStoreInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        415,
+        291,
+        446,
+        28
+      ],
+      "value": "BLOOD-BANK"
+    },
+    {
+      "ref": "e25",
+      "type": "textbox",
+      "name": "Type Unit Name",
+      "selector": "#unitInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        415,
+        349,
+        446,
+        28
+      ],
+      "value": "MMII Narayana Multispeciality Hospital, Raipur"
+    },
+    {
+      "ref": "e26",
+      "type": "textbox",
+      "name": "Type Issue Store Name",
+      "selector": "#issueStoreInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        415,
+        407,
+        446,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e27",
+      "type": "button",
+      "name": "",
+      "selector": "div > store-selector > div:nth-of-type(3) > div > button:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        682,
+        476,
+        80,
+        28
+      ],
+      "text": "Cancel"
+    },
+    {
+      "ref": "e28",
+      "type": "button",
+      "name": "btnNext",
+      "selector": "#btnNext",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        777,
+        476,
+        80,
+        28
+      ],
+      "text": "Next"
+    }
+  ],
+  "tables": [
+    {
+      "ref": "tbl29",
+      "headers": [
+        "",
+        "Item Name",
+        "Allow\nAlternate",
+        "Consumed\nLast Month",
+        "Consumed\nCurrent Month",
+        "Current\nStock",
+        "Quantity\nIn Transit",
+        "UOM",
+        "Quantity\nRequired",
+        ""
+      ],
+      "row_count": 1,
+      "rows": [
+        [
+          "",
+          "",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "ref": "tbl30",
+      "headers": [],
+      "row_count": 1,
+      "rows": [
+        [
+          "New",
+          "0 Docs"
+        ]
+      ]
+    }
+  ],
+  "errors": [],
+  "viewport": {
+    "w": 1280,
+    "h": 720
+  }
+}

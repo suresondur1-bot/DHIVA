@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Register new patient with Dr Sunil Gouniyal for the first available slot ,for patient with first name Pradeep  and last name kumar age 20 years born on 17-06-2006 with mobile number 8971429587 stays in balgalore with pin code 560103 and appartmnt no B704 and permanenet addesss is same as correspondance address and after register stop the flow.",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-17T12:17:46",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Sunil Gouniyal",
+      "_note": "Dr Sunil Gouniyal selected as consultant"
+    },
+    {
+      "action": "pick_first",
+      "selector": "#slot",
+      "_note": "First available slot gets selected and the modal closes"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Pradeep970537",
+      "_note": "First Name field shows Pradeep with random suffix"
+    },
+    {
+      "action": "type",
+      "selector": "#lastName",
+      "value": "kumar",
+      "_note": "Last Name shows kumar"
+    },
+    {
+      "action": "type",
+      "selector": "#age",
+      "value": "20",
+      "_note": "Age shows 20 and Date of Birth auto-populates"
+    },
+    {
+      "action": "type",
+      "selector": "input[name=\"mobileNumber\"]",
+      "value": "8971429587",
+      "_note": "Mobile number populated as 8971429587"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondencePincode",
+      "value": "560103",
+      "_note": "Pin/Zip Code shows 560103 and city resets"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondenceHouse",
+      "value": "B704",
+      "_note": "Correspondence House No field shows B704"
+    },
+    {
+      "action": "type",
+      "selector": "#permanentPincode",
+      "value": "560103",
+      "_note": "Permanent pincode field shows 560103"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registers successfully with MRN generated"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registers successfully or specific field errors show"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient gets registered successfully or specific field errors appear"
+    },
+    {
+      "action": "search_select",
+      "selector": "#gender",
+      "value": "Male",
+      "_note": "Sex field shows Male"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient is registered and confirmation appears"
+    }
+  ]
+}

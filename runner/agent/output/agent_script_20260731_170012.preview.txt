@@ -1,0 +1,25 @@
+# Goal: Create new admission for MRN NO=10010000723767  ,by searching the MRN and selecting the patient.Search and select primary consultant as Sunil Gouniyal,search and Select Admission Category as Surgery,Select Opted class as  CCA,Click in Ward to select Bed.Select any one bed.
+Enter Admission Reason as Admission.Accompanied By select Self.
+Click on Admit
+# Start: https://sqa.narayanahealth.org/adtweb/admission-new
+# Steps: 19
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/adtweb/admission-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. navigate       https://sqa.narayanahealth.org/adtweb/admission-new   # navigate to https://sqa.narayanahealth.org/adtweb/admission-new
+ 10. click          div > div:nth-of-type(2) > div > div > button   # Search MRN
+ 11. type           #patientInput   # search the record id
+ 12. wait           2000   # wait for search results
+ 13. click          text='10010000723767'   # open 10010000723767
+ 14. wait_for_selector #prDescription   # wait for form
+ 15. wait           1000   # wait for form to settle
+ 16. search_select  #primaryConsultant   # Primary Consultant *
+ 17. search_select  #admissionCategory   # Admission Category *
+ 18. search_select  #optedClass   # Opted Class *
+ 19. click          input[name="ward"]   # Ward * (click to open bed picker)

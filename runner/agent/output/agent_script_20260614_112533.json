@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "Create a stock correction: select store code IP-Pharmacy-Raipur search for the same and select, click Continue, enter item code KI-RA-N-0901-PH, select batch KILLA12 in the batch dropdowns, set MRP Current to 51, set Correction Qty to 50, then click Save",
+    "start_url": "https://sqa.narayanahealth.org/phrweb/stock-correction-new",
+    "generated": "2026-06-14T11:25:33",
+    "reviewed_by": null
+  },
+  "steps": [
+    {
+      "action": "press",
+      "selector": "#storeInput",
+      "value": "ArrowDown",
+      "_note": "A store suggestion gets highlighted in the typeahead dropdown"
+    },
+    {
+      "action": "press",
+      "selector": "#storeInput",
+      "value": "Enter",
+      "_note": "Store suggestion is selected and field shows the store"
+    },
+    {
+      "action": "click",
+      "selector": "#continueButton",
+      "_note": "Modal closes and correction document body becomes usable"
+    },
+    {
+      "action": "search_select",
+      "selector": "#itemInput",
+      "value": "KI-RA-N-0901-PH",
+      "_note": "Item row populates in the items table"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"batch\"]",
+      "value": "KILLA12",
+      "_note": "Batch KILLA12 selected in the Batch No Current dropdown"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(5) > input",
+      "value": "51",
+      "_note": "MRP Current shows 51"
+    },
+    {
+      "action": "type",
+      "selector": "table > tbody > tr > td:nth-of-type(9) > input",
+      "value": "50",
+      "_note": "Correction Qty field shows 50"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Stock correction is saved"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"batch\"]",
+      "value": "KILLA12",
+      "_note": "Batch No Current shows KILLA12 and error clears"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "The stock correction is saved"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"batch\"]",
+      "value": "KILLA12",
+      "_note": "Batch No Current shows KILLA12 and the error clears"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "The stock correction document is saved"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"batch\"]",
+      "value": "KILLA12",
+      "_note": "Batch No Current shows KILLA12 and the error clears"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Correction document saved"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"batch\"]",
+      "value": "KILLA12",
+      "_note": "Batch No Current shows KILLA12 and the error clears"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "The correction document is saved successfully"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"batch\"]",
+      "value": "KILLA12",
+      "_note": "Batch No Current cell shows KILLA12 and the error clears"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "The stock correction is saved successfully"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"batch\"]",
+      "value": "KILLA12",
+      "_note": "Batch No Current shows KILLA12 and the error clears"
+    },
+    {
+      "action": "click",
+      "selector": "div:nth-of-type(1) > stock-correction-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Stock correction saved successfully"
+    }
+  ]
+}

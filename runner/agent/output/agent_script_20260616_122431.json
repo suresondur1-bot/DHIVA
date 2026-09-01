@@ -1,0 +1,153 @@
+{
+  "meta": {
+    "authored_by": "ATHMA Visual QA Agent",
+    "goal": "create a new registration for a patient with name Suresh Balkrishna Sondur age 20 years born on 16th June 2006,male who stays in Bangalore in Bhuvi by Amsha in B704 and pincode 560103.Permanement Address is same as correspondence tha appointment is for Sunil Goniyal and consider the first available slot",
+    "start_url": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+    "generated": "2026-06-16T12:24:31",
+    "reviewed_by": null,
+    "self_contained": true
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/",
+      "_note": "open Athma login page"
+    },
+    {
+      "action": "wait_for_selector",
+      "selector": "#username",
+      "_note": "wait for login form"
+    },
+    {
+      "action": "type",
+      "selector": "#username",
+      "value": "admin",
+      "_note": "enter username"
+    },
+    {
+      "action": "type",
+      "selector": "#password",
+      "value": "admin",
+      "_note": "enter password"
+    },
+    {
+      "action": "click",
+      "selector": "div > div > form:nth-of-type(1) > div:nth-of-type(3) > button",
+      "_note": "click Sign in"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for login to complete"
+    },
+    {
+      "action": "navigate",
+      "value": "https://sqa.narayanahealth.org/ambweb/patient-registration-new",
+      "_note": "go to the target page"
+    },
+    {
+      "action": "wait",
+      "value": "3000",
+      "_note": "wait for the page to load"
+    },
+    {
+      "action": "search_select",
+      "selector": "ng-select[name=\"consultant\"]",
+      "value": "Sunil Goniyal",
+      "_note": "Consultant Sunil Goniyal selected"
+    },
+    {
+      "action": "pick_first",
+      "selector": "#slot",
+      "_note": "A slot value gets selected in the Slot field"
+    },
+    {
+      "action": "type",
+      "selector": "#firstName",
+      "value": "Suresh627196",
+      "_note": "First Name field shows Suresh with random suffix"
+    },
+    {
+      "action": "type",
+      "selector": "#middleName",
+      "value": "Balkrishna",
+      "_note": "Middle Name shows Balkrishna"
+    },
+    {
+      "action": "type",
+      "selector": "#lastName",
+      "value": "Sondur",
+      "_note": "Last Name field shows Sondur"
+    },
+    {
+      "action": "type",
+      "selector": "#age",
+      "value": "20",
+      "_note": "Age field shows 20 and DOB auto-populates"
+    },
+    {
+      "action": "search_select",
+      "selector": "#gender",
+      "value": "Male",
+      "_note": "Sex set to Male"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondencePincode",
+      "value": "560103",
+      "_note": "Pin/Zip Code shows 560103 in correspondence block"
+    },
+    {
+      "action": "type",
+      "selector": "#permanentPincode",
+      "value": "560103",
+      "_note": "Permanent Pin/Zip Code shows 560103"
+    },
+    {
+      "action": "type",
+      "selector": "#correspondenceHouse",
+      "value": "B704",
+      "_note": "Correspondence House No shows B704"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Patient registration submits successfully or shows any validation errors"
+    },
+    {
+      "action": "click",
+      "selector": "jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)",
+      "_note": "Registration submits successfully or shows any remaining validation errors"
+    },
+    {
+      "action": "click",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(1) > a",
+      "_note": "The Consultation section opens showing the Consultant searchable dropdown and Slot picker"
+    },
+    {
+      "action": "click",
+      "selector": "div > jhi-incident-manager-modal > section > div:nth-of-type(3) > button",
+      "_note": "The Report Incident modal closes and the registration form is accessible"
+    },
+    {
+      "action": "click",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "_note": "Consultation tab opens with editable Consultant search field"
+    },
+    {
+      "action": "scroll",
+      "value": "up",
+      "_note": "The Consultant search field and Slot picker become visible at top of registration form"
+    },
+    {
+      "action": "click",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "_note": "Patient registration form with Consultation tab and consultant search field visible"
+    },
+    {
+      "action": "click",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "_note": "Navigate to Consultation tab where Consultant search field is available"
+    }
+  ]
+}

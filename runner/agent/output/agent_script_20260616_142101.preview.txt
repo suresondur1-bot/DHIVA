@@ -1,0 +1,33 @@
+# Goal: Register a new patient with Dr sunil Gouniyal with the first available Slot.Wait for the slot to be available then select the slot.Patient First Name is Sai middle name Chandra and last name :Sekhar Age of the patient is 20 and is Male Patient with mobile no 8971429587 and Date of birth as  16-06-2006 Stays in bangalore with pincode 560103 and Locality Pai Layout.
+# Start: https://sqa.narayanahealth.org/ambweb/patient-registration-new
+# Steps: 29
+
+  1. navigate       https://sqa.narayanahealth.org/   # open Athma login page
+  2. wait_for_selector #username   # wait for login form
+  3. type           #username   # enter username
+  4. type           #password   # enter password
+  5. click          div > div > form:nth-of-type(1) > div:nth-of-type(3) > button   # click Sign in
+  6. wait           3000   # wait for login to complete
+  7. navigate       https://sqa.narayanahealth.org/ambweb/patient-registration-new   # go to the target page
+  8. wait           3000   # wait for the page to load
+  9. search_select  ng-select[name="consultant"]   # Dr sunil Gouniyal is selected as Consultant
+ 10. pick_first     #slot   # First available slot is selected and modal closes
+ 11. type           #firstName   # First Name shows the entered value
+ 12. type           #middleName   # Middle Name shows Chandra
+ 13. type           #lastName   # Last Name shows Sekhar
+ 14. type           #age   # Age field shows 20 and Date of Birth auto-populates
+ 15. search_select  #gender   # Sex field shows Male selected
+ 16. type           #dateOfBirth   # Date of Birth shows 16/06/2006
+ 17. type           input[name="mobileNumber"]   # Phone No field shows 8971429587
+ 18. type           #correspondencePincode   # Pincode field shows 560103
+ 19. type           #correspondenceLocality   # Locality field shows Pai Layout
+ 20. click          jhi-patient-registration-dialog > div > div:nth-of-type(4) > div:nth-of-type(2) > button:nth-of-type(2)   # Patient registration succeeds with a confirmation
+ 21. type           #input1   # OTP digits populate the verification boxes
+ 22. type           #input2   # Second OTP box shows 9
+ 23. type           #input3   # Third OTP box shows 7
+ 24. type           #input4   # Fourth OTP box filled and Verify button enabled
+ 25. click          #verify   # Verify Consent modal closes and registration can proceed
+ 26. click          #verify   # Consent verified, modal closes, Register button enables
+ 27. type           #input1   # First OTP box shows single digit 8
+ 28. click          #verify   # Consent verified and modal closes
+ 29. click          #verify   # OTP modal closes and consent is verified

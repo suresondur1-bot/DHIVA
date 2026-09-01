@@ -1,0 +1,655 @@
+{
+  "url": "https://sqa.narayanahealth.org/spmweb/service-purchase-requisition-new",
+  "title": "Service Purchase Requisition",
+  "elements": [
+    {
+      "ref": "e1",
+      "type": "link",
+      "name": "",
+      "selector": "header > jhi-navbar > nav > div:nth-of-type(1) > a:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        16,
+        20,
+        230,
+        24
+      ],
+      "text": "Service Purchase Requisition"
+    },
+    {
+      "ref": "e2",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(1) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        768,
+        14,
+        40,
+        37
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e3",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(2) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        808,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e4",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(3) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        848,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e5",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(4) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        888,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e6",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(5) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        928,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e7",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(6) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        968,
+        15,
+        40,
+        34
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e8",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(7) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1008,
+        14,
+        40,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e9",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(8) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1048,
+        14,
+        42,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e10",
+      "type": "link",
+      "name": "",
+      "selector": "nav > div:nth-of-type(2) > ul > li:nth-of-type(9) > a",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1106,
+        10,
+        142,
+        44
+      ],
+      "text": "A\nAdministrator\nMMII Na ...l, Raipur"
+    },
+    {
+      "ref": "e11",
+      "type": "link",
+      "name": "",
+      "selector": "#account-more",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1252,
+        14,
+        20,
+        36
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e12",
+      "type": "textbox",
+      "name": "",
+      "selector": "#prDescription",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        195,
+        255,
+        1043,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e13",
+      "type": "textbox",
+      "name": "Enter Service Name",
+      "selector": "#itemInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        49,
+        423,
+        226,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e14",
+      "type": "combobox",
+      "name": "Select",
+      "selector": "table > tbody > tr > td:nth-of-type(2) > ng-select",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        291,
+        423,
+        260,
+        28
+      ]
+    },
+    {
+      "ref": "e15",
+      "type": "textbox",
+      "name": "",
+      "selector": "#longDescriptionInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        567,
+        423,
+        184,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e16",
+      "type": "textbox",
+      "name": "",
+      "selector": "table > tbody > tr > td:nth-of-type(4) > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        767,
+        423,
+        134,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e17",
+      "type": "textbox",
+      "name": "",
+      "selector": "table > tbody > tr > td:nth-of-type(5) > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        917,
+        423,
+        184,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e18",
+      "type": "textbox",
+      "name": "",
+      "selector": "table > tbody > tr > td:nth-of-type(6) > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1117,
+        423,
+        64,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e19",
+      "type": "textbox",
+      "name": "",
+      "selector": "table > tbody > tr > td:nth-of-type(7) > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1197,
+        423,
+        64,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e20",
+      "type": "textbox",
+      "name": "",
+      "selector": "table > tbody > tr > td:nth-of-type(8) > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1277,
+        423,
+        84,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e21",
+      "type": "textbox",
+      "name": "",
+      "selector": "table > tbody > tr > td:nth-of-type(9) > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1377,
+        423,
+        84,
+        28
+      ],
+      "value": "0"
+    },
+    {
+      "ref": "e22",
+      "type": "textbox",
+      "name": "",
+      "selector": "tr > td:nth-of-type(10) > div > div > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1477,
+        423,
+        45,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e23",
+      "type": "textbox",
+      "name": "",
+      "selector": "tbody > tr > td:nth-of-type(10) > div > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1522,
+        423,
+        75,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e24",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(1) > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        9,
+        683,
+        80,
+        28
+      ],
+      "text": "Cancel"
+    },
+    {
+      "ref": "e25",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1022,
+        683,
+        80,
+        28
+      ],
+      "text": "Save"
+    },
+    {
+      "ref": "e26",
+      "type": "button",
+      "name": "",
+      "selector": "div:nth-of-type(2) > purchase-requisition-button > div > div:nth-of-type(2) > button:nth-of-type(2)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1118,
+        683,
+        134,
+        28
+      ],
+      "text": "Send for Approval"
+    },
+    {
+      "ref": "e27",
+      "type": "radio",
+      "name": "poType",
+      "selector": "input[name=\"poType\"]",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        415,
+        259,
+        13,
+        13
+      ],
+      "checked": true
+    },
+    {
+      "ref": "e28",
+      "type": "textbox",
+      "name": "Select Supplier Name",
+      "selector": "#supplierInput",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        415,
+        307,
+        446,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e29",
+      "type": "combobox",
+      "name": "Select",
+      "selector": "#currencyList",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        415,
+        364,
+        446,
+        28
+      ]
+    },
+    {
+      "ref": "e30",
+      "type": "combobox",
+      "name": "Select",
+      "selector": "#serviceCategoryList",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        415,
+        421,
+        446,
+        28
+      ]
+    },
+    {
+      "ref": "e31",
+      "type": "button",
+      "name": "",
+      "selector": "div > purchase-requisition-prerequisite-selector > div:nth-of-type(3) > div > button:nth-of-type(1)",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        685,
+        490,
+        80,
+        28
+      ],
+      "text": "Close"
+    },
+    {
+      "ref": "e32",
+      "type": "button",
+      "name": "btnNext",
+      "selector": "#btnNext",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        777,
+        490,
+        80,
+        28
+      ],
+      "text": "Continue"
+    },
+    {
+      "ref": "e33",
+      "type": "textbox",
+      "name": "",
+      "selector": "table > tbody > tr > td:nth-of-type(11) > input",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        647,
+        423,
+        84,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e34",
+      "type": "dateinput",
+      "name": "dd/mm/yyyy",
+      "selector": "#serviceStartDate",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        747,
+        423,
+        100,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e35",
+      "type": "button",
+      "name": "",
+      "selector": "tbody > tr > td:nth-of-type(12) > div > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        847,
+        423,
+        26,
+        28
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e36",
+      "type": "dateinput",
+      "name": "dd/mm/yyyy",
+      "selector": "#serviceEndDate",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        889,
+        423,
+        100,
+        28
+      ],
+      "value": ""
+    },
+    {
+      "ref": "e37",
+      "type": "button",
+      "name": "",
+      "selector": "tbody > tr > td:nth-of-type(13) > div > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        989,
+        423,
+        26,
+        28
+      ],
+      "text": ""
+    },
+    {
+      "ref": "e38",
+      "type": "combobox",
+      "name": "Select",
+      "selector": "tbody > tr > td:nth-of-type(14) > div > ng-select",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1031,
+        423,
+        150,
+        28
+      ]
+    },
+    {
+      "ref": "e39",
+      "type": "button",
+      "name": "",
+      "selector": "table > tbody > tr > td:nth-of-type(15) > button",
+      "required": false,
+      "disabled": false,
+      "bbox": [
+        1205,
+        427,
+        18,
+        20
+      ],
+      "text": ""
+    }
+  ],
+  "tables": [
+    {
+      "ref": "tbl40",
+      "headers": [],
+      "row_count": 3,
+      "rows": [
+        [
+          "New",
+          "-",
+          "New"
+        ],
+        [
+          "-",
+          "Administrator",
+          "-|-"
+        ],
+        [
+          ""
+        ]
+      ]
+    },
+    {
+      "ref": "tbl41",
+      "headers": [
+        "Service code | Description*",
+        "Rate Contract",
+        "Long Description",
+        "Site",
+        "Accounting Category/\nClass Name/Sub Acc",
+        "UOM*",
+        "Qty*",
+        "Cost Price*",
+        "Gross Amt",
+        "Discount",
+        "Net Amt",
+        "Start Date",
+        "End Date",
+        "Budget Ref No*",
+        ""
+      ],
+      "row_count": 1,
+      "rows": [
+        [
+          "",
+          "Select",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "%",
+          "",
+          "",
+          "",
+          "Select",
+          ""
+        ]
+      ]
+    }
+  ],
+  "errors": [],
+  "viewport": {
+    "w": 1280,
+    "h": 720
+  },
+  "_scroll_passes": 16
+}
