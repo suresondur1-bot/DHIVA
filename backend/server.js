@@ -225,13 +225,37 @@ setInterval(() => {
 }, 300000);
 
 // ── Database connection ───────────────────────────────────────────────────────
+// ─── DATABASE SETTINGS ───────────────────────────────────────────────────────
+// The database name, user and password have NO defaults on purpose: they are
+// whatever the person deploying created, and guessing them only produces a
+// confusing "connection failed" against a database nobody meant to use. Host
+// and port do default, since localhost:5432 is right for a local install.
+const REQUIRED_DB_VARS = ["DB_NAME", "DB_USER", "DB_PASSWORD"];
+const missingDbVars = REQUIRED_DB_VARS.filter(v => !process.env[v]);
+if (missingDbVars.length > 0) {
+  console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.error("❌ Missing required database setting(s): " + missingDbVars.join(", "));
+  console.error("");
+  console.error("   Set them in backend/.env, for example:");
+  console.error("     DB_HOST=localhost");
+  console.error("     DB_PORT=5432");
+  console.error("     DB_NAME=<the database you created>");
+  console.error("     DB_USER=<postgres user>");
+  console.error("     DB_PASSWORD=<that user's password>");
+  console.error("");
+  console.error("   Create an EMPTY database with that name first — the tables");
+  console.error("   are created automatically on first start.");
+  console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  process.exit(1);
+}
+
 // Set DB_HOST env var if your PostgreSQL is on a different machine or Docker IP.
 // Default is localhost — works for local installs and pgAdmin on same machine.
 const pool = new Pool({
-  user:     process.env.DB_USER     || "appuser",
+  user:     process.env.DB_USER,
   host:     process.env.DB_HOST     || "localhost",
-  database: process.env.DB_NAME     || "sdadads",
-  password: process.env.DB_PASSWORD || "asdasd",
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
   port:     parseInt(process.env.DB_PORT || "5432"),
   connectionTimeoutMillis: 60000,
   idleTimeoutMillis:       60000,
@@ -254,8 +278,8 @@ pool.connect((err, client, release) => {
     console.error("❌ Database connection FAILED:", err.message);
     console.error("   Host:     ", process.env.DB_HOST || "localhost");
     console.error("   Port:     ", process.env.DB_PORT || 5432);
-    console.error("   Database: ", process.env.DB_NAME || "automation_db");
-    console.error("   User:     ", process.env.DB_USER || "appuser");
+    console.error("   Database: ", process.env.DB_NAME);
+    console.error("   User:     ", process.env.DB_USER);
     console.error("");
     console.error("   Fix options:");
     console.error("   1. Make sure PostgreSQL is running (check pgAdmin or Services)");
@@ -264,8 +288,99 @@ pool.connect((err, client, release) => {
     console.error("   3. Check firewall allows port 5432");
     console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   } else {
-    console.log("✅ Database connected:", process.env.DB_HOST || "localhost", "→", process.env.DB_NAME || "automation_db");
+    console.log("✅ Database connected:", process.env.DB_HOST || "localhost", "→", process.env.DB_NAME);
     release();
+    // Create the schema on a brand-new database BEFORE the column migrations
+    // below — those are all ALTER TABLE, which silently do nothing when the
+    // tables don't exist yet. That is why a fresh install used to start up
+    // reporting success and then fail on every request.
+    ensureSchema()
+      .then(runStartupMigrations)
+      .catch(e => console.error("❌ Schema bootstrap failed:", e.message));
+  }
+});
+
+
+// pg_dump emits bare CREATE TABLE / CREATE SEQUENCE / ADD CONSTRAINT, which
+// fail outright if the object is already there. That matters because several
+// route modules create their own tables at startup (custom_controls,
+// ci_api_keys, jira_config, multilingual_ignores) and race this bootstrap —
+// one "already exists" aborted the whole transaction and left the database
+// half-built. Rewriting the dump so every statement tolerates an existing
+// object makes the order of that race irrelevant.
+function makeIdempotent(sql) {
+  let out = sql;
+  out = out.replace(/\bCREATE TABLE (?!IF NOT EXISTS)/g,           "CREATE TABLE IF NOT EXISTS ");
+  out = out.replace(/\bCREATE SEQUENCE (?!IF NOT EXISTS)/g,        "CREATE SEQUENCE IF NOT EXISTS ");
+  out = out.replace(/\bCREATE (UNIQUE )?INDEX (?!IF NOT EXISTS)/g, (m, u) => "CREATE " + (u || "") + "INDEX IF NOT EXISTS ");
+  out = out.replace(/\bCREATE FUNCTION\b/g,                       "CREATE OR REPLACE FUNCTION");
+
+  // ALTER TABLE ... ADD CONSTRAINT has no IF NOT EXISTS in Postgres, so each is
+  // wrapped to swallow only the three "it is already there" codes:
+  //   duplicate_object          - a constraint of that name exists
+  //   duplicate_table           - the backing index exists
+  //   invalid_table_definition  - "multiple primary keys", which is what a table
+  //                               already created by a route module produces
+  // Anything else still aborts, so a genuinely bad statement is not hidden.
+  out = out.replace(/ALTER TABLE ONLY [\s\S]*?;\n/g, stmt => {
+    if (!/ADD CONSTRAINT/.test(stmt)) return stmt;   // SET DEFAULT is re-runnable as-is
+    const body = stmt.trim().replace(/;$/, "");
+    return "DO $do$ BEGIN\n" + body +
+           ";\nEXCEPTION WHEN duplicate_object OR duplicate_table OR invalid_table_definition THEN NULL;\nEND $do$;\n";
+  });
+
+  // Same for triggers.
+  out = out.replace(/CREATE TRIGGER ([\w]+) ([\s\S]*?ON ([\w.]+)[\s\S]*?);\n/g,
+    (m, name, rest, table) => "DROP TRIGGER IF EXISTS " + name + " ON " + table + ";\nCREATE TRIGGER " + name + " " + rest + ";\n");
+
+  return out;
+}
+
+// ─── FIRST-RUN SCHEMA BOOTSTRAP ──────────────────────────────────────────────
+// A new deployment only has to create an empty database and point .env at it;
+// the tables are created here from backend/schema.sql (a pg_dump --schema-only
+// of a known-good database). Runs once — if the core tables already exist it
+// does nothing, so it is safe on every restart.
+async function ensureSchema() {
+  const probe = await pool.query("SELECT to_regclass('public.projects') AS t");
+  if (probe.rows[0] && probe.rows[0].t) return false;   // already installed
+
+  const file = path.join(__dirname, "schema.sql");
+  if (!fs.existsSync(file)) {
+    console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.error("❌ Database '" + process.env.DB_NAME + "' is EMPTY and backend/schema.sql is missing.");
+    console.error("   Nothing will work until the tables exist.");
+    console.error("   Restore schema.sql to the backend folder and restart.");
+    console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    return false;
+  }
+
+  console.log("🆕 Empty database detected — creating tables from schema.sql …");
+  const sql = makeIdempotent(fs.readFileSync(file, "utf8"));
+  const client = await pool.connect();
+  try {
+    // One transaction: a half-created schema is worse than none at all.
+    await client.query("BEGIN");
+    await client.query(sql);
+    await client.query("COMMIT");
+  } catch (e) {
+    await client.query("ROLLBACK").catch(() => {});
+    console.error("❌ Could not create schema:", e.message);
+    throw e;
+  } finally {
+    client.release();
+  }
+
+  const n = await pool.query(
+    "SELECT COUNT(*)::int AS c FROM information_schema.tables WHERE table_schema='public'"
+  );
+  console.log("✅ Schema created — " + n.rows[0].c + " tables. Create your first admin user to begin.");
+  return true;
+}
+
+// The original startup migrations, unchanged — just moved so they run AFTER
+// the schema exists.
+function runStartupMigrations() {
     // ── One-time startup migrations ──────────────────────────────────────────
     // Fix old suite_runs with NULL started_at
     pool.query(`
@@ -321,8 +436,7 @@ pool.connect((err, client, release) => {
       CREATE INDEX IF NOT EXISTS idx_access_requests_created_at ON access_requests(created_at);
     `).then(() => console.log("✅ access_requests table ready"))
       .catch(e  => console.error("⚠️  Migration warning:", e.message));
-  }
-});
+}
 
 const sha256 = s => crypto.createHash("sha256").update(s).digest("hex");
 

@@ -31,7 +31,28 @@ function getServerConfig(cb) {
   });
 }
 
-const NAT_URLS = ['http://localhost:5176','http://localhost:5177','http://localhost:6001','http://10.8.7.176:5176','http://10.8.7.176:5177','http://10.8.7.176:6001'];
+let POPUP_API = '';
+let POPUP_NAT = '';
+chrome.storage.local.get(['athma_server_api', 'athma_server_nat'], d => {
+  POPUP_API = (d && d.athma_server_api) || '';
+  POPUP_NAT = (d && d.athma_server_nat) || '';
+});
+
+// Built from the configured server rather than hardcoded, so the "open QAVYA"
+// shortcut points at whichever server this extension is set to.
+function natUrls() {
+  const hosts = new Set(['localhost', '127.0.0.1']);
+  // POPUP_API/POPUP_NAT are filled from chrome.storage below; DEFAULT_* are the
+  // fallbacks. Both are consulted so a server set in Settings is included.
+  for (const u of [POPUP_API, POPUP_NAT, DEFAULT_API, DEFAULT_NAT]) {
+    try { const h = new URL(u).hostname; if (h) hosts.add(h); } catch (e) {}
+  }
+  const out = [];
+  for (const h of hosts) for (const p of ['5176', '5177', '6001']) out.push('http://' + h + ':' + p);
+  return out;
+}
+// Recomputed on use — chrome.storage resolves after this file is parsed.
+function NAT_URLS_now() { return natUrls(); }
 
 const screenUrl=document.getElementById('screen-url'),screenRec=document.getElementById('screen-rec'),screenDone=document.getElementById('screen-done'),screenSettings=document.getElementById('screen-settings');
 const urlInput=document.getElementById('urlInput'),goBtn=document.getElementById('goBtn'),currentPageCard=document.getElementById('currentPageCard'),currentPageUrl=document.getElementById('currentPageUrl');
@@ -55,7 +76,7 @@ chrome.tabs.query({active:true,currentWindow:true},(tabs)=>{
   if(!currentTab?.url)return;
   const url=currentTab.url;
   getServerConfig(({nat})=>{
-    const allNatUrls=[...new Set([...NAT_URLS,nat])];
+    const allNatUrls=[...new Set([...NAT_URLS_now(),nat])];
     const isValid=!url.startsWith('chrome://')&&!url.startsWith('chrome-extension://')&&!url.startsWith('about:')&&!url.startsWith('edge://')&&!allNatUrls.some(u=>url.startsWith(u));
     if(isValid){currentPageUrl.textContent=url;currentPageCard.style.display='flex';orDivider.style.display='flex';urlInput.value=url;}
   });
@@ -139,7 +160,7 @@ if(goNatBtn)goNatBtn.addEventListener('click',()=>{
   if(!allSteps.length){alert('No steps recorded.');return;}
   let encoded;try{encoded=btoa(unescape(encodeURIComponent(JSON.stringify(allSteps))));}catch(e){alert('Failed to encode steps: '+e.message);return;}
   getServerConfig(({nat})=>{
-    const allNatUrls=[...new Set([...NAT_URLS,nat])];
+    const allNatUrls=[...new Set([...NAT_URLS_now(),nat])];
     const hash='recorder?steps='+encoded;
     chrome.tabs.query({},(tabs)=>{
       const natTab=tabs.find(t=>t.url&&allNatUrls.some(u=>t.url.startsWith(u)));
@@ -188,6 +209,10 @@ const inspectorStatus=document.getElementById('inspectorStatus');
 const stopInspectorBtn=document.getElementById('stopInspectorBtn');
 
 if(inspectorBtn){
+  function resetInspectorBtn(){
+    inspectorBtn.disabled = false;
+    inspectorBtn.textContent = '\ud83c\udfaf Activate Inspector on Current Tab';
+  }
   inspectorBtn.addEventListener('click',async()=>{
     chrome.tabs.query({active:true,currentWindow:true},async(tabs)=>{
       const tab=tabs[0];
@@ -197,13 +222,25 @@ if(inspectorBtn){
       // Get fresh token via background
       const {token} = await new Promise(r=>chrome.runtime.sendMessage({type:'get_token'},r));
       if(!token){
-        alert('Not logged in. Please log into ATHMA at localhost:6001 first.');
+        resetInspectorBtn();
+        alert('Not logged in — open QAVYA in a tab and log in, then try again.');
         return;
       }
-      // Poll for session created by the ATHMA frontend (via launchInspector)
+      // Say something IMMEDIATELY. This used to sit silent for ten seconds while
+      // polling below, with no spinner and no text change — indistinguishable
+      // from a dead button, and if the popup lost focus in that window it closed
+      // and took the whole handler with it.
+      const inspectorBtnLabel = inspectorBtn.textContent;
+      inspectorBtn.disabled = true;
+      inspectorBtn.textContent = 'Starting inspector…';
+
+      // Poll for a session the QAVYA frontend may have created (launchInspector).
+      // Shortened from 10s to 3s: when there is no pending session — the normal
+      // case when starting from this button — we create one ourselves right
+      // after, so the long wait bought nothing but confusion.
       let sessionId=null;
       const { api: inspApi } = await new Promise(r => getServerConfig(r));
-      for(let attempt=0; attempt<20; attempt++) {
+      for(let attempt=0; attempt<6; attempt++) {
         try{
           const r=await fetch(`${inspApi}/api/inspector/pending`,{headers:{Authorization:`Bearer ${token}`}});
           if(r.ok){const d=await r.json();sessionId=d.sessionId;if(sessionId)break;}
@@ -215,10 +252,10 @@ if(inspectorBtn){
         try{
           const r=await fetch(`${inspApi}/api/inspector/start`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({})});
           if(r.ok){const d=await r.json();sessionId=d.sessionId||d.session_id;}
-          else{const t=await r.text();alert('Server error '+r.status+': '+t.slice(0,100));return;}
-        }catch(e){alert('Cannot reach server: '+e.message);return;}
+          else{const t=await r.text();resetInspectorBtn();alert('Server error '+r.status+': '+t.slice(0,100));return;}
+        }catch(e){resetInspectorBtn();alert('Cannot reach server: '+e.message);return;}
       }
-      if(!sessionId){alert('Could not create session.');return;}
+      if(!sessionId){resetInspectorBtn();alert('Could not create session.');return;}
       console.log('[ATHMA Popup] Inspector sessionId:', sessionId);
       // Tell the ATHMA frontend tab about this session so it subscribes via WebSocket
       chrome.tabs.query({}, async (allTabs) => {
@@ -252,7 +289,8 @@ if(inspectorBtn){
             });
           });
         } else {
-          alert('Inspector inject failed.');
+          resetInspectorBtn();
+          alert('Inspector inject failed — is this tab the app under test, not QAVYA itself?');
         }
       });
     });

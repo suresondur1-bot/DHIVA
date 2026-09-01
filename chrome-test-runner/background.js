@@ -40,11 +40,109 @@ async function getServerConfig() {
 let ATHMA_API    = DEFAULT_API;
 let ATHMA_WS_URL = DEFAULT_API.replace('http', 'ws');
 
+// ── Which tabs are the QAVYA UI itself? ──────────────────────────────────────
+// These lists used to be hardcoded host:port literals (localhost plus one dev
+// IP), repeated in seven places. The recorder uses them to EXCLUDE its own UI
+// when choosing which tab to record — so on any server other than that one dev
+// box the QAVYA tab went unrecognised and the recorder could attach to itself
+// instead of the app under test. Now derived from the configured server, with
+// localhost kept for local installs.
+const LOCAL_HOSTS = ['localhost', '127.0.0.1'];
+const UI_PORTS    = ['5176', '5177', '6001'];
+
+// The URL saved in the popup's Settings screen lives in chrome.storage and was
+// previously only read at individual call sites — ATHMA_API/DEFAULT_API never
+// saw it. Mirrored here (and kept current via onChanged) so the checks below
+// know about the server this extension is actually pointed at.
+let STORED_API = '';
+let STORED_NAT = '';
+chrome.storage.local.get(['athma_server_api', 'athma_server_nat'], d => {
+  STORED_API = (d && d.athma_server_api) || '';
+  STORED_NAT = (d && d.athma_server_nat) || '';
+});
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local') return;
+  if (changes.athma_server_api) STORED_API = changes.athma_server_api.newValue || '';
+  if (changes.athma_server_nat) STORED_NAT = changes.athma_server_nat.newValue || '';
+});
+
+function hostOf(u)   { try { return new URL(u).hostname; } catch (e) { return ''; } }
+function originOf(u) { try { const x = new URL(u); return x.protocol + '//' + x.host; } catch (e) { return ''; } }
+
+// ── Auto-discover the server from the QAVYA tab ──────────────────────────────
+// Every client used to need someone to type the server URL into the popup's
+// Settings screen, because the only other source was a hardcoded dev IP. Now:
+// when a tester opens the QAVYA UI at ANY address, the extension verifies that
+// origin really is a QAVYA backend and adopts it. Nothing to configure.
+//
+// It only adopts when there is nothing stored yet, or when the stored server
+// has stopped answering — so a deliberate choice in Settings is never
+// overwritten by, say, glancing at a colleague's instance.
+async function looksLikeQavya(origin) {
+  try {
+    const r = await fetch(origin + '/api/health', { signal: AbortSignal.timeout(3000) });
+    if (!r.ok) return false;
+    const j = await r.json().catch(() => null);
+    return !!(j && (j.ok === true || j.status === 'ok'));
+  } catch (e) { return false; }
+}
+
+async function adoptServer(origin, why) {
+  await chrome.storage.local.set({ athma_server_api: origin, athma_server_nat: origin });
+  STORED_API = origin; STORED_NAT = origin;
+  DEFAULT_API = origin; DEFAULT_NAT = origin;
+  ATHMA_API   = origin; ATHMA_WS_URL = origin.replace(/^http/, 'ws');
+  console.log('[QAVYA] server set to ' + origin + ' (' + why + ')');
+}
+
+let lastProbedOrigin = '';
+async function maybeAdoptFromTab(url) {
+  const origin = originOf(url);
+  if (!origin) return;
+  // Only ports the QAVYA UI is ever served on — avoids probing every site.
+  const port = (new URL(origin).port || '');
+  if (!UI_PORTS.includes(port)) return;
+  if (origin === STORED_API) return;
+  if (origin === lastProbedOrigin) return;      // don't re-probe on every navigation
+  lastProbedOrigin = origin;
+
+  if (!STORED_API) {
+    if (await looksLikeQavya(origin)) await adoptServer(origin, 'discovered from an open tab');
+    return;
+  }
+  // Something is stored but this tab is a different QAVYA. Switch only if the
+  // stored one is no longer reachable — the server has probably moved.
+  if (await looksLikeQavya(STORED_API)) return;
+  if (await looksLikeQavya(origin)) await adoptServer(origin, 'previous server unreachable');
+}
+
+chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
+  if (info.status === 'complete' && tab && tab.url) maybeAdoptFromTab(tab.url);
+});
+// Also check whatever is already open when the service worker starts.
+chrome.tabs.query({}, tabs => { for (const t of tabs) if (t.url) maybeAdoptFromTab(t.url); });
+
+
+// host:port pairs meaning "this tab is QAVYA, not the app under test"
+function athmaHostPorts() {
+  const hosts = new Set(LOCAL_HOSTS);
+  for (const u of [STORED_API, STORED_NAT, ATHMA_API, DEFAULT_API, DEFAULT_NAT]) {
+    const h = hostOf(u);
+    if (h) hosts.add(h);
+  }
+  const out = [];
+  for (const h of hosts) for (const p of UI_PORTS) out.push(h + ':' + p);
+  return out;
+}
+
+function isAthmaTab(url) {
+  if (!url) return false;
+  return athmaHostPorts().some(hp => url.includes(hp));
+}
+
 const NAT_ORIGINS = [
   'http://localhost:5176', 'http://localhost:5177',
   'http://localhost:6001',
-  'http://10.8.7.176:5176', 'http://10.8.7.176:5177',
-  'http://10.8.7.176:6001',
 ];
 
 let ws = null;
@@ -65,7 +163,7 @@ async function startSmartStudy(sessionId) {
   smartRec.events    = [];
   smartRec.pending   = [];
   // ATHMA origins to exclude from target tab search
-  const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+  const ATHMA_P = athmaHostPorts();
   // Always pick the best non-ATHMA tab — do NOT rely on lastFocusedWindow active tab
   // because the ATHMA frontend IS the active focused tab when the user clicks Start.
   // Sort by lastAccessed descending so we pick the most-recently-used app tab.
@@ -174,7 +272,7 @@ async function stopSmartStudy() {
       // If we still don't have a tabId, try the last focused non-ATHMA tab so we
       // can read its page-local events below.
       if (!smartRec.tabId) {
-        const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+        const ATHMA_P = athmaHostPorts();
         const all = await chrome.tabs.query({});
         const t = all.filter(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://') && !ATHMA_P.some(p => t.url.includes(p))).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];
         if (t) smartRec.tabId = t.id;
@@ -205,7 +303,7 @@ async function stopSmartStudy() {
   // original tabId). Sweep ALL non-ATHMA tabs and stop the recorder + remove the
   // banner everywhere, so the purple "SMART RECORDING" pill always disappears.
   try {
-    const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+    const ATHMA_P = athmaHostPorts();
     const allTabs = await chrome.tabs.query({});
     await Promise.all(allTabs
       .filter(t => t.id && t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://') && !ATHMA_P.some(p => t.url.includes(p)))
@@ -433,9 +531,14 @@ async function loadInspectorSessions() {
 // Load on startup
 loadInspectorSessions();
 
+// "Is this the QAVYA UI (or a browser page), i.e. NOT something to inspect?"
+// This used to test only for ports 5176/5177, so a QAVYA served on 6001 — which
+// is how it is deployed — was not recognised and the inspector would happily
+// attach to QAVYA itself. It also wrongly blocked an app under test that
+// happened to run on 5176/5177. Now it asks the same question the recorder does.
 function isNatUrl(url) {
-  return !url || url.includes(':5176') || url.includes(':5177') ||
-    url.startsWith('chrome://') || url.startsWith('chrome-extension://');
+  return !url || url.startsWith('chrome://') || url.startsWith('chrome-extension://') ||
+    isAthmaTab(url);
 }
 
 async function getFreshToken() {
@@ -443,7 +546,7 @@ async function getFreshToken() {
   try {
     const tabs = await new Promise(r => chrome.tabs.query({}, r));
     for (const t of tabs) {
-      if (t.url && (t.url.includes('localhost:6001') || t.url.includes('localhost:5176') || t.url.includes('10.8.7.176:6001') || t.url.includes('10.8.7.176:5176'))) {
+      if (isAthmaTab(t.url)) {
         const res = await chrome.scripting.executeScript({
           target: { tabId: t.id },
           func: () => localStorage.getItem('autoqa_token') || ''
@@ -801,7 +904,7 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'nat_visual_capture') {
     (async () => {
       try {
-        const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+        const ATHMA_P = athmaHostPorts();
         const allTabs = await chrome.tabs.query({});
         const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         let tab = active;
@@ -832,7 +935,7 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
     (async () => {
       try {
         console.log('[ATHMA SmartStudy] nat_scan_page received');
-        const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+        const ATHMA_P = athmaHostPorts();
         const allTabs = await chrome.tabs.query({});
         // Find best tab to scan — prefer active non-ATHMA tab
         const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
@@ -923,7 +1026,7 @@ function connectToATHMA() {
     if (message.type === 'smart_study_scan') {
       (async () => {
         try {
-          const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+          const ATHMA_P = athmaHostPorts();
           const allTabs = await chrome.tabs.query({});
           const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
           let tab = active;
@@ -1069,7 +1172,7 @@ async function smartStudyPoll() {
     console.log('[SmartStudy] 🔍 Scan request received, scanId:', data.scanId);
     // Don't poll again until we've posted the result back
     // (poll is resumed at the end of this block)
-    const ATHMA_P = ['localhost:5176','localhost:5177','localhost:6001','10.8.7.176:5176','10.8.7.176:5177','10.8.7.176:6001'];
+    const ATHMA_P = athmaHostPorts();
     const allTabs = await chrome.tabs.query({});
     const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     let tab = active;

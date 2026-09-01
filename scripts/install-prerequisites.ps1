@@ -279,6 +279,117 @@ if (-not $npmReady) {
 }
 Write-Host ""
 
+# -- Python path -> backend\.env ----------------------------------------------
+# The backend spawns the test runner with PYTHON_PATH (server.js: PYTHON_CMD).
+# Left unset it falls back to bare "python", which on Windows usually resolves
+# to the Microsoft Store stub in WindowsApps -- that opens the Store instead of
+# running Python, and every test run fails with no useful error. So find the
+# real interpreter here and record it.
+Write-Host "=================================================" -ForegroundColor Cyan
+Write-Host "  Python path for the backend" -ForegroundColor Cyan
+Write-Host "=================================================" -ForegroundColor Cyan
+
+function Resolve-RealPython {
+    # Machines often have SEVERAL interpreters, e.g.
+    #    -V:3.14      ...\Python314\python.exe
+    #    -V:3.12      ...\Python312\python.exe
+    #    -V:3.11 *    ...\Python311\python.exe
+    # Any of them runs, but only the one the runner's packages were pip-installed
+    # into can actually run the tests. Preference order below is built to land on
+    # that one rather than simply the newest.
+    $candidates = @()
+
+    # 1. 'py -0p' FIRST -- the launcher lists only properly REGISTERED Python
+    #    installations. Interpreters bundled inside other applications (Nmap /
+    #    Zenmap, GIMP, some vendor tools) never appear here, which is exactly
+    #    what we want: they run, they report a version, and nothing the runner
+    #    needs is installed in them. The launcher's default is marked '*'.
+    try {
+        $lines = @(& py -0p 2>$null)
+        $starred = $lines | Where-Object { $_ -match '\*' }
+        $others  = $lines | Where-Object { $_ -notmatch '\*' }
+        foreach ($l in @($starred) + @($others)) {
+            $path = ($l -split '\s{2,}')[-1]
+            if ($path) { $candidates += $path.Trim() }
+        }
+    } catch {}
+
+    # 2. Only then whatever bare 'python' resolves to. On a machine with Nmap
+    #    installed this is C:\Program Files (x86)\Nmap\zenmap\bin\python.exe,
+    #    so it must never outrank a registered install.
+    try { $candidates += (& where.exe python 2>$null) } catch {}
+
+    # Keep only interpreters that really exist and really run.
+    $usable = @()
+    foreach ($c in $candidates) {
+        $exe = "$c".Trim()
+        if (-not $exe) { continue }
+        if ($exe -like "*\WindowsApps\*") { continue }   # Store stub: zero-byte, never usable
+        # Interpreters shipped inside other products: they work, but they are
+        # that product's private Python and pip-installing into them is wrong.
+        if ($exe -match '\\(Nmap|zenmap|GIMP|Inkscape|QGIS|ArcGIS|MiKTeX)\\') { continue }
+        if (-not (Test-Path $exe)) { continue }
+        if ($usable -contains $exe) { continue }
+        try {
+            $v = & $exe --version 2>&1
+            if ("$v" -match "Python 3") { $usable += (Resolve-Path $exe).Path }
+        } catch { }
+    }
+    if ($usable.Count -eq 0) { return $null }
+
+    # Prefer one that can already import playwright -- that is the interpreter
+    # the runner needs, and the only way to tell them apart with certainty.
+    foreach ($exe in $usable) {
+        try {
+            & $exe -c "import playwright" 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "   (chose the interpreter that already has Playwright installed)" -ForegroundColor DarkGray
+                return $exe
+            }
+        } catch { }
+    }
+
+    # None has it yet (e.g. pip install was skipped). Fall back to the first
+    # usable one, which is bare 'python' where available.
+    Write-Host "   (no interpreter has Playwright yet - using the default 'python')" -ForegroundColor DarkGray
+    return $usable[0]
+}
+
+# Refresh PATH first: Python may have been installed a few steps ago in this
+# same run, and this window's PATH would not know about it yet.
+Update-SessionPath
+$pythonExe  = Resolve-RealPython
+# NOTE: backend/.env, not the root .env -- server.js calls dotenv.config() with
+# no path, so it reads the .env in the folder the server is started from.
+$backendEnv = Join-Path $rootPath "backend\.env"
+
+if (-not $pythonExe) {
+    Write-Host "   Could not find a real python.exe (only the Store stub, or none)." -ForegroundColor Yellow
+    Write-Host "   Reopen a terminal after installing Python and re-run this script," -ForegroundColor Yellow
+    Write-Host "   or set PYTHON_PATH in backend\.env by hand." -ForegroundColor Yellow
+    $script:results += "[SKIPPED] PYTHON_PATH - no usable python.exe found"
+} else {
+    Write-Host "   Found Python: $pythonExe" -ForegroundColor Green
+    if (-not (Test-Path $backendEnv)) {
+        New-Item -ItemType File -Path $backendEnv -Force | Out-Null
+        Write-Host "   Created $backendEnv" -ForegroundColor Yellow
+    }
+    $existing = @(Get-Content $backendEnv -ErrorAction SilentlyContinue)
+    $replaced = $false
+    $updated  = @(foreach ($line in $existing) {
+        if ($line -match "^\s*PYTHON_PATH\s*=") { $replaced = $true; "PYTHON_PATH=$pythonExe" }
+        else { $line }
+    })
+    # Rewrite in place rather than appending, so re-running never leaves two
+    # PYTHON_PATH lines (dotenv would keep the first and ignore the new one).
+    if (-not $replaced) { $updated = $updated + "PYTHON_PATH=$pythonExe" }
+    Set-Content -Path $backendEnv -Value $updated -Encoding ASCII
+    if ($replaced) { Write-Host "   PYTHON_PATH updated in backend\.env" -ForegroundColor Green }
+    else           { Write-Host "   PYTHON_PATH added to backend\.env"   -ForegroundColor Green }
+    $script:results += "[OK]      PYTHON_PATH - $pythonExe"
+}
+Write-Host ""
+
 # -- Python runner setup: pip install + playwright install -------------------
 # Playwright manages its own browser binaries (Chromium/Firefox/WebKit) --
 # unlike Selenium, there's no separate driver-version-matching step needed.
@@ -288,10 +399,15 @@ Write-Host "=================================================" -ForegroundColor 
 $runnerPath = Join-Path $rootPath "runner"
 $reqPath = Join-Path $runnerPath "requirements.txt"
 Update-SessionPath
-$pythonReady = [bool](Get-Command python -ErrorAction SilentlyContinue)
+# Use the interpreter resolved above ($pythonExe), NOT bare 'python'. On a
+# machine with Nmap installed, bare 'python' is Nmap's bundled Zenmap
+# interpreter -- the packages would land there (or fail), while PYTHON_PATH
+# correctly points at the real install, and the runner then cannot import
+# anything. Same interpreter for install and for run, always.
+$pythonReady = [bool]$pythonExe
 
 if (-not $pythonReady) {
-    Write-Host "   'python' isn't available in this window yet (may have just been installed above)." -ForegroundColor Yellow
+    Write-Host "   No usable Python interpreter was found (see above)." -ForegroundColor Yellow
     Write-Host "   Close this window, open a NEW terminal, and re-run this installer to continue." -ForegroundColor Yellow
     $script:results += "[SKIPPED] Python runner setup - python not on PATH yet, re-run after reopening a terminal"
 } elseif (-not (Test-Path $reqPath)) {
@@ -300,8 +416,9 @@ if (-not $pythonReady) {
 } else {
     if (Confirm-YesNo "Run 'pip install -r runner\requirements.txt' now?") {
         try {
-            python -m pip install --upgrade pip
-            python -m pip install -r $reqPath
+            Write-Host "   Installing into: $pythonExe" -ForegroundColor DarkGray
+            & $pythonExe -m pip install --upgrade pip
+            & $pythonExe -m pip install -r $reqPath
             Write-Host "   Python packages installed." -ForegroundColor Green
             $script:results += "[DONE]    pip install -r runner/requirements.txt - completed"
         } catch {
@@ -314,7 +431,7 @@ if (-not $pythonReady) {
 
     if (Confirm-YesNo "Download Playwright's browsers now (playwright install)? (needs internet, ~a few hundred MB)") {
         try {
-            python -m playwright install
+            & $pythonExe -m playwright install
             Write-Host "   Playwright browsers installed." -ForegroundColor Green
             $script:results += "[DONE]    playwright install - completed"
         } catch {
